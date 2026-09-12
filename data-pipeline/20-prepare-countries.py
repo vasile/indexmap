@@ -3,6 +3,7 @@
 from pathlib import Path
 import shutil
 import subprocess
+from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
 from config import INPUT_PATH, OUTPUT_DIR as PROCESSED_DIR, SCRIPT_DIR
 
@@ -45,6 +46,17 @@ def convert_country(ogr2ogr: str, country_filter: str, output_name: str, *, diss
     print(f"Created {output_path}")
 
 
+def build_downloads() -> None:
+    zip_path = OUTPUT_DIR / "countries.zip"
+    with ZipFile(zip_path, "w", compression=ZIP_DEFLATED) as archive:
+        for code in ("ch", "li"):
+            name = f"{code}.geojson"
+            info = ZipInfo(name, date_time=(2020, 1, 1, 0, 0, 0))
+            info.compress_type = ZIP_DEFLATED
+            archive.writestr(info, (OUTPUT_DIR / name).read_bytes())
+    print(f"Created {zip_path}")
+
+
 def main() -> None:
     ogr2ogr = shutil.which("ogr2ogr")
     if ogr2ogr is None:
@@ -60,6 +72,7 @@ def main() -> None:
     convert_country(ogr2ogr, "icc IN ('CH', 'LI')", "ch-li")
     convert_country(ogr2ogr, "icc IN ('CH', 'LI')", "ch-li-dissolved", dissolve=True)
 
+    build_downloads()
 
 if __name__ == "__main__":
     main()
