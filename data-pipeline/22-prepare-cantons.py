@@ -6,11 +6,23 @@ import shutil
 import subprocess
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
-from config import CANTON_CODES, INPUT_PATH, OUTPUT_DIR as PROCESSED_DIR
+from config import CANTON_CODES, INPUT_PATH, OUTPUT_DIR as PROCESSED_DIR, SCRIPT_DIR
 
 
 OUTPUT_DIR = Path(f"{PROCESSED_DIR}/cantons")
 SOURCE_LAYER = "tlm_kantonsgebiet"
+COAT_OF_ARMS_DIR = SCRIPT_DIR / "data/source/coat-of-arms/cantons"
+
+
+def copy_coat_of_arms() -> None:
+    missing = [code for code in CANTON_CODES.values() if not (COAT_OF_ARMS_DIR / f"{code}.png").is_file()]
+    if missing:
+        raise SystemExit(f"Missing canton coat-of-arms images: {', '.join(missing)}")
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    for code in CANTON_CODES.values():
+        output_path = OUTPUT_DIR / f"{code}.png"
+        shutil.copyfile(COAT_OF_ARMS_DIR / f"{code}.png", output_path)
+        print(f"Created {output_path}")
 
 
 def convert_canton(ogr2ogr: str, canton_number: int, canton_code: str) -> None:
@@ -83,6 +95,7 @@ def main() -> None:
     for canton_number, canton_code in CANTON_CODES.items():
         convert_canton(ogr2ogr, canton_number, canton_code)
     build_downloads()
+    copy_coat_of_arms()
 
 
 if __name__ == "__main__":

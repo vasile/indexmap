@@ -123,7 +123,7 @@ def build(input_dir: Path, output_dir: Path) -> None:
     for filename in ["cantons.geojson", "cantons.zip"]:
         path = input_dir / filename
         if not path.is_file():
-            raise ValueError(f"Missing {path}; run 02-convert-cantons-geojson.py first")
+            raise ValueError(f"Missing {path}; run 22-prepare-cantons.py first")
         bundles[filename] = path.read_bytes()
 
     def render(title, description, body):
