@@ -15,7 +15,7 @@ from config import INPUT_PATH, SWISSBOUNDARIES_DOWNLOAD_URL, SWISSBOUNDARIES_REL
 def validate_geopackage(path: Path) -> None:
     with sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True) as database:
         layers = {row[0] for row in database.execute("SELECT table_name FROM gpkg_contents")}
-    required = {"tlm_landesgebiet", "tlm_kantonsgebiet", "tlm_bezirksgebiet"}
+    required = {"tlm_landesgebiet", "tlm_kantonsgebiet", "tlm_bezirksgebiet", "tlm_hoheitsgebiet"}
     if not required <= layers:
         raise ValueError(f"GeoPackage missing pipeline layers: {', '.join(sorted(required - layers))}")
 
