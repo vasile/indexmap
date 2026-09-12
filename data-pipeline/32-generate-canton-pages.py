@@ -11,7 +11,7 @@ import unicodedata
 
 from site_helpers import asset_version, escape, format_number, positions, publish_pinned_release
 
-from config import CANTON_CODES, OUTPUT_DIR as PROCESSED_DIR, REFERENCE_DATE, SCRIPT_DIR
+from config.loader import CANTONS, SITE_DIR, DIST_DIR, population_metadata, CANTON_CODES, OUTPUT_DIR as PROCESSED_DIR, REFERENCE_DATE, SCRIPT_DIR
 
 
 PROJECT_DIR = SCRIPT_DIR.parent

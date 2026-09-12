@@ -5,7 +5,7 @@ import hashlib
 import math
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from config import REFERENCE_DATE
+from config.loader import REFERENCE_DATE
 
 
 def asset_version(asset_dir: Path) -> str:
