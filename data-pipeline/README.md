@@ -2,7 +2,7 @@
 
 Numbering: 10–19 downloads, 20–29 data preparation, 30–39 site generation.
 Entity slots are paired: countries 20/30, cantons 22/32, districts 24/34,
-municipalities 26/36. Steps 26, 30, 34, and 36 are reserved for future work.
+municipalities 26/36. Steps 26, 34, and 36 are reserved for future work.
 Canton preparation (22) exports GeoJSONs, builds both bulk downloads, and
 copies coat-of-arms PNGs.
 
@@ -13,11 +13,25 @@ python3 data-pipeline/10-download-swissboundaries.py
 python3 data-pipeline/20-prepare-countries.py
 python3 data-pipeline/22-prepare-cantons.py
 python3 data-pipeline/24-prepare-districts.py
+python3 data-pipeline/30-generate-country-pages.py
 python3 data-pipeline/32-generate-canton-pages.py
 ```
 
 Python's standard library handles downloading and generating the site.
 Steps 20–24 also require GDAL's `ogr2ogr` (Ubuntu package: `gdal-bin`).
+
+Step 20 exports individual CH and LI files, `ch-li.geojson` containing both
+country features, and `ch-li-dissolved.geojson` containing their union. GDAL
+SQLite `ST_Union` dissolves the shared border in the source CRS before
+reprojection and coordinate rounding. The dissolved feature carries a combined
+name and code, without country statistics. Masks are generated only in the browser.
+
+These exports normalize polygon winding with GDAL's `RFC7946=YES`: exterior
+rings counterclockwise, holes clockwise. No separate rewind pass is needed.
+Browser masks wrap the prepared polygon rings with a world ring. They use no
+Turf dependency or winding checks; ring copies are reversed when their role
+changes between outer boundary and hole.
+GDAL reference: https://gdal.org/en/stable/drivers/vector/geojson.html#rfc-7946-write-support
 
 `REFERENCE_DATE` in `config.py` is the dataset's reference date, currently
 `2026-01-01`. All processed outputs go into
@@ -49,3 +63,6 @@ against the new release notes; it is separate from the boundary reference date.
 
 Official download catalogue:
 https://ogd.swisstopo.admin.ch/ch.swisstopo.swissboundaries3d?lang=en
+
+Step 20 also builds `countries/countries.zip` with the unchanged `ch.geojson`
+and `li.geojson` files, using fixed ZIP timestamps like the canton archive.
