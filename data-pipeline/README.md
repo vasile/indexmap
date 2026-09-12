@@ -2,7 +2,7 @@
 
 Numbering: 10–19 downloads, 20–29 data preparation, 30–39 site generation.
 Entity slots are paired: countries 20/30, cantons 22/32, districts 24/34,
-municipalities 26/36. Steps 26, 34, and 36 are reserved for future work.
+municipalities 26/36. All four preparation and site-generation pairs are implemented.
 Canton preparation (22) exports GeoJSONs, builds both bulk downloads, and
 copies coat-of-arms PNGs.
 
@@ -21,6 +21,7 @@ python3 data-pipeline/10-download-swissboundaries.py
 python3 data-pipeline/20-prepare-countries.py
 python3 data-pipeline/22-prepare-cantons.py
 python3 data-pipeline/24-prepare-districts.py
+python3 data-pipeline/26-prepare-municipalities.py
 python3 data-pipeline/30-generate-country-pages.py
 python3 data-pipeline/32-generate-canton-pages.py
 ```
