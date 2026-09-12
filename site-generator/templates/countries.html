@@ -1,0 +1,39 @@
+  <main class="app-main d-flex flex-column flex-md-row flex-grow-1">
+    <section class="map-panel position-relative" aria-label="Map of Switzerland and Liechtenstein">
+      <div id="map" role="region" aria-label="Country boundary map" data-geojson="./ch-li.geojson" data-bounds="$bounds"></div>
+      <div class="map-caption"><span class="status-dot"></span> Switzerland &amp; Liechtenstein</div>
+      <p id="map-status" class="map-status" role="status">Loading map…</p>
+    </section>
+    <section class="directory-panel d-flex flex-column bg-white" aria-labelledby="page-title">
+      <div class="directory-heading">
+        <div class="d-flex align-items-center gap-3 mb-2"><h1 id="page-title" class="mb-0">Country</h1><span class="count-badge">2</span></div>
+        <section class="download-panel" aria-labelledby="download-title">
+          <h2 id="download-title">Download all countries</h2>
+          <p>Switzerland and Liechtenstein, regardless of your selection.</p>
+          <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-primary btn-sm" href="./ch-li.geojson" download>↓ Single GeoJSON</a>
+            <a class="btn btn-outline-secondary btn-sm" href="./countries.zip" download>↓ ZIP · individual files</a>
+          </div>
+        </section>
+      </div>
+      <div class="directory-scroll">
+        <fieldset class="country-sections">
+          <legend class="visually-hidden">Country boundary display</legend>
+          <section class="country-section" aria-labelledby="individual-label">
+            <label class="country-section-label" id="individual-label"><input type="radio" name="country-mode" value="individual" data-geojson="./ch-li.geojson" checked> Individual</label>
+            <ul class="canton-list list-unstyled mb-0">$rows</ul>
+          </section>
+          <section class="country-section" aria-labelledby="combined-label">
+            <label class="country-section-label" id="combined-label"><input type="radio" name="country-mode" value="combined" data-geojson="./ch-li-dissolved.geojson"> Combined</label>
+            <ul class="canton-list list-unstyled mb-0">
+              <li class="canton-item">
+                <div class="canton-details"><h2><a href="./ch-li-dissolved.html">Switzerland + Liechtenstein</a></h2><p>CH + LI · One boundary</p></div>
+                <a class="canton-next" href="./ch-li-dissolved.html" aria-label="View Switzerland and Liechtenstein"><span aria-hidden="true">›</span></a>
+              </li>
+            </ul>
+          </section>
+        </fieldset>
+        <p class="directory-note">Population: $population_date · Boundaries: $boundary_date<br>Geographic data: swisstopo · Areas rounded to km².</p>
+      </div>
+    </section>
+  </main>

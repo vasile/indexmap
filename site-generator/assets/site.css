@@ -1,0 +1,86 @@
+:root { --ink: #17212b; --muted: #64748b; --accent: #2563eb; --line: #e2e8f0; }
+* { box-sizing: border-box; }
+html { height: 100%; }
+body { margin: 0; height: 100vh; height: 100dvh; color: var(--ink); background: #f8fafc; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.app-header { flex: 0 0 3.5rem; z-index: 2; }
+.brand { font-size: 1.1rem; font-weight: 650; white-space: nowrap; }
+.brand-mark { display: block; flex-shrink: 0; width: 2rem; height: 2rem; background: #da291c; }
+.main-nav .nav-link { padding: .5rem .65rem; font-size: .9rem; color: var(--muted); font-weight: 500; white-space: nowrap; }
+.main-nav .active { color: var(--accent); background: #eff6ff; border-radius: .375rem; }
+.unavailable { cursor: default; }
+.header-note { font-size: .8rem; color: var(--muted); }
+.app-main { min-height: 0; overflow: hidden; }
+.map-panel { flex: 1 1 0; min-width: 0; min-height: 0; background: #e9eef0; }
+#map { position: absolute; inset: 0; }
+.map-caption { position: absolute; top: 1rem; left: 1rem; padding: .55rem .8rem; border: 1px solid #e2e8f0; border-radius: .5rem; background: #fffffff2; box-shadow: 0 2px 8px #17212b0a; font-size: .75rem; pointer-events: none; }
+.status-dot { display: inline-block; width: .45rem; height: .45rem; margin-right: .35rem; background: var(--accent); border-radius: 50%; }
+.map-status { position: absolute; left: 1rem; right: 1rem; bottom: 3rem; width: fit-content; max-width: calc(100% - 2rem); margin: 0; padding: .65rem .85rem; border-radius: .5rem; background: white; color: var(--muted); font-size: .85rem; }
+.directory-panel { flex: 0 0 430px; width: 430px; min-width: 0; min-height: 0; border-left: 1px solid var(--line); }
+.directory-heading { padding: 1.6rem 1.5rem 0; flex-shrink: 0; }
+.eyebrow { font-size: .68rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); font-weight: 650; margin-bottom: .75rem; }
+h1 { font-size: 1.8rem; font-weight: 650; letter-spacing: -.045em; }
+.count-badge { color: #1d4ed8; background: #eff6ff; border: 1px solid #dbeafe; padding: .15rem .5rem; border-radius: 2rem; font-size: .8rem; }
+.intro { color: var(--muted); line-height: 1.6; font-size: .875rem; margin: .6rem 0 1.2rem; }
+.download-panel { margin-bottom: 1.25rem; padding: 1rem; border: 1px solid var(--line); border-radius: .5rem; background: #f8fafc; }
+.download-panel h2 { margin: 0 0 .35rem; font-size: .875rem; font-weight: 650; }
+.download-panel p { margin: 0 0 .75rem; color: var(--muted); font-size: .75rem; }
+.download-panel .btn { font-size: .75rem; padding: .45rem .65rem; }
+.download-panel small { display: block; margin-top: .65rem; font-size: .7rem; line-height: 1.5; color: var(--muted); }
+.form-control { font-size: .875rem; min-height: 2.7rem; border-color: var(--line); background: #f8fafc; }
+.list-meta { font-size: .72rem; color: var(--muted); padding: 1rem 0 .7rem; border-bottom: 1px solid var(--line); }
+.directory-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 1.5rem; flex: 1; }
+.canton-item { display: flex; align-items: center; gap: .9rem; padding: .9rem 0; border-bottom: 1px solid #edf1f5; }
+.canton-item[hidden] { display: none; }
+.canton-coat-of-arms { flex: 0 0 40px; width: 40px; height: auto; object-fit: contain; }
+.canton-details { min-width: 0; }
+.canton-details h2 { margin: 0 0 .25rem; font-size: .9rem; font-weight: 600; line-height: 1.4; }
+.canton-details h2 a { color: inherit; text-decoration: none; }
+.canton-details h2 a:hover { color: var(--accent); text-decoration: underline; }
+.canton-details h2 a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.canton-details p { margin: 0; color: var(--muted); font-size: .73rem; }
+.canton-details .canton-stats { margin-top: .3rem; font-variant-numeric: tabular-nums; }
+.canton-stats > span:not(.detail-separator) { white-space: nowrap; }
+.detail-separator { margin: 0 .2rem; color: #94a3b8; }
+.canton-next { color: var(--muted); margin-left: auto; flex: 0 0 32px; align-self: stretch; display: grid; place-items: center; font-size: 1.65rem; text-decoration: none; border-radius: .25rem; }
+.canton-next:hover { color: var(--accent); background: #eff6ff; }
+.canton-next:focus-visible, .back-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.detail-scroll { overflow-y: auto; padding: 1.5rem; min-height: 0; }
+.back-link { display: inline-block; margin-bottom: 1.5rem; color: var(--accent); font-size: .9rem; text-decoration: none; }
+.detail-title { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+.detail-title h1 { margin: 0; overflow-wrap: anywhere; font-size: 1.7rem; }
+.detail-coat-of-arms { width: 85px; height: auto; object-fit: contain; flex-shrink: 0; }
+.detail-code { margin: 0 0 .4rem; color: var(--muted); font-size: .875rem; }
+.canton-facts { margin: 0 0 1.5rem; font-size: .9rem; }
+.canton-facts > div { display: flex; justify-content: space-between; gap: 1rem; padding: .85rem 0; border-bottom: 1px solid var(--line); }
+.canton-facts dt { color: var(--muted); font-weight: 400; }
+.canton-facts dd { margin: 0; text-align: right; font-weight: 550; font-variant-numeric: tabular-nums; }
+.canton-facts small { display: block; margin-top: .25rem; color: var(--muted); font-size: .75rem; font-weight: 400; }
+.detail-downloads .btn { display: block; margin-top: .65rem; font-size: .875rem; padding: .6rem; }
+.detail-downloads h2 { font-size: 1rem; }
+.mask-option { display: flex; align-items: center; gap: .45rem; margin-top: .65rem; font-size: .875rem; cursor: pointer; width: fit-content; }
+.mask-option input { width: 1rem; height: 1rem; accent-color: var(--accent); }
+.detail-downloads .mask-status { margin-top: .6rem; }
+#boundary-download[aria-disabled="true"] { opacity: .65; cursor: wait; }
+.directory-note, .empty-state { font-size: .75rem; line-height: 1.6; color: var(--muted); padding: 1.2rem 0; margin: 0; }
+.app-footer { flex: 0 0 2.25rem; color: var(--muted); }
+.app-footer small { font-size: .72rem; }
+@media (max-width: 1050px) { .header-note { display: none; } .directory-panel { flex-basis: 380px; width: 380px; } }
+@media (max-width: 767.98px) {
+  body { min-height: 100dvh; height: auto; }
+  .app-header { padding: .7rem 0; }
+  .app-header > div { flex-wrap: wrap; gap: .5rem !important; }
+  .main-nav { overflow-x: auto; width: 100%; }
+  .main-nav .nav-link { padding: .45rem .6rem; font-size: .82rem; }
+  .app-main { overflow: visible; }
+  .map-panel { flex: none; height: 38vh; min-height: 250px; }
+  .directory-panel { flex: none; width: 100%; border-left: 0; border-top: 1px solid var(--line); }
+  .directory-scroll { overflow: visible; }
+  .app-footer { padding-top: .65rem; padding-bottom: .65rem; flex-wrap: wrap; }
+}
+
+.country-sections { margin: 1rem 0 0; padding: 0; border: 0; min-width: 0; }
+.country-section + .country-section { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 2px solid var(--line); }
+.country-section-label { display: flex; align-items: center; gap: .55rem; font-size: .85rem; font-weight: 600; cursor: pointer; }
+.country-section-label input { width: 1rem; height: 1rem; accent-color: var(--accent); }
+.country-section .canton-list { margin-left: 1.55rem; }
+.country-section .canton-item:last-child { border-bottom: 0; }

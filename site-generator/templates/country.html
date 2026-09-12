@@ -1,0 +1,25 @@
+  <main class="app-main d-flex flex-column flex-md-row flex-grow-1">
+    <section class="map-panel position-relative" aria-label="Map of $name">
+      <div id="map" role="region" aria-label="Boundary map of $name" data-geojson="./$code.geojson" data-bounds="$bounds"></div>
+      <div class="map-caption"><span class="status-dot"></span> $name <span class="text-secondary">/ $boundary_label</span></div>
+      <p id="map-status" class="map-status" role="status">Loading map…</p>
+    </section>
+    <section class="directory-panel d-flex flex-column bg-white" aria-labelledby="page-title">
+      <div class="detail-scroll">
+        <a class="back-link" href="./index.html">‹ All countries</a>
+        <div class="detail-title">$coat_image<div><p class="detail-code">$upper_code · $entity_label</p><h1 id="page-title">$name</h1></div></div>
+        <dl class="canton-facts">$facts</dl>
+        $subdivision_link
+        <section class="download-panel detail-downloads" aria-labelledby="download-title">
+          <h2 id="download-title">Download $name</h2>
+          <a id="boundary-download" class="btn btn-primary" href="./$code.geojson" download="$code.geojson">Download GeoJSON</a>
+          <label class="mask-option" for="boundary-mask"><input id="boundary-mask" type="checkbox" aria-describedby="mask-hint"> Invert boundary (mask)</label>
+          <small id="mask-hint">$mask_hint</small>
+          <p id="mask-status" class="mask-status" role="status" hidden></p>
+          $coat_download
+          <small>Boundary coordinates: WGS 84</small>
+        </section>
+        <p class="directory-note">Boundaries: $boundary_date<br>Geographic data: swisstopo</p>
+      </div>
+    </section>
+  </main>

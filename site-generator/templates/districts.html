@@ -1,0 +1,37 @@
+  <main class="app-main d-flex flex-column flex-md-row flex-grow-1">
+    <section class="map-panel position-relative" aria-label="Map of Switzerland">
+      <div id="map" role="region" aria-label="Interactive basemap of Switzerland"></div>
+      <div class="map-caption"><span class="status-dot"></span> Switzerland <span class="text-secondary">/ Basemap preview</span></div>
+      <p id="map-status" class="map-status" role="status">Loading map…</p>
+    </section>
+
+    <section class="directory-panel d-flex flex-column bg-white" aria-labelledby="page-title">
+      <div class="directory-heading">
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <h1 id="page-title" class="mb-0">Districts</h1>
+          <span class="count-badge">$count</span>
+        </div>
+        <section class="download-panel" aria-labelledby="download-title">
+          <h2 id="download-title">Download all districts</h2>
+          <p>All $count districts, regardless of your search.</p>
+          <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-primary btn-sm" href="./districts.geojson" download>↓ Single GeoJSON</a>
+            <a class="btn btn-outline-secondary btn-sm" href="./districts.zip" download>↓ ZIP · individual files</a>
+          </div>
+        </section>
+        <label class="form-label small fw-semibold" for="canton-search">Find a district</label>
+        <input class="form-control" id="canton-search" data-singular="district" data-plural="districts" type="search" placeholder="Search by name, BFS number or canton…" autocomplete="off">
+        <div class="list-meta d-flex justify-content-between gap-2">
+          <span id="result-count" role="status" aria-live="polite">$count districts</span>
+          <span>Alphabetical order</span>
+        </div>
+      </div>
+      <div class="directory-scroll">
+        <ul class="canton-list list-unstyled mb-0" id="canton-list">
+$rows
+        </ul>
+        <p id="no-results" class="empty-state" hidden>No districts found. Try another name or BFS number.</p>
+        <div class="directory-note">Population: $population_date · Boundaries: $boundary_date<br>Source: swisstopo / BFS · Areas rounded to km².</div>
+      </div>
+    </section>
+  </main>

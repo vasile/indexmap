@@ -1,0 +1,32 @@
+  <main class="app-main d-flex flex-column flex-md-row flex-grow-1">
+    <section class="map-panel position-relative" aria-label="Map of $name">
+      <div id="map" role="region" aria-label="Interactive boundary map of $name" data-geojson="./$code.geojson" data-bounds="$bounds"></div>
+      <div class="map-caption"><span class="status-dot"></span> $name <span class="text-secondary">/ Canton boundary</span></div>
+      <p id="map-status" class="map-status" role="status">Loading map…</p>
+    </section>
+    <section class="directory-panel d-flex flex-column bg-white" aria-labelledby="page-title">
+      <div class="detail-scroll">
+        <a class="back-link" href="./index.html">‹ All cantons</a>
+        <div class="detail-title">
+          <img src="./$code.png" width="85" alt="" class="detail-coat-of-arms">
+          <div><p class="detail-code">$upper_code · Canton</p><h1 id="page-title">$name</h1></div>
+        </div>
+        <dl class="canton-facts">
+          <div><dt>Seat</dt><dd>$seat</dd></div>
+          <div><dt>BFS number</dt><dd>$bfs</dd></div>
+          <div><dt>Population</dt><dd>$population<small>$population_date</small></dd></div>
+          <div><dt>Area</dt><dd>$area km²</dd></div>
+        </dl>
+        <section class="download-panel detail-downloads" aria-labelledby="download-title">
+          <h2 id="download-title">Download $name</h2>
+          <a id="boundary-download" class="btn btn-primary" href="./$code.geojson" download="$code.geojson">Download GeoJSON</a>
+          <label class="mask-option" for="boundary-mask"><input id="boundary-mask" type="checkbox" aria-describedby="mask-hint"> Invert boundary (mask)</label>
+          <small id="mask-hint">Covers the area outside the canton.</small>
+          <p id="mask-status" class="mask-status" role="status" hidden></p>
+          <a class="btn btn-outline-secondary" href="./$code.png" download="$code.png">↓ Coat of arms · PNG</a>
+          <small>Boundary coordinates: WGS 84<br>Coat of arms: original resolution</small>
+        </section>
+        <p class="directory-note">Boundaries: $boundary_date<br>Geographic data: swisstopo · Population: BFS</p>
+      </div>
+    </section>
+  </main>
