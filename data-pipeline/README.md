@@ -26,8 +26,8 @@ python3 data-pipeline/30-generate-country-pages.py
 python3 data-pipeline/32-generate-canton-pages.py
 ```
 
-Python's standard library handles downloading and generating the site.
-Steps 20–24 also require GDAL's `ogr2ogr` (Ubuntu package: `gdal-bin`).
+PyYAML loads configuration; the Python standard library handles downloading and generating the site.
+Steps 20–26 also require GDAL's `ogr2ogr` (Ubuntu package: `gdal-bin`).
 
 Step 20 exports individual CH and LI files, `ch-li.geojson` containing both
 country features, and `ch-li-dissolved.geojson` containing their union. GDAL
@@ -42,18 +42,19 @@ Turf dependency or winding checks; ring copies are reversed when their role
 changes between outer boundary and hole.
 GDAL reference: https://gdal.org/en/stable/drivers/vector/geojson.html#rfc-7946-write-support
 
-`REFERENCE_DATE` in `config.py` is the dataset's reference date, currently
+`current_release` in `config/pipeline.yaml` selects the dataset; its reference date
+comes from `config/releases.yaml`, currently
 `2026-01-01`. All processed outputs go into
 `data/processed/2026-01-01/{countries,cantons,districts}`. Step 32 reads this
 version automatically and publishes current paths under `dist/cantons` plus
-a pinned snapshot under `dist/2026-01-01`, including its own shared assets.
+a pinned snapshot under `dist/versions/2026-01-01`, including its own shared assets.
 The date also supplies the boundary date displayed on the site and the
 year-month release used for downloading. Rebuilding a release updates its
 folder; changing the date preserves previously processed releases.
 
 Step 10 downloads the official swissBOUNDARIES3D GeoPackage ZIP for LV95
 (EPSG:2056) and LN02 (EPSG:5728), pinned to `SWISSBOUNDARIES_RELEASE`, derived
-from `REFERENCE_DATE` in `config.py`. It extracts the database to `INPUT_PATH`, checks that the required
+from the selected YAML release metadata. It extracts the database to `INPUT_PATH`, checks that the required
 layers exist, and removes temporary download files. The existing database is
 replaced only after the new one passes validation.
 
@@ -67,7 +68,7 @@ For GitHub Actions, step 10 creates the source directory in a fresh checkout.
 Do not commit the machine-specific source symlink or the downloaded database.
 Cache keys should include `SWISSBOUNDARIES_RELEASE`. When changing releases,
 run step 10 with `--force` to replace the old source database, then rerun
-preprocessing. Check the population date in `site-generator/config.json`
+preprocessing. Check the population date in `config/releases.yaml`
 against the new release notes; it is separate from the boundary reference date.
 
 Official download catalogue:
@@ -75,3 +76,47 @@ https://ogd.swisstopo.admin.ch/ch.swisstopo.swissboundaries3d?lang=en
 
 Step 20 also builds `countries/countries.zip` with the unchanged `ch.geojson`
 and `li.geojson` files, using fixed ZIP timestamps like the canton archive.
+
+Step 26 exports CH and LI `Gemeindegebiet` features from `tlm_hoheitsgebiet` in
+one GDAL invocation, then writes individual `{bfs_nummer}.geojson` files,
+`municipalities.geojson`, and `municipalities.zip`. It excludes cantonal/lake
+territories, communal territories and municipalities outside CH/LI. Source
+properties and six-decimal WGS 84 coordinates are retained; JSON is compact.
+Step 24 also builds `districts.geojson` and `districts.zip` from individual districts.
+Both ZIPs use the same fixed timestamps as country/canton bundles.
+
+## Historical release assets
+
+`config/releases.yaml` lists the available dataset versions, newest first. Run:
+
+```sh
+python3 data-pipeline/28-build-release-assets.py
+```
+
+Use `--release 2025-04` to build one catalog entry. The catalog contains a `releases` mapping keyed by quoted `YYYY-MM` values,
+each with a reference date and optional population date/source URL. Historical GeoPackages are cached in `data/source/boundary-releases/<release>`;
+processed files go into `data/processed/<reference-date>`.
+
+Step 28 runs downloading and all four preparation steps, then publishes GeoJSONs
+and ZIPs under `dist/versions/<reference-date>/<entity>/`. It checks existing files before
+adding missing assets and refuses to overwrite different pinned download bytes.
+It does not regenerate historical HTML or change the current website. Source
+image copies are not published as historical assets. Keep `dist` between builds
+to preserve previously published releases.
+
+`INDEXMAP_REFERENCE_DATE` and `INDEXMAP_INPUT_PATH` allow the batch runner to
+select a dataset for each child process without editing the default config.
+
+## Configuration
+
+All maintained pipeline and site-generation settings live in `data-pipeline/config/`:
+
+- `pipeline.yaml`: current release, project paths and download URL template.
+- `releases.yaml`: ordered release catalog with boundary and population metadata.
+- `cantons.yaml`: lowercase codes, BFS numbers, seats, display names and verification metadata.
+
+`config/__init__.py` is empty. `config/loader.py` loads/validates YAML and derives runtime values. Paths
+in `pipeline.yaml` resolve relative to `data-pipeline/`, regardless of the working
+directory. The loader rejects duplicate keys, invalid dates and duplicate canton
+numbers. Historical population dates are null until checked; asset preparation
+works without them, but historical page generation requires a verified date.
