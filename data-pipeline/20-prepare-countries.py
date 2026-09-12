@@ -74,5 +74,10 @@ def main() -> None:
 
     build_downloads()
 
+    image_source = SCRIPT_DIR / "data/source/coat-of-arms"
+    for code in ("ch", "li"):
+        shutil.copyfile(image_source / "countries" / f"{code}.png", OUTPUT_DIR / f"{code}.png")
+
+
 if __name__ == "__main__":
     main()
