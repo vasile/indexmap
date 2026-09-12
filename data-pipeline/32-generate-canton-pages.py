@@ -9,7 +9,7 @@ from pathlib import Path
 from string import Template
 import unicodedata
 
-from site_helpers import asset_version, escape, format_number, positions, publish_pinned_release
+from site_helpers import build_assets, asset_version, escape, format_number, positions, publish_pinned_release
 
 from config.loader import CANTONS, SITE_DIR, DIST_DIR, population_metadata, CANTON_CODES, OUTPUT_DIR as PROCESSED_DIR, REFERENCE_DATE, SCRIPT_DIR
 
@@ -82,7 +82,8 @@ def build(input_dir: Path, output_dir: Path) -> None:
             raise ValueError(f"Missing {path}; run 22-prepare-cantons.py first")
         bundles[filename] = path.read_bytes()
 
-    version = asset_version(SITE_DIR / "assets")
+    assets = build_assets(SITE_DIR / "assets")
+    version = asset_version(assets)
 
     def render(title, description, body):
         return templates["base"].substitute(title=escape(title), description=escape(description), body=body, countries_class="", cantons_class="active", asset_version=version, municipalities_class="", districts_class="")
@@ -100,9 +101,7 @@ def build(input_dir: Path, output_dir: Path) -> None:
     pages["index.html"] = render("Cantons of Switzerland", "Explore Switzerland’s 26 cantons and download their administrative boundaries.",
                                  templates["cantons"].substitute(rows="\n".join(rows), count=len(cantons), **dates))
     files = {Path("cantons") / filename: page.encode("utf-8") for filename, page in pages.items()}
-    for asset in (SITE_DIR / "assets").rglob("*"):
-        if asset.is_file():
-            files[Path("assets") / asset.relative_to(SITE_DIR / "assets")] = asset.read_bytes()
+    files.update(assets)
     for canton in cantons:
         code = canton["context"]["code"]
         for extension in ["geojson", "png"]:

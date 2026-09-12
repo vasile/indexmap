@@ -9,7 +9,7 @@ from pathlib import Path
 from string import Template
 
 from config.loader import SITE_DIR, DIST_DIR, population_metadata, OUTPUT_DIR as PROCESSED_DIR, REFERENCE_DATE, SCRIPT_DIR
-from site_helpers import asset_version, escape, format_number, positions, publish_pinned_release
+from site_helpers import build_assets, asset_version, escape, format_number, positions, publish_pinned_release
 
 PROJECT_DIR = SCRIPT_DIR.parent
 COUNTRIES = {"ch": "Switzerland", "li": "Liechtenstein"}
@@ -49,7 +49,8 @@ def build(input_dir: Path, output_dir: Path, *, current_only=False) -> None:
     for filename in ("ch.png", "li.png", "countries.zip"):
         files[Path("countries") / filename] = (input_dir / filename).read_bytes()
 
-    version = asset_version(SITE_DIR / "assets")
+    assets = build_assets(SITE_DIR / "assets")
+    version = asset_version(assets)
 
     def render(title, body):
         return templates["base"].substitute(title=escape(title), description=escape(f"{title}: administrative boundaries and GeoJSON downloads."),
@@ -91,9 +92,7 @@ def build(input_dir: Path, output_dir: Path, *, current_only=False) -> None:
     files[Path("countries/ch-li-dissolved.html")] = render(
         "Switzerland + Liechtenstein", templates["country"].substitute(dissolved_context))
     files[Path("countries/index.html")] = render("Country", templates["countries"].substitute(rows="\n".join(rows[code] for code in COUNTRIES), bounds=bounds(data["ch-li"]), **dates))
-    for asset in (SITE_DIR / "assets").rglob("*"):
-        if asset.is_file():
-            files[Path("assets") / asset.relative_to(SITE_DIR / "assets")] = asset.read_bytes()
+    files.update(assets)
     if not current_only:
         publish_pinned_release(output_dir, files, "countries")
     for path, content in files.items():

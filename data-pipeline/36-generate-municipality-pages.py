@@ -10,7 +10,7 @@ from string import Template
 import unicodedata
 
 from config.loader import SITE_DIR, DIST_DIR, population_metadata, CANTON_CODES, OUTPUT_DIR, REFERENCE_DATE, SCRIPT_DIR
-from site_helpers import asset_version, escape, format_number, positions, publish_pinned_release
+from site_helpers import build_assets, asset_version, escape, format_number, positions, publish_pinned_release
 
 
 
@@ -28,7 +28,8 @@ def build(input_dir, output_dir, *, current_only=False):
         raise ValueError("Expected municipality FeatureCollection")
     features = sorted(collection["features"], key=lambda f: unicodedata.normalize("NFD", f["properties"]["name"].casefold()))
     files, rows, seen = {}, [], set()
-    version = asset_version(SITE_DIR / "assets")
+    assets = build_assets(SITE_DIR / "assets")
+    version = asset_version(assets)
 
     def render(title, body):
         return templates["base"].substitute(title=escape(title), description=escape(f"{title}: municipality boundaries and downloads."),
@@ -72,9 +73,7 @@ def build(input_dir, output_dir, *, current_only=False):
     files[Path("municipalities/index.html")] = render("Municipalities", templates["municipalities"].substitute(rows="\n".join(rows), count=len(rows), **dates))
     for name in ("municipalities.geojson", "municipalities.zip"):
         files[Path("municipalities") / name] = (input_dir / name).read_bytes()
-    for path in (SITE_DIR / "assets").rglob("*"):
-        if path.is_file():
-            files[Path("assets") / path.relative_to(SITE_DIR / "assets")] = path.read_bytes()
+    files.update(assets)
     if not current_only:
         publish_pinned_release(output_dir, files, "municipalities")
     for path, raw in files.items():
