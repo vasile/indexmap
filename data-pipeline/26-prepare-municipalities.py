@@ -8,7 +8,7 @@ import subprocess
 from tempfile import TemporaryDirectory
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
-from config import INPUT_PATH, OUTPUT_DIR
+from config.loader import INPUT_PATH, OUTPUT_DIR
 
 
 def main():

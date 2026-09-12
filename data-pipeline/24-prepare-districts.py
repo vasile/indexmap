@@ -7,7 +7,7 @@ import shutil
 import sqlite3
 import subprocess
 
-from config import INPUT_PATH, OUTPUT_DIR as PROCESSED_DIR
+from config.loader import INPUT_PATH, OUTPUT_DIR as PROCESSED_DIR
 
 
 OUTPUT_DIR = Path(f"{PROCESSED_DIR}/districts")

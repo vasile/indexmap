@@ -5,7 +5,7 @@ import shutil
 import subprocess
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
-from config import INPUT_PATH, OUTPUT_DIR as PROCESSED_DIR, SCRIPT_DIR
+from config.loader import INPUT_PATH, OUTPUT_DIR as PROCESSED_DIR, SCRIPT_DIR
 
 
 OUTPUT_DIR = Path(f"{PROCESSED_DIR}/countries")

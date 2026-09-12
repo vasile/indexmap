@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
-from config import CANTON_CODES, INPUT_PATH, OUTPUT_DIR as PROCESSED_DIR, SCRIPT_DIR
+from config.loader import CANTON_CODES, INPUT_PATH, OUTPUT_DIR as PROCESSED_DIR, SCRIPT_DIR
 
 
 OUTPUT_DIR = Path(f"{PROCESSED_DIR}/cantons")

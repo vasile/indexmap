@@ -9,7 +9,7 @@ from tempfile import TemporaryDirectory
 from urllib.request import Request, urlopen
 from zipfile import BadZipFile, ZipFile
 
-from config import INPUT_PATH, SWISSBOUNDARIES_DOWNLOAD_URL, SWISSBOUNDARIES_RELEASE
+from config.loader import INPUT_PATH, SWISSBOUNDARIES_DOWNLOAD_URL, SWISSBOUNDARIES_RELEASE
 
 
 def validate_geopackage(path: Path) -> None:
