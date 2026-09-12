@@ -1,10 +1,21 @@
 """Shared rendering and release publishing helpers for site generators."""
 
 import html
+import hashlib
 import math
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from config import REFERENCE_DATE
+
+
+def asset_version(asset_dir: Path) -> str:
+    digest = hashlib.sha256()
+    for path in sorted(asset_dir.rglob("*")):
+        if path.is_file():
+            digest.update(str(path.relative_to(asset_dir)).encode("utf-8"))
+            digest.update(b"\0")
+            digest.update(path.read_bytes())
+    return digest.hexdigest()[:16]
 
 
 def publish_pinned_release(output_dir: Path, files: dict[Path, bytes], section: str) -> None:
@@ -53,4 +64,3 @@ def positions(coordinates):
     else:
         for child in coordinates:
             yield from positions(child)
-
