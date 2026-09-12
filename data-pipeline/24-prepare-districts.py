@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
+import json
+from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 import shutil
 import sqlite3
 import subprocess
@@ -41,6 +43,27 @@ def convert_district(ogr2ogr: str, district_number: int) -> None:
     print(f"Created {output_path}")
 
 
+def build_downloads(numbers):
+    features = []
+    with ZipFile(OUTPUT_DIR / "districts.zip", "w", compression=ZIP_DEFLATED) as archive:
+        for number in numbers:
+            name = f"{number}.geojson"
+            raw = (OUTPUT_DIR / name).read_bytes()
+            collection = json.loads(raw)
+            if collection.get("type") != "FeatureCollection" or len(collection.get("features", [])) != 1:
+                raise ValueError(f"Expected one district in {name}")
+            feature = collection["features"][0]
+            if feature["properties"]["bezirksnummer"] != number:
+                raise ValueError(f"District number mismatch in {name}")
+            features.append(feature)
+            info = ZipInfo(name, date_time=(2020, 1, 1, 0, 0, 0))
+            info.compress_type = ZIP_DEFLATED
+            archive.writestr(info, raw)
+    (OUTPUT_DIR / "districts.geojson").write_text(json.dumps(
+        {"type": "FeatureCollection", "features": features}, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
+    print(f"Created combined GeoJSON and ZIP for {len(features)} districts")
+
+
 def main() -> None:
     ogr2ogr = shutil.which("ogr2ogr")
     if ogr2ogr is None:
@@ -65,6 +88,7 @@ def main() -> None:
 
     for (district_number,) in rows:
         convert_district(ogr2ogr, int(district_number))
+    build_downloads([int(row[0]) for row in rows])
 
 
 if __name__ == "__main__":
