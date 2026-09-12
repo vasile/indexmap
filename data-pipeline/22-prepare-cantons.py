@@ -41,7 +41,7 @@ def convert_canton(ogr2ogr: str, canton_number: int, canton_code: str) -> None:
         "-nln",
         "canton",
         "-lco",
-        "RFC7946=YES",
+        "RFC7946=YES",  # Normalize winding: counterclockwise shells, clockwise holes.
         "-lco",
         "COORDINATE_PRECISION=6",
         str(output_path),

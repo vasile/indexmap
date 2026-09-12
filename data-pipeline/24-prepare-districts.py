@@ -28,7 +28,7 @@ def convert_district(ogr2ogr: str, district_number: int) -> None:
         "-nln",
         "district",
         "-lco",
-        "RFC7946=YES",
+        "RFC7946=YES",  # Normalize winding: counterclockwise shells, clockwise holes.
         "-lco",
         "COORDINATE_PRECISION=6",
         str(output_path),
