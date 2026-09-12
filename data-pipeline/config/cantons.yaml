@@ -1,0 +1,158 @@
+# Canton codes, display names and seat lookup.
+cantons:
+  ag:
+    bfs_number: 19
+    seat: "Aarau"
+    source_url: null
+    verified: false
+    display_name: "Aargau"
+  ai:
+    bfs_number: 16
+    seat: "Appenzell"
+    source_url: null
+    verified: false
+    display_name: "Appenzell Innerrhoden"
+  ar:
+    bfs_number: 15
+    seat: "Herisau"
+    source_url: null
+    verified: false
+    display_name: "Appenzell Ausserrhoden"
+  be:
+    bfs_number: 2
+    seat: "Bern"
+    source_url: null
+    verified: false
+    display_name: "Bern / Berne"
+  bl:
+    bfs_number: 13
+    seat: "Liestal"
+    source_url: null
+    verified: false
+    display_name: "Basel-Landschaft"
+  bs:
+    bfs_number: 12
+    seat: "Basel"
+    source_url: null
+    verified: false
+    display_name: "Basel-Stadt"
+  fr:
+    bfs_number: 10
+    seat: "Fribourg"
+    source_url: null
+    verified: false
+    display_name: "Fribourg / Freiburg"
+  ge:
+    bfs_number: 25
+    seat: "Genève"
+    source_url: null
+    verified: false
+    display_name: "Genève"
+  gl:
+    bfs_number: 8
+    seat: "Glarus"
+    source_url: null
+    verified: false
+    display_name: "Glarus"
+  gr:
+    bfs_number: 18
+    seat: "Chur"
+    source_url: null
+    verified: false
+    display_name: "Graubünden / Grigioni / Grischun"
+  ju:
+    bfs_number: 26
+    seat: "Delémont"
+    source_url: null
+    verified: false
+    display_name: "Jura"
+  lu:
+    bfs_number: 3
+    seat: "Luzern"
+    source_url: null
+    verified: false
+    display_name: "Luzern"
+  ne:
+    bfs_number: 24
+    seat: "Neuchâtel"
+    source_url: null
+    verified: false
+    display_name: "Neuchâtel"
+  nw:
+    bfs_number: 7
+    seat: "Stans"
+    source_url: null
+    verified: false
+    display_name: "Nidwalden"
+  ow:
+    bfs_number: 6
+    seat: "Sarnen"
+    source_url: null
+    verified: false
+    display_name: "Obwalden"
+  sg:
+    bfs_number: 17
+    seat: "St. Gallen"
+    source_url: null
+    verified: false
+    display_name: "St. Gallen"
+  sh:
+    bfs_number: 14
+    seat: "Schaffhausen"
+    source_url: null
+    verified: false
+    display_name: "Schaffhausen"
+  so:
+    bfs_number: 11
+    seat: "Solothurn"
+    source_url: null
+    verified: false
+    display_name: "Solothurn"
+  sz:
+    bfs_number: 5
+    seat: "Schwyz"
+    source_url: null
+    verified: false
+    display_name: "Schwyz"
+  tg:
+    bfs_number: 20
+    seat: "Frauenfeld"
+    source_url: null
+    verified: false
+    display_name: "Thurgau"
+  ti:
+    bfs_number: 21
+    seat: "Bellinzona"
+    source_url: null
+    verified: false
+    display_name: "Ticino"
+  ur:
+    bfs_number: 4
+    seat: "Altdorf"
+    source_url: null
+    verified: false
+    display_name: "Uri"
+  vd:
+    bfs_number: 22
+    seat: "Lausanne"
+    source_url: null
+    verified: false
+    display_name: "Vaud"
+  vs:
+    bfs_number: 23
+    seat: "Sion"
+    source_url: null
+    verified: false
+    display_name: "Valais / Wallis"
+  zg:
+    bfs_number: 9
+    seat: "Zug"
+    source_url: null
+    verified: false
+    display_name: "Zug"
+  zh:
+    bfs_number: 1
+    seat: "Zürich"
+    source_url: null
+    verified: false
+    display_name: "Zürich"

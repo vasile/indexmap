@@ -1,0 +1,10 @@
+# Paths are relative to data-pipeline/.
+current_release: "2026-01"
+paths:
+  current_source: "data/source/swissBOUNDARIES3D/swissBOUNDARIES3D_1_5_LV95_LN02.gpkg"
+  release_sources: "data/source/boundary-releases"
+  processed: "data/processed"
+  site: "../site-generator"
+  output: "../dist"
+swissboundaries:
+  download_url: "https://data.geo.admin.ch/ch.swisstopo.swissboundaries3d/swissboundaries3d_{release}/swissboundaries3d_{release}_2056_5728.gpkg.zip"
