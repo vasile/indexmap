@@ -4,14 +4,14 @@ from pathlib import Path
 import shutil
 import subprocess
 
-from config import INPUT_PATH, OUTPUT_DIR as PROCESSED_DIR
+from config import INPUT_PATH, OUTPUT_DIR as PROCESSED_DIR, SCRIPT_DIR
 
 
 OUTPUT_DIR = Path(f"{PROCESSED_DIR}/countries")
 SOURCE_LAYER = "tlm_landesgebiet"
 
 
-def convert_country(ogr2ogr: str, country_filter: str, output_name: str) -> None:
+def convert_country(ogr2ogr: str, country_filter: str, output_name: str, *, dissolve=False) -> None:
     output_path = Path(f"{OUTPUT_DIR}/{output_name}.geojson")
 
     command = [
@@ -22,8 +22,6 @@ def convert_country(ogr2ogr: str, country_filter: str, output_name: str) -> None
         "EPSG:2056",
         "-t_srs",
         "EPSG:4326",
-        "-where",
-        country_filter,
         "-nln",
         "country",
         "-lco",
@@ -32,8 +30,15 @@ def convert_country(ogr2ogr: str, country_filter: str, output_name: str) -> None
         "COORDINATE_PRECISION=6",
         str(output_path),
         str(INPUT_PATH),
-        SOURCE_LAYER,
     ]
+    if dissolve:
+        # Union in the source CRS before reprojection/rounding removes the shared border.
+        command.extend(["-dialect", "SQLite", "-sql",
+                        "SELECT ST_Union(geom) AS geom, 'CH+LI' AS icc, "
+                        "'Switzerland + Liechtenstein' AS name "
+                        f"FROM {SOURCE_LAYER} WHERE {country_filter}"])
+    else:
+        command.extend(["-where", country_filter, SOURCE_LAYER])
 
     output_path.unlink(missing_ok=True)
     subprocess.run(command, check=True)
@@ -53,6 +58,7 @@ def main() -> None:
     convert_country(ogr2ogr, "icc = 'CH'", "ch")
     convert_country(ogr2ogr, "icc = 'LI'", "li")
     convert_country(ogr2ogr, "icc IN ('CH', 'LI')", "ch-li")
+    convert_country(ogr2ogr, "icc IN ('CH', 'LI')", "ch-li-dissolved", dissolve=True)
 
 
 if __name__ == "__main__":
