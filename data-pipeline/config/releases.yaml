@@ -1,0 +1,22 @@
+# Newest first. Population metadata is unknown until verified for each release.
+releases:
+  "2026-01":
+    reference_date: "2026-01-01"
+    population_date: "2024-12-31"
+    population_source_url: "https://www.swisstopo.admin.ch/dam/de/sd-web/GatZCn3GD5L7/swissBOUNDARIES3D_Release2026-DE.pdf"
+  "2025-04":
+    reference_date: "2025-04-01"
+    population_date: null
+    population_source_url: null
+  "2025-01":
+    reference_date: "2025-01-01"
+    population_date: null
+    population_source_url: null
+  "2024-01":
+    reference_date: "2024-01-01"
+    population_date: null
+    population_source_url: null
+  "2023-01":
+    reference_date: "2023-01-01"
+    population_date: null
+    population_source_url: null
