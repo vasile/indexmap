@@ -24,6 +24,8 @@ python3 data-pipeline/24-prepare-districts.py
 python3 data-pipeline/26-prepare-municipalities.py
 python3 data-pipeline/30-generate-country-pages.py
 python3 data-pipeline/32-generate-canton-pages.py
+python3 data-pipeline/34-generate-district-pages.py
+python3 data-pipeline/36-generate-municipality-pages.py
 ```
 
 PyYAML loads configuration; the Python standard library handles downloading and generating the site.
@@ -84,6 +86,11 @@ territories, communal territories and municipalities outside CH/LI. Source
 properties and six-decimal WGS 84 coordinates are retained; JSON is compact.
 Step 24 also builds `districts.geojson` and `districts.zip` from individual districts.
 Both ZIPs use the same fixed timestamps as country/canton bundles.
+
+Steps 34 and 36 generate searchable directories and detail pages with boundary
+previews, population, area, canton/country, GeoJSON downloads and browser masks.
+They copy prepared downloads unchanged. Use `--current-only` for steps 30, 34
+and 36 during development when keeping existing pinned releases unchanged.
 
 ## Historical release assets
 
