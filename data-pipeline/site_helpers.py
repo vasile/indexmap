@@ -3,18 +3,41 @@
 import html
 import hashlib
 import math
+import json
+import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from config.loader import REFERENCE_DATE
+from dotenv import dotenv_values
+from config.loader import REFERENCE_DATE, SCRIPT_DIR
 
 
-def asset_version(asset_dir: Path) -> str:
+def build_assets(asset_dir: Path) -> dict[Path, bytes]:
+    settings = {
+        **dotenv_values(SCRIPT_DIR.parent / ".env"),
+        **os.environ,
+        **dotenv_values(SCRIPT_DIR.parent / ".env.local"),
+    }
+    token = settings.get("MAPBOX_ACCESS_TOKEN")
+    token = (token or "").strip()
+    if not token:
+        raise ValueError("Set MAPBOX_ACCESS_TOKEN in the environment or project-root .env.local before generating site pages")
+    if not token.startswith("pk."):
+        raise ValueError("MAPBOX_ACCESS_TOKEN must be a public Mapbox token (pk.), since it is published to the browser")
+    assets = {Path("assets") / path.relative_to(asset_dir): path.read_bytes()
+              for path in asset_dir.rglob("*") if path.is_file()}
+    assets[Path("assets/config.js")] = (
+        "// Generated at build time; this public token is visible to browsers.\n"
+        "window.INDEXMAP_CONFIG = " + json.dumps({"mapboxToken": token}) + ";\n"
+    ).encode("utf-8")
+    return assets
+
+
+def asset_version(assets: dict[Path, bytes]) -> str:
     digest = hashlib.sha256()
-    for path in sorted(asset_dir.rglob("*")):
-        if path.is_file():
-            digest.update(str(path.relative_to(asset_dir)).encode("utf-8"))
-            digest.update(b"\0")
-            digest.update(path.read_bytes())
+    for path, content in sorted(assets.items()):
+        digest.update(str(path).encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(content)
     return digest.hexdigest()[:16]
 
 
