@@ -64,7 +64,7 @@ def load_cantons(input_dir: Path, lookup: dict):
     return sorted(cantons, key=lambda canton: sort_key(canton["name"]))
 
 
-def build(input_dir: Path, output_dir: Path) -> None:
+def build(input_dir: Path, output_dir: Path, *, current_only=False) -> None:
     if output_dir.resolve() == input_dir.resolve() or output_dir.resolve() in input_dir.resolve().parents or input_dir.resolve() in output_dir.resolve().parents:
         raise ValueError("Output and processed canton inputs must be separate")
     lookup = CANTONS
@@ -108,7 +108,8 @@ def build(input_dir: Path, output_dir: Path) -> None:
             files[Path("cantons") / f"{code}.{extension}"] = canton[extension]
     for filename, raw in bundles.items():
         files[Path("cantons") / filename] = raw
-    publish_pinned_release(output_dir, files, "cantons")
+    if not current_only:
+        publish_pinned_release(output_dir, files, "cantons")
     for path, content in files.items():
         target = output_dir / path
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -120,9 +121,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input-dir", type=Path, default=PROCESSED_DIR / "cantons")
     parser.add_argument("--output-dir", type=Path, default=DIST_DIR)
+    parser.add_argument("--current-only", action="store_true", help="Leave pinned releases unchanged")
     args = parser.parse_args()
     try:
-        build(args.input_dir, args.output_dir)
+        build(args.input_dir, args.output_dir, current_only=args.current_only)
     except (OSError, ValueError, KeyError, TypeError) as error:
         parser.exit(1, f"Canton generation failed: {error}\n")
 
