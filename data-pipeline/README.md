@@ -127,3 +127,9 @@ in `pipeline.yaml` resolve relative to `data-pipeline/`, regardless of the worki
 directory. The loader rejects duplicate keys, invalid dates and duplicate canton
 numbers. Historical population dates are null until checked; asset preparation
 works without them, but historical page generation requires a verified date.
+
+Site-generation steps 30–36 also require `MAPBOX_ACCESS_TOKEN` (a public `pk.`
+token) in the environment or the project-root `.env.local` file. GitHub Actions should supply it from the repository
+secret of the same name. `assets/config.js` is generated, and its contents are
+included in the browser cache hash. Data-preparation steps do not need a token.
+See `site-generator/README.md` for local and Actions setup.
