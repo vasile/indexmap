@@ -6,6 +6,14 @@ municipalities 26/36. Steps 26, 34, and 36 are reserved for future work.
 Canton preparation (22) exports GeoJSONs, builds both bulk downloads, and
 copies coat-of-arms PNGs.
 
+Set up the Python environment once, then activate it for pipeline commands:
+
+```sh
+python3 -m venv data-pipeline/.venv
+source data-pipeline/.venv/bin/activate
+python -m pip install -r data-pipeline/requirements.txt
+```
+
 Run from the project root:
 
 ```sh
