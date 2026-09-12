@@ -45,6 +45,9 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
+      - name: Build all catalogued boundary releases
+        run: python data-pipeline/28-build-release-assets.py
+
       - name: Generate current site
         env:
           MAPBOX_ACCESS_TOKEN: ${{ secrets.MAPBOX_ACCESS_TOKEN }}
