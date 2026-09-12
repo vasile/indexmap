@@ -19,7 +19,7 @@ def asset_version(asset_dir: Path) -> str:
 
 
 def publish_pinned_release(output_dir: Path, files: dict[Path, bytes], section: str) -> None:
-    release_dir = output_dir / REFERENCE_DATE
+    release_dir = output_dir / "versions" / REFERENCE_DATE
     section_dir = release_dir / section
     if section_dir.exists():
         for path, content in files.items():
