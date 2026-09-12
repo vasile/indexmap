@@ -3,13 +3,13 @@
 
 import argparse
 from datetime import date
-import html
 import json
 import math
 from pathlib import Path
 from string import Template
-from tempfile import TemporaryDirectory
 import unicodedata
+
+from site_helpers import asset_version, escape, format_number, positions, publish_pinned_release
 
 from config import CANTON_CODES, OUTPUT_DIR as PROCESSED_DIR, REFERENCE_DATE, SCRIPT_DIR
 
@@ -17,26 +17,6 @@ from config import CANTON_CODES, OUTPUT_DIR as PROCESSED_DIR, REFERENCE_DATE, SC
 PROJECT_DIR = SCRIPT_DIR.parent
 SITE_DIR = PROJECT_DIR / "site-generator"
 LOOKUP_PATH = PROJECT_DIR / "data/source/cantons.json"
-
-
-def escape(value) -> str:
-    return html.escape(str(value), quote=True)
-
-
-def format_number(value, digits=0) -> str:
-    return f"{value:,.{digits}f}".replace(",", "’")
-
-
-def positions(coordinates):
-    if not isinstance(coordinates, list) or not coordinates:
-        raise ValueError("Empty or invalid geometry coordinates")
-    if isinstance(coordinates[0], (int, float)):
-        if len(coordinates) < 2 or not all(isinstance(n, (int, float)) and math.isfinite(n) for n in coordinates):
-            raise ValueError("Invalid geometry position")
-        yield coordinates
-    else:
-        for child in coordinates:
-            yield from positions(child)
 
 
 def sort_key(name):
@@ -86,28 +66,6 @@ def load_cantons(input_dir: Path, lookup: dict):
     return sorted(cantons, key=lambda canton: sort_key(canton["name"]))
 
 
-def publish_pinned_release(output_dir: Path, files: dict[Path, bytes]) -> None:
-    release_dir = output_dir / REFERENCE_DATE
-    if release_dir.exists():
-        # Pages/assets stay frozen. Reject changed data at an already pinned URL.
-        for path, content in files.items():
-            if path.parts[0] == "cantons" and path.suffix in {".geojson", ".png", ".zip"}:
-                target = release_dir / path
-                if not target.is_file() or target.read_bytes() != content:
-                    raise ValueError(f"Pinned release differs at {target}; existing releases cannot be overwritten")
-        print(f"Preserved pinned release {release_dir}")
-        return
-    output_dir.mkdir(parents=True, exist_ok=True)
-    with TemporaryDirectory(prefix=".release-", dir=output_dir) as temporary:
-        staging = Path(temporary) / REFERENCE_DATE
-        for path, content in files.items():
-            target = staging / path
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes(content)
-        staging.rename(release_dir)
-    print(f"Created pinned release {release_dir}")
-
-
 def build(input_dir: Path, output_dir: Path) -> None:
     if output_dir.resolve() == input_dir.resolve() or output_dir.resolve() in input_dir.resolve().parents or input_dir.resolve() in output_dir.resolve().parents:
         raise ValueError("Output and processed canton inputs must be separate")
@@ -126,8 +84,10 @@ def build(input_dir: Path, output_dir: Path) -> None:
             raise ValueError(f"Missing {path}; run 22-prepare-cantons.py first")
         bundles[filename] = path.read_bytes()
 
+    version = asset_version(SITE_DIR / "assets")
+
     def render(title, description, body):
-        return templates["base"].substitute(title=escape(title), description=escape(description), body=body)
+        return templates["base"].substitute(title=escape(title), description=escape(description), body=body, countries_class="", cantons_class="active", asset_version=version)
 
     # Validate and render every page before writing output.
     pages = {}
@@ -151,7 +111,7 @@ def build(input_dir: Path, output_dir: Path) -> None:
             files[Path("cantons") / f"{code}.{extension}"] = canton[extension]
     for filename, raw in bundles.items():
         files[Path("cantons") / filename] = raw
-    publish_pinned_release(output_dir, files)
+    publish_pinned_release(output_dir, files, "cantons")
     for path, content in files.items():
         target = output_dir / path
         target.parent.mkdir(parents=True, exist_ok=True)
