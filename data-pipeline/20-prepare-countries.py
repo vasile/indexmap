@@ -27,7 +27,7 @@ def convert_country(ogr2ogr: str, country_filter: str, output_name: str) -> None
         "-nln",
         "country",
         "-lco",
-        "RFC7946=YES",
+        "RFC7946=YES",  # Normalize winding: counterclockwise shells, clockwise holes.
         "-lco",
         "COORDINATE_PRECISION=6",
         str(output_path),
