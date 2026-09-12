@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate canton pages and copy prepared downloads using only stdlib."""
+"""Generate canton pages and copy prepared downloads using shared YAML configuration."""
 
 import argparse
 from datetime import date
@@ -15,8 +15,6 @@ from config.loader import CANTONS, SITE_DIR, DIST_DIR, population_metadata, CANT
 
 
 PROJECT_DIR = SCRIPT_DIR.parent
-SITE_DIR = PROJECT_DIR / "site-generator"
-LOOKUP_PATH = PROJECT_DIR / "data/source/cantons.json"
 
 
 def sort_key(name):
@@ -69,8 +67,8 @@ def load_cantons(input_dir: Path, lookup: dict):
 def build(input_dir: Path, output_dir: Path) -> None:
     if output_dir.resolve() == input_dir.resolve() or output_dir.resolve() in input_dir.resolve().parents or input_dir.resolve() in output_dir.resolve().parents:
         raise ValueError("Output and processed canton inputs must be separate")
-    lookup = json.loads(LOOKUP_PATH.read_text())
-    metadata = json.loads((SITE_DIR / "config.json").read_text())
+    lookup = CANTONS
+    metadata = population_metadata()
     metadata["boundary_date"] = REFERENCE_DATE
     dates = {key: date.fromisoformat(metadata[key]).strftime("%d %B %Y").lstrip("0")
              for key in ["population_date", "boundary_date"]}
@@ -87,7 +85,7 @@ def build(input_dir: Path, output_dir: Path) -> None:
     version = asset_version(SITE_DIR / "assets")
 
     def render(title, description, body):
-        return templates["base"].substitute(title=escape(title), description=escape(description), body=body, countries_class="", cantons_class="active", asset_version=version)
+        return templates["base"].substitute(title=escape(title), description=escape(description), body=body, countries_class="", cantons_class="active", asset_version=version, municipalities_class="", districts_class="")
 
     # Validate and render every page before writing output.
     pages = {}
@@ -122,7 +120,7 @@ def build(input_dir: Path, output_dir: Path) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input-dir", type=Path, default=PROCESSED_DIR / "cantons")
-    parser.add_argument("--output-dir", type=Path, default=PROJECT_DIR / "dist")
+    parser.add_argument("--output-dir", type=Path, default=DIST_DIR)
     args = parser.parse_args()
     try:
         build(args.input_dir, args.output_dir)
