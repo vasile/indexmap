@@ -1,5 +1,13 @@
 .vscode
 node_modules
+__pycache__/
 dist
 
 *.geojson
+/data/processed/
+/data/source/boundary-releases/
+/data/source/swissBOUNDARIES3D
+/data-pipeline/.venv/
+
+/.env.local
+
