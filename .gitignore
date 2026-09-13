@@ -3,6 +3,11 @@ node_modules
 __pycache__/
 dist
 
+/data/source/coat-of-arms/municipalities/
+/data/source/coat-of-arms/municipality-placeholder.png
+/data/source/coat-of-arms/municipalities-web/.conversion-cache.json
+/data/source/coat-of-arms/municipalities-web/*.tmp
+
 *.geojson
 /data/processed/
 /data/source/boundary-releases/
