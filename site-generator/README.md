@@ -9,8 +9,9 @@ python3 data-pipeline/32-generate-canton-pages.py
 ```
 
 Step 30 reads `data/processed/<reference-date>/countries/{ch,li,ch-li,ch-li-dissolved}.geojson`
-from step 20. It generates `countries/index.html`, `countries/ch.html`, and
-`countries/li.html`, and `countries/ch-li-dissolved.html`, plus unchanged GeoJSON assets, at both current and
+from step 20. It generates the root `index.html` homepage. It also generates
+`countries/index.html`, `countries/ch.html`, `countries/li.html`, and
+`countries/ch-li-dissolved.html`, plus unchanged GeoJSON assets, at both current and
 pinned paths. Country detail pages show population and area from the data,
 and share the boundary map and optional browser mask with canton pages.
 The GUI section label is “Country”; its directory contains Switzerland and
@@ -21,7 +22,11 @@ row opens its detail page with GeoJSON download and the browser mask control.
 Both sections remain visible, separated by a rule, with Individual selected initially.
 Use `--current-only` with step 30 to update current output while leaving pinned
 releases alone (including when introducing new assets during development).
-The country templates use English display names.
+The country templates use English display names. The homepage renders the Country
+directory directly, using the same templates with links relative to the site root.
+It includes the map, country details and downloads without a redirect.
+`countries/index.html` remains available at both current and pinned paths; the
+homepage is generated only at the current root.
 
 The command also works from other directories when invoked by its absolute
 path. It does not read the GeoPackage directly or depend on the archived mock.
@@ -71,7 +76,7 @@ Preview over HTTP so the browser can fetch the GeoJSON:
 python3 -m http.server 8000 --directory dist
 ```
 
-Open `http://localhost:8000/cantons/`. The homepage remains undecided.
+Open `http://localhost:8000/` for the Country homepage or `/cantons/` for cantons.
 The map uses a public Mapbox token injected into generated `assets/config.js`; Mapbox and the
 Bootstrap CDN require network access. HTML facts and download links remain
 available if the map fails.
