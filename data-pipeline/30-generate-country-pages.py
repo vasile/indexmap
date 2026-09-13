@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate country directory/detail pages and publish prepared GeoJSON files."""
+"""Generate the country homepage, directory/detail pages and prepared GeoJSON files."""
 
 import argparse
 from datetime import date
@@ -33,7 +33,7 @@ def build(input_dir: Path, output_dir: Path, *, current_only=False) -> None:
     dates = {"population_date": date.fromisoformat(metadata["population_date"]).strftime("%d %B %Y").lstrip("0"),
              "boundary_date": date.fromisoformat(REFERENCE_DATE).strftime("%d %B %Y").lstrip("0")}
     templates = {name: Template((SITE_DIR / "templates" / f"{name}.html").read_text())
-                 for name in ["base", "country", "countries"]}
+                 for name in ["base", "country", "countries", "country-row"]}
     files = {}
     data = {}
     for code in [*COUNTRIES, "ch-li", "ch-li-dissolved"]:
@@ -52,9 +52,9 @@ def build(input_dir: Path, output_dir: Path, *, current_only=False) -> None:
     assets = build_assets(SITE_DIR / "assets")
     version = asset_version(assets)
 
-    def render(title, body):
+    def render(title, body, *, root_path="../"):
         return templates["base"].substitute(title=escape(title), description=escape(f"{title}: administrative boundaries and GeoJSON downloads."),
-                                            body=body, countries_class="active", cantons_class="", asset_version=version, municipalities_class="", districts_class="").encode("utf-8")
+                                            body=body, root_path=root_path, countries_class="active", cantons_class="", asset_version=version, municipalities_class="", districts_class="").encode("utf-8")
 
     rows = {}
     for code, name in COUNTRIES.items():
@@ -78,11 +78,7 @@ def build(input_dir: Path, output_dir: Path, *, current_only=False) -> None:
                        bounds=bounds(data[code]), subdivision_link='<a class="back-link" href="../cantons/index.html">Browse 26 cantons ›</a>' if code == "ch" else "", **dates)
         files[Path("countries") / f"{code}.html"] = render(name, templates["country"].substitute(context))
         stats = f'<p class="canton-stats">{population} inhabitants · {format_number(props["landesflaeche"] / 100)} km²</p>'
-        rows[code] = (f'<li class="canton-item"><img src="./{code}.png" width="40" alt="" class="canton-coat-of-arms">'
-                    f'<div class="canton-details"><h2><a href="./{code}.html">{escape(name)}</a></h2>'
-                    f'<p>{upper_code}</p>{stats}'
-                    '</div>'
-                    f'<a class="canton-next" href="./{code}.html" aria-label="View {escape(name)}"><span aria-hidden="true">›</span></a></li>')
+        rows[code] = dict(name=escape(name), code=code, upper_code=upper_code, stats=stats)
     dissolved_context = dict(name="Switzerland + Liechtenstein", code="ch-li-dissolved",
                              upper_code="CH + LI", entity_label="Dissolved boundary",
                              boundary_label="Dissolved boundary", facts="", subdivision_link="",
@@ -91,7 +87,14 @@ def build(input_dir: Path, output_dir: Path, *, current_only=False) -> None:
                              bounds=bounds(data["ch-li-dissolved"]), **dates)
     files[Path("countries/ch-li-dissolved.html")] = render(
         "Switzerland + Liechtenstein", templates["country"].substitute(dissolved_context))
-    files[Path("countries/index.html")] = render("Country", templates["countries"].substitute(rows="\n".join(rows[code] for code in COUNTRIES), bounds=bounds(data["ch-li"]), **dates))
+
+    def directory(country_path):
+        return templates["countries"].substitute(
+            rows="\n".join(templates["country-row"].substitute(rows[code], country_path=country_path) for code in COUNTRIES),
+            country_path=country_path, bounds=bounds(data["ch-li"]), **dates)
+
+    files[Path("countries/index.html")] = render("Country", directory("./"))
+    files[Path("index.html")] = render("Country", directory("./countries/"), root_path="./")
     files.update(assets)
     if not current_only:
         publish_pinned_release(output_dir, files, "countries")
@@ -100,7 +103,7 @@ def build(input_dir: Path, output_dir: Path, *, current_only=False) -> None:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(content)
     (output_dir / "countries/ch-li.html").unlink(missing_ok=True)
-    print(f"Generated country directory, 3 detail pages, and 4 GeoJSON assets in {output_dir / 'countries'}")
+    print(f"Generated homepage, country directory, 3 detail pages, and 4 GeoJSON assets in {output_dir}")
 
 
 def main():

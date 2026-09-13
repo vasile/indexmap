@@ -86,7 +86,7 @@ def build(input_dir: Path, output_dir: Path, *, current_only=False) -> None:
     version = asset_version(assets)
 
     def render(title, description, body):
-        return templates["base"].substitute(title=escape(title), description=escape(description), body=body, countries_class="", cantons_class="active", asset_version=version, municipalities_class="", districts_class="")
+        return templates["base"].substitute(title=escape(title), description=escape(description), body=body, root_path="../", countries_class="", cantons_class="active", asset_version=version, municipalities_class="", districts_class="")
 
     # Validate and render every page before writing output.
     pages = {}

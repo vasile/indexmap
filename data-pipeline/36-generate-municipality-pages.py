@@ -34,7 +34,7 @@ def build(input_dir, output_dir, *, current_only=False):
     def render(title, body):
         return templates["base"].substitute(title=escape(title), description=escape(f"{title}: municipality boundaries and downloads."),
                                             body=body, countries_class="", cantons_class="", municipalities_class="active", districts_class="",
-                                            asset_version=version).encode("utf-8")
+                                            root_path="../", asset_version=version).encode("utf-8")
 
     for feature in features:
         props = feature["properties"]
