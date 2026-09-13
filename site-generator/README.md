@@ -29,6 +29,16 @@ GeoJSON and ZIP downloads, images, and shared assets. Directory maps load combin
 boundaries; detail pages load the selected boundary. The page generators accept
 `--input-dir` and `--output-dir` overrides.
 
+Collections and bulk downloads use plural folders; individual pages, boundaries
+and icons use singular folders:
+
+| Collection | Individual example |
+| --- | --- |
+| `/countries/` | `/country/ch.html` |
+| `/cantons/` | `/canton/zh.html` |
+| `/districts/` | `/district/101.html` |
+| `/municipalities/` | `/municipality/4551.html` |
+
 ## Historical releases
 
 **Page generators only build the current website.** Historical GeoJSON and ZIP
@@ -37,7 +47,8 @@ under `dist/versions/<reference-date>/`, without duplicated HTML pages or icons.
 See the [pipeline README](../data-pipeline/README.md#historical-release-assets).
 
 Page builds do not modify or remove existing historical folders. Preserve the
-data releases you want to keep across deployments.
+data releases you want to keep across deployments. New historical downloads use
+the same plural/singular convention. Existing archives are not migrated or deleted.
 
 ## Municipality icons
 

@@ -67,7 +67,7 @@ def prepared_icon(coat_dir, filename):
 def municipality_coat(record, number, files, coat_dir):
     if record and record.get("status") == "available" and record.get("has_icon"):
         filename = f"{number}.webp"
-        files[Path("municipalities") / filename] = prepared_icon(coat_dir, filename)
+        files[Path("municipality") / filename] = prepared_icon(coat_dir, filename)
         attribution = record["attribution"]
         original_url = attribution.get("original_url") or attribution.get("page_url")
         if not original_url or urlsplit(original_url).scheme not in ("http", "https") or not urlsplit(original_url).netloc:
@@ -77,7 +77,7 @@ def municipality_coat(record, number, files, coat_dir):
         alt = ""
     else:
         filename = "placeholder.webp"
-        placeholder_path = Path("municipalities") / filename
+        placeholder_path = Path("municipality") / filename
         if placeholder_path not in files:
             files[placeholder_path] = prepared_icon(coat_dir, filename)
         alt = "Coat of arms unavailable"
@@ -138,16 +138,16 @@ def build(input_dir, output_dir, *, coat_dir=COAT_DIR):
                  f'<div><dt>Area</dt><dd>{area} km²</dd></div>')
         coat_image, coat_download, coat_filename = municipality_coat(coats.get(number), number, files, coat_dir)
         context = dict(name=escape(name), code=number, upper_code=f"{number} · {canton}", entity_label="Municipality",
-                       boundary_label="Municipality boundary", facts=facts, subdivision_link="", coat_image=coat_image, coat_download=coat_download, directory_url="./",
+                       boundary_label="Municipality boundary", facts=facts, subdivision_link="", coat_image=coat_image, coat_download=coat_download, directory_url="../municipalities/",
                        mask_hint="Covers the area outside the municipality.", bounds=escape(json.dumps(bounds)), **dates)
         body = templates["country"].substitute(context).replace("‹ All countries", "‹ All municipalities")
-        files[Path("municipalities") / f"{number}.html"] = render(name, body, f"municipalities/{number}.html")
-        files[Path("municipalities") / f"{number}.geojson"] = raw
+        files[Path("municipality") / f"{number}.html"] = render(name, body, f"municipality/{number}.html")
+        files[Path("municipality") / f"{number}.geojson"] = raw
         rows.append(f'<li class="canton-item" data-search="{escape(f"{name} {number} {canton} {country}")}">'
-                    f'<img src="./{coat_filename}" alt="" class="canton-coat-of-arms" width="40" loading="lazy">'
-                    f'<div class="canton-details"><h2><a href="./{number}.html">{escape(name)}</a></h2><p>{number} · {canton}</p>'
+                    f'<img src="../municipality/{coat_filename}" alt="" class="canton-coat-of-arms" width="40" loading="lazy">'
+                    f'<div class="canton-details"><h2><a href="../municipality/{number}.html">{escape(name)}</a></h2><p>{number} · {canton}</p>'
                     f'<p class="canton-stats">{population} inhabitants · {area} km²</p></div>'
-                    f'<a class="canton-next" href="./{number}.html" aria-label="View {escape(name)}">›</a></li>')
+                    f'<a class="canton-next" href="../municipality/{number}.html" aria-label="View {escape(name)}">›</a></li>')
     files[Path("municipalities/index.html")] = render("Municipalities", templates["municipalities"].substitute(rows="\n".join(rows), count=len(rows), **dates), "municipalities/index.html")
     for name in ("municipalities.geojson", "municipalities.zip"):
         files[Path("municipalities") / name] = (input_dir / name).read_bytes()
@@ -156,11 +156,12 @@ def build(input_dir, output_dir, *, coat_dir=COAT_DIR):
         target = output_dir / path
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(raw)
-    for path in (output_dir / "municipalities").iterdir():
-        if path.suffix in (".png", ".webp") and (path.stem.isdigit() or path.stem == "placeholder") and Path("municipalities") / path.name not in files:
-            path.unlink()
-        if path.suffix in (".html", ".geojson") and path.stem.isdigit() and int(path.stem) not in seen:
-            path.unlink()
+    for folder in ("municipalities", "municipality"):
+        for path in (output_dir / folder).iterdir():
+            if (path.suffix in (".png", ".webp", ".html", ".geojson")
+                    and (path.stem.isdigit() or path.stem == "placeholder")
+                    and Path(folder) / path.name not in files):
+                path.unlink()
     print(f"Generated {len(rows)} municipality detail pages, directory and downloads in {output_dir / 'municipalities'}")
 
 

@@ -96,23 +96,26 @@ def build(input_dir: Path, output_dir: Path) -> None:
         rows.append(templates["canton-row"].substitute(context))
         pages[f'{context["code"]}.html'] = render(
             canton["name"], f'{canton["name"]}: boundary map, population, area, and downloads.',
-            templates["canton"].substitute(context), f'cantons/{context["code"]}.html',
+            templates["canton"].substitute(context), f'canton/{context["code"]}.html',
         )
     pages["index.html"] = render("Cantons of Switzerland", "Explore Switzerland’s 26 cantons and download their administrative boundaries.",
                                  templates["cantons"].substitute(rows="\n".join(rows), count=len(cantons), **dates), "cantons/index.html")
-    files = {Path("cantons") / filename: page.encode("utf-8") for filename, page in pages.items()}
+    files = {Path("cantons" if filename == "index.html" else "canton") / filename: page.encode("utf-8") for filename, page in pages.items()}
     files.update(assets)
     for canton in cantons:
         code = canton["context"]["code"]
         for extension in ["geojson", "png"]:
-            files[Path("cantons") / f"{code}.{extension}"] = canton[extension]
+            files[Path("canton") / f"{code}.{extension}"] = canton[extension]
     for filename, raw in bundles.items():
         files[Path("cantons") / filename] = raw
     for path, content in files.items():
         target = output_dir / path
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(content)
-    print(f"Generated {len(pages)} current pages and downloads in {output_dir / 'cantons'}")
+    for code in CANTON_CODES.values():
+        for extension in ("html", "geojson", "png"):
+            (output_dir / "cantons" / f"{code}.{extension}").unlink(missing_ok=True)
+    print(f"Generated {len(pages)} current pages and downloads in {output_dir / 'cantons'} and {output_dir / 'canton'}")
 
 
 def main() -> None:

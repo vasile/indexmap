@@ -48,7 +48,8 @@ GDAL reference: https://gdal.org/en/stable/drivers/vector/geojson.html#rfc-7946-
 comes from `config/releases.yaml`, currently
 `2026-01-01`. All processed outputs go into
 `data/processed/2026-01-01/{countries,cantons,districts}`. Step 32 reads this
-version automatically and publishes current paths under `dist/cantons`.
+version automatically and publishes the collection under `dist/cantons` and
+individual pages and assets under `dist/canton`.
 Historical data downloads are published separately by step 28.
 The date also supplies the boundary date displayed on the site and the
 year-month release used for downloading. Rebuilding a release updates its
@@ -108,6 +109,10 @@ processed files go into `data/processed/<reference-date>`.
 Step 28 runs downloading and all four preparation steps, then publishes GeoJSONs
 and ZIPs under `dist/versions/<reference-date>/<entity>/`. It checks existing files before
 adding missing assets and refuses to overwrite different pinned download bytes.
+Within each release, collection GeoJSONs and ZIPs use plural folders (`countries`,
+`cantons`, `districts`, `municipalities`); individual GeoJSONs use singular folders
+(`country`, `canton`, `district`, `municipality`). Source and processed folders
+remain plural. Existing archives are not automatically migrated to new paths.
 It does not regenerate historical HTML or change the current website. Source
 image copies are not published as historical assets. Keep `dist` between builds
 to preserve previously published releases.

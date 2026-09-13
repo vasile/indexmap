@@ -44,10 +44,10 @@ def build(input_dir: Path, output_dir: Path) -> None:
         if collection.get("type") != "FeatureCollection" or len(features) != len(expected) or {f["properties"]["icc"] for f in features} != expected:
             raise ValueError(f"Unexpected country features in {code}.geojson")
         data[code] = features
-        files[Path("countries") / f"{code}.geojson"] = raw
+        files[Path("countries" if code == "ch-li" else "country") / f"{code}.geojson"] = raw
 
     for filename in ("ch.png", "li.png", "countries.zip"):
-        files[Path("countries") / filename] = (input_dir / filename).read_bytes()
+        files[Path("countries" if filename == "countries.zip" else "country") / filename] = (input_dir / filename).read_bytes()
 
     assets = build_assets(SITE_DIR / "assets")
     version = asset_version(assets)
@@ -71,37 +71,40 @@ def build(input_dir: Path, output_dir: Path) -> None:
         context = dict(name=escape(name), code=code, upper_code=upper_code, population=population, area=area,
                        coat_image=f'<img src="./{code}.png" width="85" alt="" class="detail-coat-of-arms">',
                        coat_download=f'<a class="btn btn-outline-secondary" href="./{code}.png" download="{code}.png">↓ Coat of arms · PNG</a>',
-                       entity_label="Country", code_label="Country code", directory_url="../",
+                       entity_label="Country", code_label="Country code", directory_url="../countries/",
                        boundary_label="Country boundary",
                        mask_hint="Covers the area outside the country.",
                        facts=f'<div><dt>Country code</dt><dd>{upper_code}</dd></div><div><dt>Population</dt><dd>{population}<small>{dates["population_date"]}</small></dd></div><div><dt>Area</dt><dd>{area} km²</dd></div>',
                        bounds=bounds(data[code]), subdivision_link='<a class="back-link" href="../cantons/">Browse 26 cantons ›</a>' if code == "ch" else "", **dates)
-        path = Path("countries") / f"{code}.html"
+        path = Path("country") / f"{code}.html"
         files[path] = render(name, templates["country"].substitute(context), path)
         stats = f'<p class="canton-stats">{population} inhabitants · {format_number(props["landesflaeche"] / 100)} km²</p>'
         rows[code] = dict(name=escape(name), code=code, upper_code=upper_code, stats=stats)
     dissolved_context = dict(name="Switzerland + Liechtenstein", code="ch-li-dissolved",
                              upper_code="CH + LI", entity_label="Dissolved boundary",
                              boundary_label="Dissolved boundary", facts="", subdivision_link="",
-                             coat_image="", coat_download="", directory_url="../",
+                             coat_image="", coat_download="", directory_url="../countries/",
                              mask_hint="Covers the area outside Switzerland and Liechtenstein.",
                              bounds=bounds(data["ch-li-dissolved"]), **dates)
-    files[Path("countries/ch-li-dissolved.html")] = render(
-        "Switzerland + Liechtenstein", templates["country"].substitute(dissolved_context), "countries/ch-li-dissolved.html")
+    files[Path("country/ch-li-dissolved.html")] = render(
+        "Switzerland + Liechtenstein", templates["country"].substitute(dissolved_context), "country/ch-li-dissolved.html")
 
-    def directory(country_path):
+    def directory(country_path, collection_path):
         return templates["countries"].substitute(
             rows="\n".join(templates["country-row"].substitute(rows[code], country_path=country_path) for code in COUNTRIES),
-            country_path=country_path, bounds=bounds(data["ch-li"]), **dates)
+            country_path=country_path, collection_path=collection_path, bounds=bounds(data["ch-li"]), **dates)
 
-    files[Path("countries/index.html")] = render("Country", directory("./"), "countries/index.html")
-    files[Path("index.html")] = render("Country", directory("./countries/"), "index.html", root_path="./")
+    files[Path("countries/index.html")] = render("Country", directory("../country/", "./"), "countries/index.html")
+    files[Path("index.html")] = render("Country", directory("./country/", "./countries/"), "index.html", root_path="./")
     files.update(assets)
     for path, content in files.items():
         target = output_dir / path
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(content)
     (output_dir / "countries/ch-li.html").unlink(missing_ok=True)
+    for code in (*COUNTRIES, "ch-li-dissolved"):
+        for extension in ("html", "geojson", "png"):
+            (output_dir / "countries" / f"{code}.{extension}").unlink(missing_ok=True)
     print(f"Generated homepage, country directory, 3 detail pages, and 4 GeoJSON assets in {output_dir}")
 
 

@@ -40,7 +40,7 @@ class MunicipalityCoatTests(unittest.TestCase):
                 self.assertEqual(filename, "placeholder.webp")
                 self.assertIn("unavailable", image)
                 self.assertNotIn("<a", download)
-                self.assertEqual(files[Path("municipalities/placeholder.webp")], b"prepared-placeholder")
+                self.assertEqual(files[Path("municipality/placeholder.webp")], b"prepared-placeholder")
 
 
 if __name__ == "__main__":

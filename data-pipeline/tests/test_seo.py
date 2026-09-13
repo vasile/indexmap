@@ -29,8 +29,8 @@ class SeoTests(unittest.TestCase):
         self.temporary = TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.output = Path(self.temporary.name)
-        for path in ("index.html", "countries/index.html", "countries/ch.html", "cantons/index.html",
-                     "cantons/zh.html", "districts/index.html", "municipalities/index.html"):
+        for path in ("index.html", "countries/index.html", "country/ch.html", "cantons/index.html",
+                     "canton/zh.html", "districts/index.html", "municipalities/index.html"):
             target = self.output / path
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(page(path))
@@ -39,7 +39,7 @@ class SeoTests(unittest.TestCase):
         dated = self.output / "versions/2020-01-01/countries"
         dated.mkdir(parents=True)
         (dated / "old.html").write_bytes(b"archived page")
-        (self.output / "countries/ch.geojson").write_bytes(b"boundary download")
+        (self.output / "country/ch.geojson").write_bytes(b"boundary download")
         (self.output / "countries/countries.zip").write_bytes(b"zip download")
 
         self.assertEqual(seo.build(self.output), 6)
@@ -49,8 +49,8 @@ class SeoTests(unittest.TestCase):
         self.assertEqual(xml.tag, "{http://www.sitemaps.org/schemas/sitemap/0.9}urlset")
         urls = [element.text for element in xml.findall("{*}url/{*}loc")]
         self.assertEqual(urls, [
-            "https://indexmap.ch/", "https://indexmap.ch/cantons/", "https://indexmap.ch/cantons/zh.html",
-            "https://indexmap.ch/countries/ch.html", "https://indexmap.ch/districts/",
+            "https://indexmap.ch/", "https://indexmap.ch/canton/zh.html", "https://indexmap.ch/cantons/",
+            "https://indexmap.ch/country/ch.html", "https://indexmap.ch/districts/",
             "https://indexmap.ch/municipalities/",
         ])
         self.assertEqual(xml.findall(".//{*}lastmod"), [])
@@ -69,10 +69,10 @@ class SeoTests(unittest.TestCase):
         self.assertEqual((self.output / "robots.txt").read_text(), "previous robots")
 
     def test_missing_duplicate_or_wrong_canonical_fails(self):
-        for content in (b"<html><head></head></html>", page("cantons/zh.html") * 2,
-                        page("cantons/zh.html").replace(b"https://indexmap.ch", b"http://localhost:8080")):
+        for content in (b"<html><head></head></html>", page("canton/zh.html") * 2,
+                        page("canton/zh.html").replace(b"https://indexmap.ch", b"http://localhost:8080")):
             with self.subTest(content=content):
-                (self.output / "cantons/zh.html").write_bytes(content)
+                (self.output / "canton/zh.html").write_bytes(content)
                 with self.assertRaisesRegex(ValueError, "Invalid canonical URL"):
                     seo.build(self.output)
 

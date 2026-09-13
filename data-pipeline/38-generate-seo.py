@@ -10,6 +10,7 @@ from config.loader import DIST_DIR
 from site_helpers import canonical_url, site_url
 
 SECTIONS = ("countries", "cantons", "districts", "municipalities")
+DETAIL_SECTIONS = ("country", "canton", "district", "municipality")
 SITEMAP_NAMESPACE = "http://www.sitemaps.org/schemas/sitemap/0.9"
 
 
@@ -31,7 +32,7 @@ def build(output_dir: Path) -> int:
     for path in required:
         if not (output_dir / path).is_file():
             raise ValueError(f"Missing {path}; generate all current pages with steps 30–36 first")
-    pages = [Path("index.html"), *(path.relative_to(output_dir) for section in SECTIONS
+    pages = [*required, *(path.relative_to(output_dir) for section in DETAIL_SECTIONS
                                  for path in sorted((output_dir / section).glob("*.html")))]
     urls = set()
     for path in pages:

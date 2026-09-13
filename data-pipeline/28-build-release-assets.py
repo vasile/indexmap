@@ -12,6 +12,16 @@ from config.loader import (SCRIPT_DIR, CONFIG_DIR, CURRENT_INPUT_PATH, CURRENT_R
                     RELEASE_SOURCE_DIR, PROCESSED_ROOT, DIST_DIR, read_releases)
 
 
+def download_path(path, processed):
+    relative = path.relative_to(processed)
+    section = relative.parts[0]
+    singular = {"countries": "country", "cantons": "canton",
+                "districts": "district", "municipalities": "municipality"}[section]
+    combined = "ch-li.geojson" if section == "countries" else f"{section}.geojson"
+    folder = section if path.suffix == ".zip" or path.name == combined else singular
+    return Path(folder) / path.name
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--catalog", type=Path, default=CONFIG_DIR / "releases.yaml")
@@ -40,11 +50,11 @@ def main():
                  for path in (processed / section).iterdir() if path.suffix in (".geojson", ".zip")]
         # Validate every existing pinned file before publishing any new files.
         for path in files:
-            target = args.output_dir / "versions" / reference / path.relative_to(processed)
+            target = args.output_dir / "versions" / reference / download_path(path, processed)
             if target.exists() and target.read_bytes() != path.read_bytes():
                 raise ValueError(f"Pinned download differs: {target}")
         for path in files:
-            target = args.output_dir / "versions" / reference / path.relative_to(processed)
+            target = args.output_dir / "versions" / reference / download_path(path, processed)
             target.parent.mkdir(parents=True, exist_ok=True)
             if not target.exists():
                 shutil.copyfile(path, target)

@@ -61,15 +61,15 @@ def build(input_dir, output_dir):
                  f'<div><dt>Population</dt><dd>{population}<small>{dates["population_date"]}</small></dd></div>'
                  f'<div><dt>Area</dt><dd>{area} km²</dd></div>')
         context = dict(name=escape(name), code=number, upper_code=f"{number} · {canton}", entity_label="District",
-                       boundary_label="District boundary", facts=facts, subdivision_link="", coat_image="", coat_download="", directory_url="./",
+                       boundary_label="District boundary", facts=facts, subdivision_link="", coat_image="", coat_download="", directory_url="../districts/",
                        mask_hint="Covers the area outside the district.", bounds=escape(json.dumps(bounds)), **dates)
         body = templates["country"].substitute(context).replace("‹ All countries", "‹ All districts")
-        files[Path("districts") / f"{number}.html"] = render(name, body, f"districts/{number}.html")
-        files[Path("districts") / f"{number}.geojson"] = raw
+        files[Path("district") / f"{number}.html"] = render(name, body, f"district/{number}.html")
+        files[Path("district") / f"{number}.geojson"] = raw
         rows.append(f'<li class="canton-item" data-search="{escape(f"{name} {number} {canton} {country}")}">'
-                    f'<div class="canton-details"><h2><a href="./{number}.html">{escape(name)}</a></h2><p>{number} · {canton}</p>'
+                    f'<div class="canton-details"><h2><a href="../district/{number}.html">{escape(name)}</a></h2><p>{number} · {canton}</p>'
                     f'<p class="canton-stats">{population} inhabitants · {area} km²</p></div>'
-                    f'<a class="canton-next" href="./{number}.html" aria-label="View {escape(name)}">›</a></li>')
+                    f'<a class="canton-next" href="../district/{number}.html" aria-label="View {escape(name)}">›</a></li>')
     files[Path("districts/index.html")] = render("Districts", templates["districts"].substitute(rows="\n".join(rows), count=len(rows), **dates), "districts/index.html")
     for name in ("districts.geojson", "districts.zip"):
         files[Path("districts") / name] = (input_dir / name).read_bytes()
@@ -78,9 +78,10 @@ def build(input_dir, output_dir):
         target = output_dir / path
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(raw)
-    for path in (output_dir / "districts").iterdir():
-        if path.suffix in (".html", ".geojson") and path.stem.isdigit() and int(path.stem) not in seen:
-            path.unlink()
+    for folder in ("districts", "district"):
+        for path in (output_dir / folder).iterdir():
+            if path.suffix in (".html", ".geojson") and path.stem.isdigit() and Path(folder) / path.name not in files:
+                path.unlink()
     print(f"Generated {len(rows)} district detail pages, directory and downloads in {output_dir / 'districts'}")
 
 
