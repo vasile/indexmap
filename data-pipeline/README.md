@@ -89,8 +89,9 @@ Both ZIPs use the same fixed timestamps as country/canton bundles.
 
 Steps 34 and 36 generate searchable directories and detail pages with boundary
 previews, population, area, canton/country, GeoJSON downloads and browser masks.
-They copy prepared downloads unchanged. Use `--current-only` for steps 30, 34
-and 36 during development when keeping existing pinned releases unchanged.
+They copy prepared downloads unchanged. Steps 30, 32, 34 and 36 update only current
+output by default. Pass `--include-historical` explicitly to also publish a dated
+snapshot for the selected release. Existing pinned snapshots remain protected.
 
 ## Historical release assets
 
