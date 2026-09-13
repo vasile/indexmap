@@ -57,6 +57,7 @@ h1 { font-size: 1.8rem; font-weight: 650; letter-spacing: -.045em; }
 .canton-facts small { display: block; margin-top: .25rem; color: var(--muted); font-size: .75rem; font-weight: 400; }
 .detail-downloads .btn { display: block; margin-top: .65rem; font-size: .875rem; padding: .6rem; }
 .detail-downloads h2 { font-size: 1rem; }
+.detail-downloads .coat-credit { display: block; margin: .55rem 0 .9rem; font-size: .75rem; line-height: 1.6; overflow-wrap: anywhere; }
 .mask-option { display: flex; align-items: center; gap: .45rem; margin-top: .65rem; font-size: .875rem; cursor: pointer; width: fit-content; }
 .mask-option input { width: 1rem; height: 1rem; accent-color: var(--accent); }
 .detail-downloads .mask-status { margin-top: .6rem; }
