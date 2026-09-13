@@ -7,8 +7,32 @@ import json
 import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from urllib.parse import quote, urlsplit
 from dotenv import dotenv_values
-from config.loader import REFERENCE_DATE, SCRIPT_DIR
+from config.loader import PIPELINE, REFERENCE_DATE, SCRIPT_DIR
+
+
+def site_url(path="") -> str:
+    """Build production URLs independently of the local preview address."""
+    origin = PIPELINE["site_url"]
+    parsed = urlsplit(origin)
+    if (parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password
+            or parsed.path not in ("", "/") or parsed.query or parsed.fragment):
+        raise ValueError("site_url must be an HTTPS origin without a path, query, or credentials")
+    relative = str(path)
+    if relative.startswith("/") or ".." in relative.split("/"):
+        raise ValueError(f"Expected a site-relative path: {path}")
+    return origin.rstrip("/") + "/" + quote(relative, safe="/")
+
+
+def canonical_url(path) -> str:
+    """Use directory URLs and prefer the homepage over its Country alias."""
+    relative = Path(path).as_posix()
+    if relative == "countries/index.html":
+        relative = "index.html"
+    if relative == "index.html" or relative.endswith("/index.html"):
+        relative = relative[:-len("index.html")]
+    return site_url(relative)
 
 
 def build_assets(asset_dir: Path) -> dict[Path, bytes]:
@@ -59,6 +83,14 @@ def publish_pinned_release(output_dir: Path, files: dict[Path, bytes], section: 
             if path.parts[0] == section:
                 target = Path(temporary) / path
                 target.parent.mkdir(parents=True, exist_ok=True)
+                if path.suffix == ".html":
+                    # Dated pages describe their own release, not today's data.
+                    old_link = f'<link rel="canonical" href="{escape(canonical_url(path))}">'
+                    dated_path = Path("versions") / REFERENCE_DATE / path
+                    new_link = f'<link rel="canonical" href="{escape(canonical_url(dated_path))}">'
+                    content = content.replace(old_link.encode(), new_link.encode())
+                    # Dated sections have a Country directory but no root homepage.
+                    content = content.replace(b'href="../"', b'href="../countries/"')
                 target.write_bytes(content)
             elif path.parts[0] == "assets":
                 target = release_dir / path
