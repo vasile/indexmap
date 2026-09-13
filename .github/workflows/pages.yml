@@ -56,6 +56,7 @@ jobs:
           python data-pipeline/32-generate-canton-pages.py --current-only
           python data-pipeline/34-generate-district-pages.py --current-only
           python data-pipeline/36-generate-municipality-pages.py --current-only
+          python data-pipeline/38-generate-seo.py
 
       - name: Prepare and check published output
         run: |
