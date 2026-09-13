@@ -12,11 +12,3 @@ releases:
     reference_date: "2025-01-01"
     population_date: null
     population_source_url: null
-  "2024-01":
-    reference_date: "2024-01-01"
-    population_date: null
-    population_source_url: null
-  "2023-01":
-    reference_date: "2023-01-01"
-    population_date: null
-    population_source_url: null
