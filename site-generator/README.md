@@ -6,6 +6,8 @@ Run from the project root after activating `data-pipeline/.venv` and installing
 ```sh
 python3 data-pipeline/30-generate-country-pages.py
 python3 data-pipeline/32-generate-canton-pages.py
+python3 data-pipeline/34-generate-district-pages.py
+python3 data-pipeline/36-generate-municipality-pages.py
 ```
 
 Step 30 reads `data/processed/<reference-date>/countries/{ch,li,ch-li,ch-li-dissolved}.geojson`
