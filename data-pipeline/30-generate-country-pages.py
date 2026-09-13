@@ -9,7 +9,7 @@ from pathlib import Path
 from string import Template
 
 from config.loader import SITE_DIR, DIST_DIR, population_metadata, OUTPUT_DIR as PROCESSED_DIR, REFERENCE_DATE, SCRIPT_DIR
-from site_helpers import build_assets, asset_version, escape, format_number, positions, publish_pinned_release
+from site_helpers import build_assets, asset_version, canonical_url, escape, format_number, positions, publish_pinned_release
 
 PROJECT_DIR = SCRIPT_DIR.parent
 COUNTRIES = {"ch": "Switzerland", "li": "Liechtenstein"}
@@ -52,9 +52,9 @@ def build(input_dir: Path, output_dir: Path, *, current_only=False) -> None:
     assets = build_assets(SITE_DIR / "assets")
     version = asset_version(assets)
 
-    def render(title, body, *, root_path="../"):
+    def render(title, body, path, *, root_path="../"):
         return templates["base"].substitute(title=escape(title), description=escape(f"{title}: administrative boundaries and GeoJSON downloads."),
-                                            body=body, root_path=root_path, countries_class="active", cantons_class="", asset_version=version, municipalities_class="", districts_class="").encode("utf-8")
+                                            body=body, root_path=root_path, canonical_url=escape(canonical_url(path)), countries_class="active", cantons_class="", asset_version=version, municipalities_class="", districts_class="").encode("utf-8")
 
     rows = {}
     for code, name in COUNTRIES.items():
@@ -71,30 +71,31 @@ def build(input_dir: Path, output_dir: Path, *, current_only=False) -> None:
         context = dict(name=escape(name), code=code, upper_code=upper_code, population=population, area=area,
                        coat_image=f'<img src="./{code}.png" width="85" alt="" class="detail-coat-of-arms">',
                        coat_download=f'<a class="btn btn-outline-secondary" href="./{code}.png" download="{code}.png">↓ Coat of arms · PNG</a>',
-                       entity_label="Country", code_label="Country code",
+                       entity_label="Country", code_label="Country code", directory_url="../",
                        boundary_label="Country boundary",
                        mask_hint="Covers the area outside the country.",
                        facts=f'<div><dt>Country code</dt><dd>{upper_code}</dd></div><div><dt>Population</dt><dd>{population}<small>{dates["population_date"]}</small></dd></div><div><dt>Area</dt><dd>{area} km²</dd></div>',
-                       bounds=bounds(data[code]), subdivision_link='<a class="back-link" href="../cantons/index.html">Browse 26 cantons ›</a>' if code == "ch" else "", **dates)
-        files[Path("countries") / f"{code}.html"] = render(name, templates["country"].substitute(context))
+                       bounds=bounds(data[code]), subdivision_link='<a class="back-link" href="../cantons/">Browse 26 cantons ›</a>' if code == "ch" else "", **dates)
+        path = Path("countries") / f"{code}.html"
+        files[path] = render(name, templates["country"].substitute(context), path)
         stats = f'<p class="canton-stats">{population} inhabitants · {format_number(props["landesflaeche"] / 100)} km²</p>'
         rows[code] = dict(name=escape(name), code=code, upper_code=upper_code, stats=stats)
     dissolved_context = dict(name="Switzerland + Liechtenstein", code="ch-li-dissolved",
                              upper_code="CH + LI", entity_label="Dissolved boundary",
                              boundary_label="Dissolved boundary", facts="", subdivision_link="",
-                             coat_image="", coat_download="",
+                             coat_image="", coat_download="", directory_url="../",
                              mask_hint="Covers the area outside Switzerland and Liechtenstein.",
                              bounds=bounds(data["ch-li-dissolved"]), **dates)
     files[Path("countries/ch-li-dissolved.html")] = render(
-        "Switzerland + Liechtenstein", templates["country"].substitute(dissolved_context))
+        "Switzerland + Liechtenstein", templates["country"].substitute(dissolved_context), "countries/ch-li-dissolved.html")
 
     def directory(country_path):
         return templates["countries"].substitute(
             rows="\n".join(templates["country-row"].substitute(rows[code], country_path=country_path) for code in COUNTRIES),
             country_path=country_path, bounds=bounds(data["ch-li"]), **dates)
 
-    files[Path("countries/index.html")] = render("Country", directory("./"))
-    files[Path("index.html")] = render("Country", directory("./countries/"), root_path="./")
+    files[Path("countries/index.html")] = render("Country", directory("./"), "countries/index.html")
+    files[Path("index.html")] = render("Country", directory("./countries/"), "index.html", root_path="./")
     files.update(assets)
     if not current_only:
         publish_pinned_release(output_dir, files, "countries")

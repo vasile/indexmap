@@ -10,7 +10,7 @@ from string import Template
 import unicodedata
 
 from config.loader import SITE_DIR, DIST_DIR, population_metadata, CANTON_CODES, OUTPUT_DIR, REFERENCE_DATE, SCRIPT_DIR
-from site_helpers import build_assets, asset_version, escape, format_number, positions, publish_pinned_release
+from site_helpers import build_assets, asset_version, canonical_url, escape, format_number, positions, publish_pinned_release
 
 
 
@@ -31,10 +31,10 @@ def build(input_dir, output_dir, *, current_only=False):
     assets = build_assets(SITE_DIR / "assets")
     version = asset_version(assets)
 
-    def render(title, body):
+    def render(title, body, path):
         return templates["base"].substitute(title=escape(title), description=escape(f"{title}: district boundaries and downloads."),
                                             body=body, countries_class="", cantons_class="", districts_class="active", municipalities_class="",
-                                            root_path="../", asset_version=version).encode("utf-8")
+                                            root_path="../", canonical_url=escape(canonical_url(path)), asset_version=version).encode("utf-8")
 
     for feature in features:
         props = feature["properties"]
@@ -61,16 +61,16 @@ def build(input_dir, output_dir, *, current_only=False):
                  f'<div><dt>Population</dt><dd>{population}<small>{dates["population_date"]}</small></dd></div>'
                  f'<div><dt>Area</dt><dd>{area} km²</dd></div>')
         context = dict(name=escape(name), code=number, upper_code=f"{number} · {canton}", entity_label="District",
-                       boundary_label="District boundary", facts=facts, subdivision_link="", coat_image="", coat_download="",
+                       boundary_label="District boundary", facts=facts, subdivision_link="", coat_image="", coat_download="", directory_url="./",
                        mask_hint="Covers the area outside the district.", bounds=escape(json.dumps(bounds)), **dates)
         body = templates["country"].substitute(context).replace("‹ All countries", "‹ All districts")
-        files[Path("districts") / f"{number}.html"] = render(name, body)
+        files[Path("districts") / f"{number}.html"] = render(name, body, f"districts/{number}.html")
         files[Path("districts") / f"{number}.geojson"] = raw
         rows.append(f'<li class="canton-item" data-search="{escape(f"{name} {number} {canton} {country}")}">'
                     f'<div class="canton-details"><h2><a href="./{number}.html">{escape(name)}</a></h2><p>{number} · {canton}</p>'
                     f'<p class="canton-stats">{population} inhabitants · {area} km²</p></div>'
                     f'<a class="canton-next" href="./{number}.html" aria-label="View {escape(name)}">›</a></li>')
-    files[Path("districts/index.html")] = render("Districts", templates["districts"].substitute(rows="\n".join(rows), count=len(rows), **dates))
+    files[Path("districts/index.html")] = render("Districts", templates["districts"].substitute(rows="\n".join(rows), count=len(rows), **dates), "districts/index.html")
     for name in ("districts.geojson", "districts.zip"):
         files[Path("districts") / name] = (input_dir / name).read_bytes()
     files.update(assets)

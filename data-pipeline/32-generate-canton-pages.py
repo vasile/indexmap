@@ -9,7 +9,7 @@ from pathlib import Path
 from string import Template
 import unicodedata
 
-from site_helpers import build_assets, asset_version, escape, format_number, positions, publish_pinned_release
+from site_helpers import build_assets, asset_version, canonical_url, escape, format_number, positions, publish_pinned_release
 
 from config.loader import CANTONS, SITE_DIR, DIST_DIR, population_metadata, CANTON_CODES, OUTPUT_DIR as PROCESSED_DIR, REFERENCE_DATE, SCRIPT_DIR
 
@@ -85,8 +85,8 @@ def build(input_dir: Path, output_dir: Path, *, current_only=False) -> None:
     assets = build_assets(SITE_DIR / "assets")
     version = asset_version(assets)
 
-    def render(title, description, body):
-        return templates["base"].substitute(title=escape(title), description=escape(description), body=body, root_path="../", countries_class="", cantons_class="active", asset_version=version, municipalities_class="", districts_class="")
+    def render(title, description, body, path):
+        return templates["base"].substitute(title=escape(title), description=escape(description), body=body, root_path="../", canonical_url=escape(canonical_url(path)), countries_class="", cantons_class="active", asset_version=version, municipalities_class="", districts_class="")
 
     # Validate and render every page before writing output.
     pages = {}
@@ -96,10 +96,10 @@ def build(input_dir: Path, output_dir: Path, *, current_only=False) -> None:
         rows.append(templates["canton-row"].substitute(context))
         pages[f'{context["code"]}.html'] = render(
             canton["name"], f'{canton["name"]}: boundary map, population, area, and downloads.',
-            templates["canton"].substitute(context),
+            templates["canton"].substitute(context), f'cantons/{context["code"]}.html',
         )
     pages["index.html"] = render("Cantons of Switzerland", "Explore Switzerland’s 26 cantons and download their administrative boundaries.",
-                                 templates["cantons"].substitute(rows="\n".join(rows), count=len(cantons), **dates))
+                                 templates["cantons"].substitute(rows="\n".join(rows), count=len(cantons), **dates), "cantons/index.html")
     files = {Path("cantons") / filename: page.encode("utf-8") for filename, page in pages.items()}
     files.update(assets)
     for canton in cantons:
