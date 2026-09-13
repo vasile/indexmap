@@ -89,6 +89,8 @@ def publish_pinned_release(output_dir: Path, files: dict[Path, bytes], section: 
                     dated_path = Path("versions") / REFERENCE_DATE / path
                     new_link = f'<link rel="canonical" href="{escape(canonical_url(dated_path))}">'
                     content = content.replace(old_link.encode(), new_link.encode())
+                    # The brand always links to the current site's homepage.
+                    content = content.replace(b'<a href="../" class="brand ', b'<a href="../../../" class="brand ')
                     # Dated sections have a Country directory but no root homepage.
                     content = content.replace(b'href="../"', b'href="../countries/"')
                 target.write_bytes(content)
