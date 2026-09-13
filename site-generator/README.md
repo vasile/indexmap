@@ -23,8 +23,8 @@ The directory has Individual and Combined radio sections. Individual shows both
 country features on the map; Combined shows the dissolved boundary. The combined
 row opens its detail page with GeoJSON download and the browser mask control.
 Both sections remain visible, separated by a rule, with Individual selected initially.
-Use `--current-only` with step 30 to update current output while leaving pinned
-releases alone (including when introducing new assets during development).
+All four page generators update current output only by default. Pass
+`--include-historical` to also publish a dated snapshot for the selected release.
 The country templates use English display names. The homepage renders the Country
 directory directly, using the same templates with links relative to the site root.
 It includes the map, country details and downloads without a redirect.
