@@ -3,18 +3,90 @@
 
 import argparse
 from datetime import date
+from html.parser import HTMLParser
 import json
 import math
 from pathlib import Path
 from string import Template
 import unicodedata
+from urllib.parse import urlsplit
 
 from config.loader import SITE_DIR, DIST_DIR, population_metadata, CANTON_CODES, OUTPUT_DIR, REFERENCE_DATE, SCRIPT_DIR
 from site_helpers import build_assets, asset_version, canonical_url, escape, format_number, positions, publish_pinned_release
 
 
+COAT_DIR = SCRIPT_DIR.parent / "data/source/coat-of-arms"
 
-def build(input_dir, output_dir, *, current_only=False):
+
+def credit_link(url, label):
+    """Only publish web links, never raw Commons HTML."""
+    if url and urlsplit(url).scheme in ("http", "https") and urlsplit(url).netloc:
+        return f'<a href="{escape(url)}">{escape(label)}</a>'
+    return escape(label)
+
+
+class PermissionLinks(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.urls = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "a":
+            url = dict(attrs).get("href", "")
+            if url.startswith("//"):
+                url = "https:" + url
+            if urlsplit(url).scheme in ("http", "https") and urlsplit(url).netloc and url not in self.urls:
+                self.urls.append(url)
+
+
+def coat_credit(attribution):
+    source = credit_link(attribution.get("page_url"), "Wikimedia Commons")
+    license_name = attribution.get("license") or "License not recorded"
+    if license_name == "Public domain":
+        return f'<small class="coat-credit">Source: {source} · Public domain</small>'
+    author = attribution.get("author")
+    credit = f'{escape(author)} / {source}' if author else source
+    license_link = credit_link(attribution.get("license_url"), license_name)
+    title = escape(attribution.get("title") or "Coat of arms")
+    lines = [f'{title} — {credit} · {license_link}', 'Converted to WebP and resized for display.']
+    if attribution.get("credit"):
+        lines.append(f'Source credit: {escape(attribution["credit"])}')
+    permission = PermissionLinks()
+    permission.feed((attribution.get("commons_metadata", {}).get("Permission") or {}).get("value", ""))
+    lines.extend(credit_link(url, "Permission details") for url in permission.urls)
+    return '<small class="coat-credit">' + '<br>'.join(lines) + '</small>'
+
+
+def prepared_icon(coat_dir, filename):
+    path = coat_dir / "municipalities-web" / filename
+    if not path.is_file():
+        raise ValueError(f"Missing prepared icon: {path}. Run fetch-coat-of-arms/prepare_web_icons.py locally and commit the prepared assets.")
+    return path.read_bytes()
+
+
+def municipality_coat(record, number, files, coat_dir):
+    if record and record.get("status") == "available" and record.get("has_icon"):
+        filename = f"{number}.webp"
+        files[Path("municipalities") / filename] = prepared_icon(coat_dir, filename)
+        attribution = record["attribution"]
+        original_url = attribution.get("original_url") or attribution.get("page_url")
+        if not original_url or urlsplit(original_url).scheme not in ("http", "https") or not urlsplit(original_url).netloc:
+            raise ValueError(f"Missing valid original image URL for {number}")
+        download = (f'<a class="btn btn-outline-secondary" href="{escape(original_url)}">↓ Original coat of arms · Commons</a>'
+                    + coat_credit(attribution))
+        alt = ""
+    else:
+        filename = "placeholder.webp"
+        placeholder_path = Path("municipalities") / filename
+        if placeholder_path not in files:
+            files[placeholder_path] = prepared_icon(coat_dir, filename)
+        alt = "Coat of arms unavailable"
+        download = '<small class="coat-credit">Coat of arms unavailable. Placeholder shown.</small>'
+    image = f'<img src="./{filename}" width="85" alt="{alt}" class="detail-coat-of-arms">'
+    return image, download, filename
+
+
+def build(input_dir, output_dir, *, current_only=False, coat_dir=COAT_DIR):
     source, destination = input_dir.resolve(), output_dir.resolve()
     if source == destination or source in destination.parents or destination in source.parents:
         raise ValueError("Output and processed inputs must be separate")
@@ -28,6 +100,10 @@ def build(input_dir, output_dir, *, current_only=False):
         raise ValueError("Expected municipality FeatureCollection")
     features = sorted(collection["features"], key=lambda f: unicodedata.normalize("NFD", f["properties"]["name"].casefold()))
     files, rows, seen = {}, [], set()
+    manifest = json.loads((coat_dir / "municipalities-web/index.json").read_text())
+    if manifest.get("schema_version") != 1 or "municipalities" not in manifest:
+        raise ValueError("Prepared manifest is outdated. Run fetch-coat-of-arms/prepare_web_icons.py locally and commit the prepared assets.")
+    coats = {record["id"]: record for record in manifest["municipalities"]}
     assets = build_assets(SITE_DIR / "assets")
     version = asset_version(assets)
 
@@ -60,13 +136,15 @@ def build(input_dir, output_dir, *, current_only=False):
                  f'<div><dt>{"Canton" if country == "CH" else "Country"}</dt><dd>{canton}</dd></div>'
                  f'<div><dt>Population</dt><dd>{population}<small>{dates["population_date"]}</small></dd></div>'
                  f'<div><dt>Area</dt><dd>{area} km²</dd></div>')
+        coat_image, coat_download, coat_filename = municipality_coat(coats.get(number), number, files, coat_dir)
         context = dict(name=escape(name), code=number, upper_code=f"{number} · {canton}", entity_label="Municipality",
-                       boundary_label="Municipality boundary", facts=facts, subdivision_link="", coat_image="", coat_download="", directory_url="./",
+                       boundary_label="Municipality boundary", facts=facts, subdivision_link="", coat_image=coat_image, coat_download=coat_download, directory_url="./",
                        mask_hint="Covers the area outside the municipality.", bounds=escape(json.dumps(bounds)), **dates)
         body = templates["country"].substitute(context).replace("‹ All countries", "‹ All municipalities")
         files[Path("municipalities") / f"{number}.html"] = render(name, body, f"municipalities/{number}.html")
         files[Path("municipalities") / f"{number}.geojson"] = raw
         rows.append(f'<li class="canton-item" data-search="{escape(f"{name} {number} {canton} {country}")}">'
+                    f'<img src="./{coat_filename}" alt="" class="canton-coat-of-arms" width="40" loading="lazy">'
                     f'<div class="canton-details"><h2><a href="./{number}.html">{escape(name)}</a></h2><p>{number} · {canton}</p>'
                     f'<p class="canton-stats">{population} inhabitants · {area} km²</p></div>'
                     f'<a class="canton-next" href="./{number}.html" aria-label="View {escape(name)}">›</a></li>')
@@ -81,6 +159,8 @@ def build(input_dir, output_dir, *, current_only=False):
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(raw)
     for path in (output_dir / "municipalities").iterdir():
+        if path.suffix in (".png", ".webp") and (path.stem.isdigit() or path.stem == "placeholder") and Path("municipalities") / path.name not in files:
+            path.unlink()
         if path.suffix in (".html", ".geojson") and path.stem.isdigit() and int(path.stem) not in seen:
             path.unlink()
     print(f"Generated {len(rows)} municipality detail pages, directory and downloads in {output_dir / 'municipalities'}")
