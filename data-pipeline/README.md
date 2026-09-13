@@ -133,3 +133,8 @@ token) in the environment or the project-root `.env.local` file. GitHub Actions 
 secret of the same name. `assets/config.js` is generated, and its contents are
 included in the browser cache hash. Data-preparation steps do not need a token.
 See `site-generator/README.md` for local and Actions setup.
+
+After steps 30–36, run `python3 data-pipeline/38-generate-seo.py` to generate
+`dist/sitemap.xml` and `dist/robots.txt`. The Pages workflow runs this automatically.
+The production origin for canonical URLs and the sitemap is `site_url` in
+`config/pipeline.yaml`; it is independent of the local preview URL.

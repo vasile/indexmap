@@ -8,6 +8,7 @@ python3 data-pipeline/30-generate-country-pages.py
 python3 data-pipeline/32-generate-canton-pages.py
 python3 data-pipeline/34-generate-district-pages.py
 python3 data-pipeline/36-generate-municipality-pages.py
+python3 data-pipeline/38-generate-seo.py
 ```
 
 Step 30 reads `data/processed/<reference-date>/countries/{ch,li,ch-li,ch-li-dissolved}.geojson`
@@ -126,3 +127,31 @@ env:
 Use a public (`pk.`) Mapbox token. It is hidden from the source repository but
 visible in the published JavaScript. Secret (`sk.`) tokens are rejected.
 Existing pinned page snapshots retain their original assets.
+
+## Search engine metadata
+
+`site_url` in `data-pipeline/config/pipeline.yaml` is the production origin,
+currently `https://indexmap.ch`. Canonical URLs always use this origin, including
+when the generated site is viewed through the local preview.
+
+Each current page includes an absolute canonical link. Directory URLs use a
+trailing slash; detail URLs retain `.html`. The Country directory at `/countries/`
+identifies `/` as canonical because it shares the homepage's content. Navigation
+and Country back links use the homepage; the other directories link to their
+trailing-slash URLs. Existing URLs continue to work without HTML redirects.
+
+Run step 38 after generating all current pages. It validates every page's canonical
+link, then writes `dist/sitemap.xml` and `dist/robots.txt`. The sitemap lists each
+current canonical HTML URL once and excludes downloads and `versions/` archives.
+It omits `lastmod` because a reliable page-modification date is not tracked, and
+does not invent dates from the build time or the boundary reference date.
+`robots.txt` allows crawling and advertises the sitemap at the production origin.
+
+New dated HTML snapshots get canonical URLs for their own release; existing
+snapshots are preserved. The GitHub Pages workflow automatically runs step 38.
+Deploy the output at the domain root so Google can find `/robots.txt` and
+`/sitemap.xml`. After deployment, submit `https://indexmap.ch/sitemap.xml` in the
+verified Google Search Console property for `indexmap.ch`.
+
+Run the SEO regression checks with
+`python3 -m unittest discover -s data-pipeline/tests -v`.
