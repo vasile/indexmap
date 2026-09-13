@@ -48,8 +48,8 @@ GDAL reference: https://gdal.org/en/stable/drivers/vector/geojson.html#rfc-7946-
 comes from `config/releases.yaml`, currently
 `2026-01-01`. All processed outputs go into
 `data/processed/2026-01-01/{countries,cantons,districts}`. Step 32 reads this
-version automatically and publishes current paths under `dist/cantons` plus
-a pinned snapshot under `dist/versions/2026-01-01`, including its own shared assets.
+version automatically and publishes current paths under `dist/cantons`.
+Historical data downloads are published separately by step 28.
 The date also supplies the boundary date displayed on the site and the
 year-month release used for downloading. Rebuilding a release updates its
 folder; changing the date preserves previously processed releases.
@@ -89,9 +89,9 @@ Both ZIPs use the same fixed timestamps as country/canton bundles.
 
 Steps 34 and 36 generate searchable directories and detail pages with boundary
 previews, population, area, canton/country, GeoJSON downloads and browser masks.
-They copy prepared downloads unchanged. Steps 30, 32, 34 and 36 update only current
-output by default. Pass `--include-historical` explicitly to also publish a dated
-snapshot for the selected release. Existing pinned snapshots remain protected.
+They copy prepared downloads unchanged. Steps 30, 32, 34 and 36 build only the
+current website. Historical GeoJSON and ZIP downloads are handled separately by
+step 28; page generators never create dated HTML or icon copies.
 
 ## Historical release assets
 

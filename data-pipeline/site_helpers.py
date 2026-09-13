@@ -1,4 +1,4 @@
-"""Shared rendering and release publishing helpers for site generators."""
+"""Shared rendering helpers for site generators."""
 
 import html
 import hashlib
@@ -6,10 +6,9 @@ import math
 import json
 import os
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from urllib.parse import quote, urlsplit
 from dotenv import dotenv_values
-from config.loader import PIPELINE, REFERENCE_DATE, SCRIPT_DIR
+from config.loader import PIPELINE, SCRIPT_DIR
 
 
 def site_url(path="") -> str:
@@ -63,44 +62,6 @@ def asset_version(assets: dict[Path, bytes]) -> str:
         digest.update(b"\0")
         digest.update(content)
     return digest.hexdigest()[:16]
-
-
-def publish_pinned_release(output_dir: Path, files: dict[Path, bytes], section: str) -> None:
-    release_dir = output_dir / "versions" / REFERENCE_DATE
-    section_dir = release_dir / section
-    if section_dir.exists():
-        for path, content in files.items():
-            if path.parts[0] == section and path.suffix in {".geojson", ".png", ".zip"}:
-                target = release_dir / path
-                if not target.is_file() or target.read_bytes() != content:
-                    raise ValueError(f"Pinned release differs at {target}; existing releases cannot be overwritten")
-        print(f"Preserved pinned section {section_dir}")
-        return
-    release_dir.mkdir(parents=True, exist_ok=True)
-    with TemporaryDirectory(prefix=".section-", dir=release_dir) as temporary:
-        staging = Path(temporary) / section
-        for path, content in files.items():
-            if path.parts[0] == section:
-                target = Path(temporary) / path
-                target.parent.mkdir(parents=True, exist_ok=True)
-                if path.suffix == ".html":
-                    # Dated pages describe their own release, not today's data.
-                    old_link = f'<link rel="canonical" href="{escape(canonical_url(path))}">'
-                    dated_path = Path("versions") / REFERENCE_DATE / path
-                    new_link = f'<link rel="canonical" href="{escape(canonical_url(dated_path))}">'
-                    content = content.replace(old_link.encode(), new_link.encode())
-                    # The brand always links to the current site's homepage.
-                    content = content.replace(b'<a href="../" class="brand ', b'<a href="../../../" class="brand ')
-                    # Dated sections have a Country directory but no root homepage.
-                    content = content.replace(b'href="../"', b'href="../countries/"')
-                target.write_bytes(content)
-            elif path.parts[0] == "assets":
-                target = release_dir / path
-                if not target.exists():
-                    target.parent.mkdir(parents=True, exist_ok=True)
-                    target.write_bytes(content)
-        staging.rename(section_dir)
-    print(f"Created pinned section {section_dir}")
 
 
 def escape(value) -> str:

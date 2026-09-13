@@ -9,7 +9,7 @@ from pathlib import Path
 from string import Template
 
 from config.loader import SITE_DIR, DIST_DIR, population_metadata, OUTPUT_DIR as PROCESSED_DIR, REFERENCE_DATE, SCRIPT_DIR
-from site_helpers import build_assets, asset_version, canonical_url, escape, format_number, positions, publish_pinned_release
+from site_helpers import build_assets, asset_version, canonical_url, escape, format_number, positions
 
 PROJECT_DIR = SCRIPT_DIR.parent
 COUNTRIES = {"ch": "Switzerland", "li": "Liechtenstein"}
@@ -25,7 +25,7 @@ def bounds(features):
                               [max(p[0] for p in points), max(p[1] for p in points)]]))
 
 
-def build(input_dir: Path, output_dir: Path, *, current_only=True) -> None:
+def build(input_dir: Path, output_dir: Path) -> None:
     source, destination = input_dir.resolve(), output_dir.resolve()
     if source == destination or source in destination.parents or destination in source.parents:
         raise ValueError("Output and processed inputs must be separate")
@@ -97,8 +97,6 @@ def build(input_dir: Path, output_dir: Path, *, current_only=True) -> None:
     files[Path("countries/index.html")] = render("Country", directory("./"), "countries/index.html")
     files[Path("index.html")] = render("Country", directory("./countries/"), "index.html", root_path="./")
     files.update(assets)
-    if not current_only:
-        publish_pinned_release(output_dir, files, "countries")
     for path, content in files.items():
         target = output_dir / path
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -111,11 +109,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input-dir", type=Path, default=PROCESSED_DIR / "countries")
     parser.add_argument("--output-dir", type=Path, default=DIST_DIR)
-    parser.add_argument("--include-historical", dest="current_only", action="store_false", help="Also publish a dated snapshot for the selected release")
-    parser.set_defaults(current_only=True)
     args = parser.parse_args()
     try:
-        build(args.input_dir, args.output_dir, current_only=args.current_only)
+        build(args.input_dir, args.output_dir)
     except (OSError, ValueError, KeyError, TypeError) as error:
         parser.exit(1, f"Country generation failed: {error}\n")
 

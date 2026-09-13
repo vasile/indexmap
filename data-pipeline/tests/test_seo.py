@@ -11,8 +11,8 @@ import xml.etree.ElementTree as ET
 PIPELINE_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PIPELINE_DIR))
 
-from config.loader import PIPELINE, REFERENCE_DATE
-from site_helpers import canonical_url, publish_pinned_release, site_url
+from config.loader import PIPELINE
+from site_helpers import canonical_url, site_url
 
 spec = importlib.util.spec_from_file_location("generate_seo", PIPELINE_DIR / "38-generate-seo.py")
 seo = importlib.util.module_from_spec(spec)
@@ -75,21 +75,6 @@ class SeoTests(unittest.TestCase):
                 (self.output / "cantons/zh.html").write_bytes(content)
                 with self.assertRaisesRegex(ValueError, "Invalid canonical URL"):
                     seo.build(self.output)
-
-    def test_dated_pages_refer_to_their_own_release(self):
-        files = {Path("countries/index.html"): page("countries/index.html"),
-                 Path("countries/ch.html"): page("countries/ch.html")}
-        publish_pinned_release(self.output, files, "countries")
-        dated = self.output / "versions" / REFERENCE_DATE / "countries"
-        for name, suffix in (("index.html", ""), ("ch.html", "ch.html")):
-            text = (dated / name).read_text()
-            self.assertEqual(seo.PageCanonical(text).urls,
-                             [f"https://indexmap.ch/versions/{REFERENCE_DATE}/countries/{suffix}"])
-            self.assertIn('href="../countries/"', text)
-        original = (dated / "ch.html").read_bytes()
-        files[Path("countries/ch.html")] = b"new current content"
-        publish_pinned_release(self.output, files, "countries")
-        self.assertEqual((dated / "ch.html").read_bytes(), original)
 
     def test_origin_must_be_https_at_domain_root(self):
         for origin in ("http://indexmap.ch", "https://indexmap.ch/subpath", "https://user:pass@indexmap.ch",

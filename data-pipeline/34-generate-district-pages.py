@@ -10,11 +10,11 @@ from string import Template
 import unicodedata
 
 from config.loader import SITE_DIR, DIST_DIR, population_metadata, CANTON_CODES, OUTPUT_DIR, REFERENCE_DATE, SCRIPT_DIR
-from site_helpers import build_assets, asset_version, canonical_url, escape, format_number, positions, publish_pinned_release
+from site_helpers import build_assets, asset_version, canonical_url, escape, format_number, positions
 
 
 
-def build(input_dir, output_dir, *, current_only=True):
+def build(input_dir, output_dir):
     source, destination = input_dir.resolve(), output_dir.resolve()
     if source == destination or source in destination.parents or destination in source.parents:
         raise ValueError("Output and processed inputs must be separate")
@@ -74,8 +74,6 @@ def build(input_dir, output_dir, *, current_only=True):
     for name in ("districts.geojson", "districts.zip"):
         files[Path("districts") / name] = (input_dir / name).read_bytes()
     files.update(assets)
-    if not current_only:
-        publish_pinned_release(output_dir, files, "districts")
     for path, raw in files.items():
         target = output_dir / path
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -90,11 +88,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input-dir", type=Path, default=OUTPUT_DIR / "districts")
     parser.add_argument("--output-dir", type=Path, default=DIST_DIR)
-    parser.add_argument("--include-historical", dest="current_only", action="store_false", help="Also publish a dated snapshot for the selected release")
-    parser.set_defaults(current_only=True)
     args = parser.parse_args()
     try:
-        build(args.input_dir, args.output_dir, current_only=args.current_only)
+        build(args.input_dir, args.output_dir)
     except (OSError, ValueError, KeyError, TypeError) as error:
         parser.exit(1, f"District generation failed: {error}\n")
 
