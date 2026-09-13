@@ -61,15 +61,11 @@ jobs:
         run: |
           python - <<'PY'
           import os
-          from pathlib import Path
           import sys
           sys.path.insert(0, 'data-pipeline')
           from config.loader import DIST_DIR
-          DIST_DIR.joinpath('index.html').write_text(
-              '<!doctype html><html lang="en"><head><meta charset="utf-8">'
-              '<meta http-equiv="refresh" content="0; url=./countries/">'
-              '<title>IndexMap</title></head><body>'
-              '<a href="./countries/">Open IndexMap</a></body></html>\n', encoding='utf-8')
+          if not DIST_DIR.joinpath('index.html').is_file():
+              raise SystemExit('Missing generated homepage: index.html')
           DIST_DIR.joinpath('.nojekyll').touch()
           paths = list(DIST_DIR.rglob('*'))
           if any(path.is_symlink() for path in paths):
