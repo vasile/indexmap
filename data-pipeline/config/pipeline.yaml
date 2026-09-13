@@ -1,5 +1,6 @@
 # Paths are relative to data-pipeline/.
 current_release: "2026-01"
+site_url: "https://indexmap.ch"
 paths:
   current_source: "data/source/swissBOUNDARIES3D/swissBOUNDARIES3D_1_5_LV95_LN02.gpkg"
   release_sources: "data/source/boundary-releases"
