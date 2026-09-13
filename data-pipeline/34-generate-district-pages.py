@@ -14,7 +14,7 @@ from site_helpers import build_assets, asset_version, canonical_url, escape, for
 
 
 
-def build(input_dir, output_dir, *, current_only=False):
+def build(input_dir, output_dir, *, current_only=True):
     source, destination = input_dir.resolve(), output_dir.resolve()
     if source == destination or source in destination.parents or destination in source.parents:
         raise ValueError("Output and processed inputs must be separate")
@@ -90,7 +90,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input-dir", type=Path, default=OUTPUT_DIR / "districts")
     parser.add_argument("--output-dir", type=Path, default=DIST_DIR)
-    parser.add_argument("--current-only", action="store_true", help="Leave pinned releases unchanged")
+    parser.add_argument("--include-historical", dest="current_only", action="store_false", help="Also publish a dated snapshot for the selected release")
+    parser.set_defaults(current_only=True)
     args = parser.parse_args()
     try:
         build(args.input_dir, args.output_dir, current_only=args.current_only)

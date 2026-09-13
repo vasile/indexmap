@@ -25,7 +25,7 @@ def bounds(features):
                               [max(p[0] for p in points), max(p[1] for p in points)]]))
 
 
-def build(input_dir: Path, output_dir: Path, *, current_only=False) -> None:
+def build(input_dir: Path, output_dir: Path, *, current_only=True) -> None:
     source, destination = input_dir.resolve(), output_dir.resolve()
     if source == destination or source in destination.parents or destination in source.parents:
         raise ValueError("Output and processed inputs must be separate")
@@ -111,7 +111,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input-dir", type=Path, default=PROCESSED_DIR / "countries")
     parser.add_argument("--output-dir", type=Path, default=DIST_DIR)
-    parser.add_argument("--current-only", action="store_true", help="Build current pages and assets without publishing a pinned release")
+    parser.add_argument("--include-historical", dest="current_only", action="store_false", help="Also publish a dated snapshot for the selected release")
+    parser.set_defaults(current_only=True)
     args = parser.parse_args()
     try:
         build(args.input_dir, args.output_dir, current_only=args.current_only)
