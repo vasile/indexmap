@@ -13,7 +13,10 @@ body { margin: 0; height: 100vh; height: 100dvh; color: var(--ink); background: 
 .map-panel { flex: 1 1 0; min-width: 0; min-height: 0; background: #e9eef0; }
 #map { position: absolute; inset: 0; }
 .map-caption { position: absolute; top: 1rem; left: 1rem; padding: .55rem .8rem; border: 1px solid #e2e8f0; border-radius: .5rem; background: #fffffff2; box-shadow: 0 2px 8px #17212b0a; font-size: .75rem; pointer-events: none; }
-.status-dot { display: inline-block; width: .45rem; height: .45rem; margin-right: .35rem; background: var(--accent); border-radius: 50%; }
+.legend-symbol { display: inline-block; margin-right: .4rem; vertical-align: middle; }
+.legend-symbol-point { width: .5rem; height: .5rem; border-radius: 50%; background: #2563eb; }
+.legend-symbol-line { width: 1.1rem; height: 0; border-top: 2px solid #1d4ed8; }
+.legend-symbol-polygon { width: 1rem; height: .75rem; border: 2px solid #1d4ed8; background: rgb(37 99 235 / 12%); }
 .map-status { position: absolute; left: 1rem; right: 1rem; bottom: 3rem; width: fit-content; max-width: calc(100% - 2rem); margin: 0; padding: .65rem .85rem; border-radius: .5rem; background: white; color: var(--muted); font-size: .85rem; }
 .directory-panel { flex: 0 0 430px; width: 430px; min-width: 0; min-height: 0; border-left: 1px solid var(--line); }
 .directory-heading { padding: 1.6rem 1.5rem 0; flex-shrink: 0; }
@@ -60,6 +63,9 @@ h1 { font-size: 1.8rem; font-weight: 650; letter-spacing: -.045em; }
 .detail-downloads .coat-credit { display: block; margin: .55rem 0 .9rem; font-size: .75rem; line-height: 1.6; overflow-wrap: anywhere; }
 .mask-option { display: flex; align-items: center; gap: .45rem; margin-top: .65rem; font-size: .875rem; cursor: pointer; width: fit-content; }
 .mask-option input { width: 1rem; height: 1rem; accent-color: var(--accent); }
+.map-caption-detail { max-width: calc(100% - 5rem); }
+.map-caption-detail .mask-option { pointer-events: auto; font-size: .65rem; color: var(--muted); margin: .4rem 0 0 auto; gap: .35rem; }
+.map-caption-detail .mask-option input { width: .8rem; height: .8rem; }
 .detail-downloads .mask-status { margin-top: .6rem; }
 #boundary-download[aria-disabled="true"] { opacity: .65; cursor: wait; }
 .directory-note, .empty-state { font-size: .75rem; line-height: 1.6; color: var(--muted); padding: 1.2rem 0; margin: 0; }
