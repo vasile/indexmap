@@ -3,12 +3,14 @@
   const assetQuery = document.currentScript ? new URL(document.currentScript.src).search : "";
   const search = document.querySelector("#canton-search");
   const items = [...document.querySelectorAll(".canton-item")];
-  const normalize = (text) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase();
+  const normalize = (text) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+  const searchableItems = items.map(item => ({ item, text: normalize(item.dataset.search || "") }));
   search?.addEventListener("input", () => {
-    const query = normalize(search.value.trim());
+    const terms = normalize(search.value).split(/\s+/).filter(Boolean);
     let count = 0;
-    items.forEach((item) => {
-      item.hidden = !normalize(item.dataset.search).includes(query);
+    searchableItems.forEach(({ item, text }) => {
+      item.hidden = !terms.every(term => text.includes(term));
       if (!item.hidden) count++;
     });
     document.querySelector("#result-count").textContent = count + (" " + (count === 1 ? (search.dataset.singular || "canton") : (search.dataset.plural || "cantons")));
