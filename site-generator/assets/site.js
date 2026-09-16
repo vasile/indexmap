@@ -19,6 +19,7 @@
   const container = document.querySelector("#map");
   const download = document.querySelector("#boundary-download");
   const maskCheckbox = document.querySelector("#boundary-mask");
+  const maskCheckboxes = [...document.querySelectorAll("#boundary-mask, #map-boundary-mask")];
   const maskStatus = document.querySelector("#mask-status");
   const boundaryPromises = new Map();
   let activeGeometry;
@@ -62,7 +63,9 @@
     let mask;
     let pending = false;
     download.addEventListener("click", event => { if (pending) event.preventDefault(); });
-    maskCheckbox.addEventListener("change", async () => {
+    maskCheckboxes.forEach(checkbox => checkbox.addEventListener("change", async () => {
+      const checked = checkbox.checked;
+      maskCheckboxes.forEach(input => { input.checked = checked; });
       const id = ++requestId;
       if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = undefined; }
       download.href = originalHref;
@@ -89,13 +92,13 @@
         maskStatus.hidden = true;
       } catch {
         if (id !== requestId) return;
-        maskCheckbox.checked = false;
+        maskCheckboxes.forEach(input => { input.checked = false; });
         maskStatus.hidden = false;
         maskStatus.textContent = "The mask could not be generated. Try again; the boundary download is still available.";
       } finally {
         if (id === requestId) { pending = false; download.setAttribute("aria-disabled", "false"); }
       }
-    });
+    }));
     window.addEventListener("pagehide", event => {
       if (!event.persisted && objectUrl) URL.revokeObjectURL(objectUrl);
     });
