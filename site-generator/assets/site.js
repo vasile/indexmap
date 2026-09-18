@@ -1,6 +1,8 @@
 (() => {
   "use strict";
-  const assetQuery = document.currentScript ? new URL(document.currentScript.src).search : "";
+  const scriptUrl = document.currentScript?.src;
+  const assetQuery = scriptUrl ? new URL(scriptUrl).search : "";
+  const tilesUrl = scriptUrl ? new URL("../tiles/boundaries.pmtiles", scriptUrl).href : "../tiles/boundaries.pmtiles";
   const search = document.querySelector("#canton-search");
   const items = [...document.querySelectorAll(".canton-item")];
   const normalize = (text) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -105,7 +107,8 @@
   }
   if (!container) return;
   const status = document.querySelector("#map-status");
-  function showError() {
+  function showError(error) {
+    if (error) console.error("IndexMap: map loading error.", error.error || error);
     status.hidden = false;
     status.textContent = "The basemap could not load. Check your connection or Mapbox configuration.";
   }
@@ -114,6 +117,19 @@
     return;
   }
   try {
+    let pmtilesReady = false;
+    let pmtilesSourceType;
+    if (container.dataset.pmtilesLayer && window.mapboxPmTiles?.PmTilesSource) {
+      pmtilesSourceType = window.mapboxPmTiles.PmTilesSource.SOURCE_TYPE || window.mapboxPmTiles.SOURCE_TYPE;
+      mapboxgl.Style.setSourceType(pmtilesSourceType, window.mapboxPmTiles.PmTilesSource);
+      pmtilesReady = true;
+    } else if (container.dataset.pmtilesLayer) {
+      console.error("IndexMap: PMTiles could not be initialized.", {
+        pmtilesLibraryLoaded: Boolean(window.mapboxPmTiles?.PmTilesSource),
+        archiveUrl: tilesUrl,
+        layer: container.dataset.pmtilesLayer,
+      });
+    }
     const map = new mapboxgl.Map({
       container,
       accessToken: window.INDEXMAP_CONFIG.mapboxToken,
@@ -125,7 +141,59 @@
     map.addControl(new mapboxgl.ScaleControl({ maxWidth: 150, unit: "metric" }), "bottom-left");
     map.on("error", showError);
     map.on("load", async () => {
-      if (container.dataset.geojson) {
+      if (pmtilesReady) {
+        const source = "indexmap-boundaries";
+        const level = Number(container.dataset.boundaryLevel);
+        map.addSource(source, { type: pmtilesSourceType, url: tilesUrl });
+        map.addLayer({
+          id: "boundary-fill",
+          type: "fill",
+          source,
+          "source-layer": container.dataset.pmtilesLayer,
+          paint: { "fill-antialias": false, "fill-color": "#2563eb", "fill-opacity": 0.12 },
+        });
+        const boundaryLayerIds = [];
+        const addBoundaryLayer = (id, adminLevel, paint) => {
+          if (adminLevel > level) return;
+          boundaryLayerIds.push(id);
+          map.addLayer({
+            id,
+            type: "line",
+            source,
+            "source-layer": "boundaries",
+            filter: ["==", ["get", "admin_level"], adminLevel],
+            layout: { "line-cap": "round", "line-join": "miter" },
+            paint,
+          });
+        };
+        addBoundaryLayer("national-boundary-casing", 2,
+          { "line-color": "#93c5fd", "line-opacity": 0.8, "line-width": 4 });
+        addBoundaryLayer("national-boundary", 2,
+          { "line-color": "#1d4ed8", "line-opacity": 0.9, "line-width": 1.5 });
+        addBoundaryLayer("cantonal-boundary-casing", 4,
+          { "line-color": "#93c5fd", "line-opacity": 0.8, "line-width": 3 });
+        addBoundaryLayer("cantonal-boundary", 4,
+          { "line-color": "#2563eb", "line-opacity": 0.9, "line-width": 1 });
+        addBoundaryLayer("district-boundary", 6,
+          { "line-color": "#2563eb", "line-opacity": 0.75, "line-width": 1 });
+        addBoundaryLayer("municipal-boundary", 8,
+          { "line-color": "#2563eb", "line-opacity": 0.72, "line-width": 1,
+            "line-dasharray": ["step", ["zoom"], ["literal", [1, 0]],
+              9, ["literal", [4, 4]]] });        
+        container.addEventListener("boundarychange", event => {
+          if (!map.getSource("boundary-selection")) {
+            map.addSource("boundary-selection", { type: "geojson", data: event.detail });
+            map.addLayer({ id: "boundary-selection-fill", type: "fill", source: "boundary-selection",
+              paint: { "fill-color": "#2563eb", "fill-opacity": 0.12 } });
+            map.addLayer({ id: "boundary-selection-outline", type: "line", source: "boundary-selection",
+              paint: { "line-color": "#1d4ed8", "line-width": 2 } });
+          } else {
+            map.getSource("boundary-selection").setData(event.detail);
+          }
+          map.setLayoutProperty("boundary-fill", "visibility", "none");
+          boundaryLayerIds.forEach(id => map.setLayoutProperty(id, "visibility", "none"));
+        });
+      } else if (container.dataset.geojson && !container.dataset.pmtilesLayer) {
         try {
           const data = await loadBoundary();
           map.addSource("canton", { type: "geojson", data: activeGeometry || data });
@@ -137,6 +205,9 @@
           status.textContent = "The boundary could not load. You can still download the GeoJSON.";
           return;
         }
+      } else if (container.dataset.pmtilesLayer) {
+        status.hidden = true;
+        return;
       }
       status.hidden = true;
     });
@@ -145,5 +216,5 @@
     window.addEventListener("pagehide", (event) => {
       if (!event.persisted) { observer.disconnect(); map.remove(); }
     });
-  } catch { showError(); }
+  } catch (error) { showError(error); }
 })();
