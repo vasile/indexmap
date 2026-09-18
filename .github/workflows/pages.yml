@@ -70,6 +70,7 @@ jobs:
           python data-pipeline/32-generate-canton-pages.py
           python data-pipeline/34-generate-district-pages.py
           python data-pipeline/36-generate-municipality-pages.py
+          python data-pipeline/37-generate-map-tiles.py
           python data-pipeline/38-generate-seo.py
 
       - name: Prepare and check published output
@@ -81,6 +82,8 @@ jobs:
           from config.loader import DIST_DIR
           if not DIST_DIR.joinpath('index.html').is_file():
               raise SystemExit('Missing generated homepage: index.html')
+          if not DIST_DIR.joinpath('tiles/boundaries.pmtiles').is_file():
+              raise SystemExit('Missing generated map archive: tiles/boundaries.pmtiles')
           DIST_DIR.joinpath('.nojekyll').touch()
           paths = list(DIST_DIR.rglob('*'))
           if any(path.is_symlink() for path in paths):
