@@ -52,8 +52,9 @@ def build(input_dir: Path, output_dir: Path) -> None:
     assets = build_assets(SITE_DIR / "assets")
     version = asset_version(assets)
 
-    def render(title, body, path, *, root_path="../"):
-        return templates["base"].substitute(title=escape(title), description=escape(f"{title}: administrative boundaries and GeoJSON downloads."),
+    def render(title, body, path, *, root_path="../", description=None):
+        description = description or f"{title}: administrative boundaries and GeoJSON downloads."
+        return templates["base"].substitute(title=escape(title), description=escape(description),
                                             body=body, root_path=root_path, canonical_url=escape(canonical_url(path)), countries_class="active", cantons_class="", asset_version=version, municipalities_class="", districts_class="").encode("utf-8")
 
     rows = {}
@@ -94,8 +95,15 @@ def build(input_dir: Path, output_dir: Path) -> None:
             rows="\n".join(templates["country-row"].substitute(rows[code], country_path=country_path) for code in COUNTRIES),
             country_path=country_path, collection_path=collection_path, bounds=bounds(data["ch-li"]), **dates)
 
-    files[Path("countries/index.html")] = render("Country", directory("../country/", "./"), "countries/index.html")
-    files[Path("index.html")] = render("Country", directory("./country/", "./countries/"), "index.html", root_path="./")
+    homepage_description = ("Download current GeoJSON boundaries for Switzerland’s cantons, districts, and "
+                            "municipalities. Search municipalities by name or BFS number. Based on official "
+                            "swisstopo boundaries.")
+    files[Path("countries/index.html")] = render(
+        "Swiss administrative boundaries as GeoJSON", directory("../country/", "./"),
+        "countries/index.html", description=homepage_description)
+    files[Path("index.html")] = render(
+        "Swiss administrative boundaries as GeoJSON", directory("./country/", "./countries/"),
+        "index.html", root_path="./", description=homepage_description)
     files.update(assets)
     for path, content in files.items():
         target = output_dir / path
