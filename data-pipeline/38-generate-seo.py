@@ -6,7 +6,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
-from config.loader import DIST_DIR
+from config.loader import DIST_DIR, SITE_DIR
 from site_helpers import canonical_url, site_url
 
 REQUIRED_SECTIONS = ("countries", "cantons", "districts", "municipalities")
@@ -57,11 +57,13 @@ def build(output_dir: Path) -> int:
     if len(xml) > 50 * 1024 * 1024:
         raise ValueError("Sitemap exceeds 50 MB; split it before publishing")
     robots = f"User-agent: *\nAllow: /\n\nSitemap: {site_url('sitemap.xml')}\n"
+    llms = (SITE_DIR / "llms.txt").read_bytes()
 
-    # Validate the complete site before replacing either published SEO file.
+    # Validate the complete site before replacing any published discovery file.
     (output_dir / "sitemap.xml").write_bytes(xml)
     (output_dir / "robots.txt").write_text(robots, encoding="utf-8")
-    print(f"Generated sitemap.xml with {len(urls)} URLs and robots.txt in {output_dir}")
+    (output_dir / "llms.txt").write_bytes(llms)
+    print(f"Generated sitemap.xml with {len(urls)} URLs, robots.txt and llms.txt in {output_dir}")
     return len(urls)
 
 

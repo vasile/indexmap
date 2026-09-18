@@ -17,7 +17,7 @@ data-pipeline/.venv/bin/python data-pipeline/38-generate-seo.py
 ```
 
 Run only the relevant page generator when changing one section. Run step 38
-after page generation to update `sitemap.xml` and `robots.txt`.
+after page generation to update `sitemap.xml`, `robots.txt`, and `llms.txt`.
 
 Inputs are prepared by pipeline steps 20–26 in
 `data/processed/<reference-date>/`. Release dates and paths are configured in
@@ -76,7 +76,8 @@ manifest, and the conversion cache are not needed by GitHub Actions. See the
 
 Canonical URLs use `site_url` from `data-pipeline/config/pipeline.yaml`
 (`https://indexmap.ch`). The sitemap includes current pages and excludes downloads
-and historical archives. Deploy `dist/` at the domain root.
+and historical archives. The curated `site-generator/llms.txt` overview is copied
+to the site root by step 38. Deploy `dist/` at the domain root.
 
 Run the regression checks with:
 
