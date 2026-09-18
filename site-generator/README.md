@@ -13,6 +13,7 @@ data-pipeline/.venv/bin/python data-pipeline/30-generate-country-pages.py
 data-pipeline/.venv/bin/python data-pipeline/32-generate-canton-pages.py
 data-pipeline/.venv/bin/python data-pipeline/34-generate-district-pages.py
 data-pipeline/.venv/bin/python data-pipeline/36-generate-municipality-pages.py
+data-pipeline/.venv/bin/python data-pipeline/37-generate-map-tiles.py
 data-pipeline/.venv/bin/python data-pipeline/38-generate-seo.py
 ```
 
@@ -25,7 +26,9 @@ Inputs are prepared by pipeline steps 20–26 in
 for data preparation.
 
 Output goes to `dist/`: the homepage, country/canton/district/municipality pages,
-GeoJSON and ZIP downloads, images, and shared assets. Directory maps load combined
+GeoJSON and ZIP downloads, images, shared assets, and `tiles/boundaries.pmtiles`. The
+PMTiles archive contains `countries`, `cantons`, `districts`, `municipalities`,
+and `boundaries` (the `tlm_hoheitsgrenze` linework) as named layers. Directory maps load combined
 boundaries; detail pages load the selected boundary. The page generators accept
 `--input-dir` and `--output-dir` overrides.
 
