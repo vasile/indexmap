@@ -1,0 +1,32 @@
+  <main class="app-main d-flex flex-column flex-md-row flex-grow-1">
+    <section class="map-panel position-relative" aria-label="Map of Switzerland and Liechtenstein">
+      <div id="map" role="region" aria-label="Administrative boundary map of Switzerland and Liechtenstein" data-geojson="./countries/ch-li.geojson" data-pmtiles-layer="countries" data-boundary-level="4" data-bounds="$bounds"></div>
+      <div class="map-caption"><span class="legend-symbol legend-symbol-polygon" aria-hidden="true"></span> Switzerland &amp; Liechtenstein <span class="text-secondary">/ Cantonal boundaries</span></div>
+      <p id="map-status" class="map-status" role="status">Loading map…</p>
+    </section>
+
+    <section class="directory-panel d-flex flex-column bg-white" aria-labelledby="page-title">
+      <div class="directory-heading home-heading">
+        <h1 id="page-title" class="mb-0">Swiss administrative boundaries as GeoJSON</h1>
+        <p class="intro">Download current GeoJSON boundaries for Switzerland and Liechtenstein, including cantons, districts and municipalities. Search by municipality name or BFS number. Based on official swisstopo data.</p>
+        <form class="home-search" action="./municipalities/" method="get">
+          <label class="form-label small fw-semibold" for="home-search">Find a municipality</label>
+          <div class="input-group">
+            <input class="form-control" id="home-search" name="q" type="search" placeholder="Name or BFS number…" autocomplete="off">
+            <button class="btn btn-primary" type="submit">Search</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="directory-scroll home-scroll">
+        <nav class="dataset-grid" aria-label="Boundary datasets">
+          <a class="dataset-card" href="./countries/"><span><strong>Country</strong><small>2 boundaries</small></span><span aria-hidden="true">›</span></a>
+          <a class="dataset-card" href="./cantons/"><span><strong>Cantons</strong><small>26 boundaries</small></span><span aria-hidden="true">›</span></a>
+          <a class="dataset-card" href="./districts/"><span><strong>Districts</strong><small>135 boundaries</small></span><span aria-hidden="true">›</span></a>
+          <a class="dataset-card" href="./municipalities/"><span><strong>Municipalities</strong><small>2,121 boundaries</small></span><span aria-hidden="true">›</span></a>
+        </nav>
+
+        <p class="directory-note">Boundaries: $boundary_date · Population: $population_date<br>Geographic data: swisstopo · Statistics: BFS.</p>
+      </div>
+    </section>
+  </main>
