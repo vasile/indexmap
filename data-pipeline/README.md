@@ -140,6 +140,27 @@ secret of the same name. `assets/config.js` is generated, and its contents are
 included in the browser cache hash. Data-preparation steps do not need a token.
 See `site-generator/README.md` for local and Actions setup.
 
+Step 37 requires Tippecanoe and builds `dist/tiles/boundaries.pmtiles` from all four
+prepared polygon collections plus the source GeoPackage's `tlm_hoheitsgrenze`
+line layer. The archive is static and is published directly by GitHub Pages.
+
+Install the native map-processing tools before running the pipeline locally:
+
+```sh
+# macOS (Homebrew)
+brew install gdal tippecanoe
+```
+
+On Ubuntu, install GDAL and the Tippecanoe build dependencies; Tippecanoe itself
+must currently be built from its source release:
+
+```sh
+sudo apt-get install build-essential gdal-bin libsqlite3-dev zlib1g-dev
+```
+
+The GitHub Pages workflow installs these dependencies and builds the pinned
+Tippecanoe release automatically.
+
 After steps 30–36, run `python3 data-pipeline/38-generate-seo.py` to generate
 `dist/sitemap.xml` and `dist/robots.txt`. The Pages workflow runs this automatically.
 The production origin for canonical URLs and the sitemap is `site_url` in
