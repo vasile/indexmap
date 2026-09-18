@@ -1,0 +1,17 @@
+# IndexMap
+
+> Current administrative boundaries for Switzerland and Liechtenstein, available as GeoJSON downloads.
+
+IndexMap provides maps, metadata, and downloadable boundaries for countries, Swiss cantons, districts, and municipalities. Municipality pages can be found by name or BFS number. Geographic boundaries are based on official swisstopo data, with population data from the Swiss Federal Statistical Office.
+
+## Boundary directories
+
+- [Countries](https://indexmap.ch/): Country boundaries for Switzerland and Liechtenstein
+- [Cantons](https://indexmap.ch/cantons/): Switzerland’s 26 cantons
+- [Districts](https://indexmap.ch/districts/): Swiss district boundaries
+- [Municipalities](https://indexmap.ch/municipalities/): Swiss and Liechtenstein municipality boundaries
+
+## Resources
+
+- [Sitemap](https://indexmap.ch/sitemap.xml): Complete list of current pages
+- [Source code](https://github.com/vasile/indexmap): Source code and data-generation pipeline
