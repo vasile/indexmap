@@ -9,7 +9,7 @@ from pathlib import Path
 from string import Template
 import unicodedata
 
-from config.loader import SITE_DIR, DIST_DIR, population_metadata, CANTON_CODES, OUTPUT_DIR, REFERENCE_DATE, SCRIPT_DIR
+from config.loader import SITE_DIR, DIST_DIR, population_metadata, CANTONS, CANTON_CODES, OUTPUT_DIR, REFERENCE_DATE, SCRIPT_DIR
 from site_helpers import build_assets, asset_version, canonical_url, escape, format_number, positions
 
 
@@ -31,8 +31,9 @@ def build(input_dir, output_dir):
     assets = build_assets(SITE_DIR / "assets")
     version = asset_version(assets)
 
-    def render(title, body, path):
-        return templates["base"].substitute(title=escape(title), description=escape(f"{title}: district boundaries and downloads."),
+    def render(title, body, path, *, description=None):
+        description = description or f"{title}: district boundaries and downloads."
+        return templates["base"].substitute(title=escape(title), description=escape(description),
                                             body=body, countries_class="", cantons_class="", districts_class="active", municipalities_class="",
                                             root_path="../", canonical_url=escape(canonical_url(path)), asset_version=version).encode("utf-8")
 
@@ -64,7 +65,10 @@ def build(input_dir, output_dir):
                        boundary_label="District boundary", facts=facts, subdivision_link="", coat_image="", coat_download="", directory_url="../districts/",
                        mask_hint="Covers the area outside the district.", bounds=escape(json.dumps(bounds)), **dates)
         body = templates["country"].substitute(context).replace("‹ All countries", "‹ All districts")
-        files[Path("district") / f"{number}.html"] = render(name, body, f"district/{number}.html")
+        canton_name = CANTONS[canton.lower()]["display_name"]
+        files[Path("district") / f"{number}.html"] = render(
+            f"{name} District Boundary & GeoJSON", body, f"district/{number}.html",
+            description=f"View and download the boundary of {name} district, {canton_name}, Switzerland, as GeoJSON. BFS {number}.")
         files[Path("district") / f"{number}.geojson"] = raw
         rows.append(f'<li class="canton-item" data-search="{escape(f"{name} {number} {canton} {country}")}">'
                     f'<div class="canton-details"><h2><a href="../district/{number}.html">{escape(name)}</a></h2><p>{number} · {canton}</p>'

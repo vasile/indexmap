@@ -95,7 +95,8 @@ def build(input_dir: Path, output_dir: Path) -> None:
         context = canton["context"] | dates
         rows.append(templates["canton-row"].substitute(context))
         pages[f'{context["code"]}.html'] = render(
-            canton["name"], f'{canton["name"]}: boundary map, population, area, and downloads.',
+            f'{canton["name"]} Canton Boundary & GeoJSON',
+            f'View and download the boundary of {canton["name"]} canton, Switzerland, as GeoJSON. Canton code {context["upper_code"]}.',
             templates["canton"].substitute(context), f'canton/{context["code"]}.html',
         )
     pages["index.html"] = render("Cantons of Switzerland", "Explore Switzerland’s 26 cantons and download their administrative boundaries.",

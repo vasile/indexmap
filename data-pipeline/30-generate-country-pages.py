@@ -78,7 +78,9 @@ def build(input_dir: Path, output_dir: Path) -> None:
                        facts=f'<div><dt>Country code</dt><dd>{upper_code}</dd></div><div><dt>Population</dt><dd>{population}<small>{dates["population_date"]}</small></dd></div><div><dt>Area</dt><dd>{area} km²</dd></div>',
                        bounds=bounds(data[code]), subdivision_link='<a class="back-link" href="../cantons/">Browse 26 cantons ›</a>' if code == "ch" else "", **dates)
         path = Path("country") / f"{code}.html"
-        files[path] = render(name, templates["country"].substitute(context), path)
+        files[path] = render(
+            f"{name} Country Boundary & GeoJSON", templates["country"].substitute(context), path,
+            description=f"View and download the boundary of {name} as GeoJSON. Country code {upper_code}.")
         stats = f'<p class="canton-stats">{population} inhabitants · {format_number(props["landesflaeche"] / 100)} km²</p>'
         rows[code] = dict(name=escape(name), code=code, upper_code=upper_code, stats=stats)
     dissolved_context = dict(name="Switzerland + Liechtenstein", code="ch-li-dissolved",
@@ -88,7 +90,9 @@ def build(input_dir: Path, output_dir: Path) -> None:
                              mask_hint="Covers the area outside Switzerland and Liechtenstein.",
                              bounds=bounds(data["ch-li-dissolved"]), **dates)
     files[Path("country/ch-li-dissolved.html")] = render(
-        "Switzerland + Liechtenstein", templates["country"].substitute(dissolved_context), "country/ch-li-dissolved.html")
+        "Switzerland & Liechtenstein Combined Boundary & GeoJSON",
+        templates["country"].substitute(dissolved_context), "country/ch-li-dissolved.html",
+        description="View and download the combined boundary of Switzerland and Liechtenstein as GeoJSON.")
 
     def directory(country_path, collection_path):
         return templates["countries"].substitute(
