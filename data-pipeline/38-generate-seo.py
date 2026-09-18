@@ -9,8 +9,8 @@ import xml.etree.ElementTree as ET
 from config.loader import DIST_DIR
 from site_helpers import canonical_url, site_url
 
-SECTIONS = ("countries", "cantons", "districts", "municipalities")
-DETAIL_SECTIONS = ("country", "canton", "district", "municipality")
+REQUIRED_SECTIONS = ("countries", "cantons", "districts", "municipalities")
+EXCLUDED_ROOTS = {"versions"}
 SITEMAP_NAMESPACE = "http://www.sitemaps.org/schemas/sitemap/0.9"
 
 
@@ -27,13 +27,16 @@ class PageCanonical(HTMLParser):
 
 
 def build(output_dir: Path) -> int:
-    # Restrict discovery to current HTML; dated downloads and snapshots stay out.
-    required = [Path("index.html"), *(Path(section) / "index.html" for section in SECTIONS)]
+    required = [Path("index.html"), *(Path(section) / "index.html" for section in REQUIRED_SECTIONS)]
     for path in required:
         if not (output_dir / path).is_file():
             raise ValueError(f"Missing {path}; generate all current pages with steps 30–36 first")
-    pages = [*required, *(path.relative_to(output_dir) for section in DETAIL_SECTIONS
-                                 for path in sorted((output_dir / section).glob("*.html")))]
+
+    # Discover pages instead of maintaining a list of route folders. This keeps
+    # the sitemap complete when a new current page or section is introduced.
+    # Historical snapshots are intentionally not current, indexable pages.
+    pages = [path.relative_to(output_dir) for path in sorted(output_dir.rglob("*.html"))
+             if path.relative_to(output_dir).parts[0] not in EXCLUDED_ROOTS]
     urls = set()
     for path in pages:
         expected = canonical_url(path)
