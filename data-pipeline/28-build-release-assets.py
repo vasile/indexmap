@@ -36,8 +36,10 @@ def main():
     for release, metadata in releases.items():
         reference = metadata["reference_date"]
         source = RELEASE_SOURCE_DIR / release / "source.gpkg"
-        # Reuse the configured local current dataset; historical downloads are isolated.
-        if reference == CURRENT_REFERENCE_DATE and CURRENT_INPUT_PATH.is_file():
+        # The current release must use the configured current source path so later
+        # current-site steps (including PMTiles generation) read the same database.
+        # Historical downloads remain isolated by release.
+        if reference == CURRENT_REFERENCE_DATE:
             source = CURRENT_INPUT_PATH
         env = os.environ | {"INDEXMAP_REFERENCE_DATE": reference, "INDEXMAP_INPUT_PATH": str(source.resolve()),
                             "INDEXMAP_RELEASE_CATALOG": str(args.catalog.resolve())}
