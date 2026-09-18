@@ -3,6 +3,7 @@
   const scriptUrl = document.currentScript?.src;
   const assetQuery = scriptUrl ? new URL(scriptUrl).search : "";
   const tilesUrl = scriptUrl ? new URL("../tiles/boundaries.pmtiles", scriptUrl).href : "../tiles/boundaries.pmtiles";
+  const boundaryColor = "#1d4ed8";
   const search = document.querySelector("#canton-search");
   const items = [...document.querySelectorAll(".canton-item")];
   const normalize = (text) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -166,18 +167,14 @@
             paint,
           });
         };
-        addBoundaryLayer("national-boundary-casing", 2,
-          { "line-color": "#93c5fd", "line-opacity": 0.8, "line-width": 4 });
         addBoundaryLayer("national-boundary", 2,
-          { "line-color": "#1d4ed8", "line-opacity": 0.9, "line-width": 1.5 });
-        addBoundaryLayer("cantonal-boundary-casing", 4,
-          { "line-color": "#93c5fd", "line-opacity": 0.8, "line-width": 3 });
+          { "line-color": boundaryColor, "line-opacity": 1, "line-width": 2 });
         addBoundaryLayer("cantonal-boundary", 4,
-          { "line-color": "#2563eb", "line-opacity": 0.9, "line-width": 1 });
+          { "line-color": boundaryColor, "line-opacity": 1, "line-width": 2 });
         addBoundaryLayer("district-boundary", 6,
-          { "line-color": "#2563eb", "line-opacity": 0.75, "line-width": 1 });
+          { "line-color": boundaryColor, "line-opacity": 1, "line-width": 1 });
         addBoundaryLayer("municipal-boundary", 8,
-          { "line-color": "#2563eb", "line-opacity": 0.72, "line-width": 1,
+          { "line-color": boundaryColor, "line-opacity": 1, "line-width": 1,
             "line-dasharray": ["step", ["zoom"], ["literal", [1, 0]],
               9, ["literal", [4, 4]]] });        
         container.addEventListener("boundarychange", event => {
@@ -186,7 +183,7 @@
             map.addLayer({ id: "boundary-selection-fill", type: "fill", source: "boundary-selection",
               paint: { "fill-color": "#2563eb", "fill-opacity": 0.12 } });
             map.addLayer({ id: "boundary-selection-outline", type: "line", source: "boundary-selection",
-              paint: { "line-color": "#1d4ed8", "line-width": 2 } });
+              paint: { "line-color": boundaryColor, "line-width": 2 } });
           } else {
             map.getSource("boundary-selection").setData(event.detail);
           }
@@ -198,7 +195,7 @@
           const data = await loadBoundary();
           map.addSource("canton", { type: "geojson", data: activeGeometry || data });
           map.addLayer({ id: "canton-fill", type: "fill", source: "canton", paint: { "fill-color": "#2563eb", "fill-opacity": 0.12 } });
-          map.addLayer({ id: "canton-outline", type: "line", source: "canton", paint: { "line-color": "#1d4ed8", "line-width": 2 } });
+          map.addLayer({ id: "canton-outline", type: "line", source: "canton", paint: { "line-color": boundaryColor, "line-width": 2 } });
           container.addEventListener("boundarychange", event => map.getSource("canton")?.setData(event.detail));
         } catch {
           status.hidden = false;
