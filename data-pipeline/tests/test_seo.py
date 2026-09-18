@@ -39,17 +39,20 @@ class SeoTests(unittest.TestCase):
         dated = self.output / "versions/2020-01-01/countries"
         dated.mkdir(parents=True)
         (dated / "old.html").write_bytes(b"archived page")
+        extra = self.output / "about/team/index.html"
+        extra.parent.mkdir(parents=True)
+        extra.write_bytes(page("about/team/index.html"))
         (self.output / "country/ch.geojson").write_bytes(b"boundary download")
         (self.output / "countries/countries.zip").write_bytes(b"zip download")
 
-        self.assertEqual(seo.build(self.output), 6)
+        self.assertEqual(seo.build(self.output), 7)
         sitemap = self.output / "sitemap.xml"
         first = sitemap.read_bytes()
         xml = ET.fromstring(first)
         self.assertEqual(xml.tag, "{http://www.sitemaps.org/schemas/sitemap/0.9}urlset")
         urls = [element.text for element in xml.findall("{*}url/{*}loc")]
         self.assertEqual(urls, [
-            "https://indexmap.ch/", "https://indexmap.ch/canton/zh.html", "https://indexmap.ch/cantons/",
+            "https://indexmap.ch/", "https://indexmap.ch/about/team/", "https://indexmap.ch/canton/zh.html", "https://indexmap.ch/cantons/",
             "https://indexmap.ch/country/ch.html", "https://indexmap.ch/districts/",
             "https://indexmap.ch/municipalities/",
         ])
