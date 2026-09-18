@@ -28,8 +28,19 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install --yes gdal-bin
+          sudo apt-get install --yes build-essential gdal-bin libsqlite3-dev zlib1g-dev
           python -m pip install -r data-pipeline/requirements.txt
+
+      - name: Check out Tippecanoe
+        uses: actions/checkout@v6
+        with:
+          repository: felt/tippecanoe
+          ref: 2.79.0
+          path: .tippecanoe
+          persist-credentials: false
+
+      - name: Install Tippecanoe
+        run: sudo make -C .tippecanoe -j2 install
 
       - name: Run pipeline tests
         run: python -m unittest discover -s data-pipeline/tests -v
