@@ -59,17 +59,21 @@ class SeoTests(unittest.TestCase):
         self.assertEqual(xml.findall(".//{*}lastmod"), [])
         self.assertEqual((self.output / "robots.txt").read_text(),
                          "User-agent: *\nAllow: /\n\nSitemap: https://indexmap.ch/sitemap.xml\n")
+        self.assertEqual((self.output / "llms.txt").read_bytes(),
+                         (seo.SITE_DIR / "llms.txt").read_bytes())
         seo.build(self.output)
         self.assertEqual(sitemap.read_bytes(), first)
 
     def test_incomplete_build_does_not_replace_existing_seo_files(self):
         (self.output / "sitemap.xml").write_text("previous sitemap")
         (self.output / "robots.txt").write_text("previous robots")
+        (self.output / "llms.txt").write_text("previous llms")
         (self.output / "municipalities/index.html").unlink()
         with self.assertRaisesRegex(ValueError, "generate all current pages"):
             seo.build(self.output)
         self.assertEqual((self.output / "sitemap.xml").read_text(), "previous sitemap")
         self.assertEqual((self.output / "robots.txt").read_text(), "previous robots")
+        self.assertEqual((self.output / "llms.txt").read_text(), "previous llms")
 
     def test_missing_duplicate_or_wrong_canonical_fails(self):
         for content in (b"<html><head></head></html>", page("canton/zh.html") * 2,
