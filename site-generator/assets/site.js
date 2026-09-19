@@ -194,6 +194,13 @@
             id: "boundary-fill", type: "fill", source, "source-layer": container.dataset.pmtilesLayer,
             paint: { "fill-antialias": false, "fill-color": boundaryColor, "fill-opacity": 0.12 },
           });
+          const idProperties = { countries: "icc", cantons: "kantonsnummer",
+            districts: "bezirksnummer", municipalities: "bfs_nummer" };
+          const idProperty = idProperties[container.dataset.pmtilesLayer];
+          if (idProperty) interactionLayers.push({
+            input: { dataset: { sourceLayer: container.dataset.pmtilesLayer, idProperty } },
+            fillId: "boundary-fill",
+          });
         }
         const clearHover = () => {
           if (hoveredFeature) {
@@ -207,7 +214,8 @@
           const sourceLayer = activeInteraction.input.dataset.sourceLayer;
           if (sourceLayer === "countries") return { label: "Country", id: properties.icc,
             path: `country/${String(properties.icc).toLowerCase()}.html`,
-            icon: `country/${String(properties.icc).toLowerCase()}.png` };
+            icon: `country/${String(properties.icc).toLowerCase()}.png`,
+            name: { CH: "Switzerland", LI: "Liechtenstein" }[properties.icc] };
           if (sourceLayer === "cantons") return { label: "Canton", id: cantonCodes[Number(properties.kantonsnummer)]?.toUpperCase(),
             path: `canton/${cantonCodes[Number(properties.kantonsnummer)]}.html`,
             icon: `canton/${cantonCodes[Number(properties.kantonsnummer)]}.png` };
@@ -248,7 +256,7 @@
             heading.append(icon);
           }
           const title = document.createElement("strong");
-          title.textContent = feature.properties?.name || details.label;
+          title.textContent = details.name || feature.properties?.name || details.label;
           heading.append(title);
           const meta = document.createElement("span");
           meta.textContent = `${details.label} · ${details.id}`;
@@ -329,6 +337,8 @@
           levelControls.forEach(input => input.addEventListener("change", () => {
             if (input.checked) selectBoundaryLevel(input);
           }));
+        } else {
+          activeInteraction = interactionLayers[0];
         }
         container.addEventListener("boundarychange", event => {
           if (!map.getSource("boundary-selection")) {
