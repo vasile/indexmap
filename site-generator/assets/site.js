@@ -74,7 +74,8 @@
   };
   selectionDownload?.addEventListener("click", async () => {
     if (!directorySelection.active || !directorySelection.ids.length) return;
-    const idProperties = { districts: "bezirksnummer", municipalities: "bfs_nummer" };
+    const idProperties = { cantons: "kantonsnummer", districts: "bezirksnummer",
+      municipalities: "bfs_nummer" };
     const layer = container?.dataset.pmtilesLayer;
     const idProperty = idProperties[layer];
     if (!idProperty) return;
@@ -311,7 +312,8 @@
         const cantonFilter = ["==", ["get", "kantonsnummer"], selectedCantonNumber];
         const levelControls = [...document.querySelectorAll('input[name="boundary-level"]')];
         const isFilterableDirectoryMap = !isDetailMap && !levelControls.length
-          && ["districts", "municipalities"].includes(container.dataset.pmtilesLayer);
+          && ["cantons", "districts", "municipalities"].includes(container.dataset.pmtilesLayer);
+        const directoryContextLevel = container.dataset.pmtilesLayer === "cantons" ? 2 : 4;
         map.addSource(source, {
           type: pmtilesSourceType,
           url: tilesUrl,
@@ -601,7 +603,7 @@
           map.setFilter("boundary-filter-outline", featureFilter || ["==", ["get", idProperty], -1]);
           map.setLayoutProperty("boundary-filter-outline", "visibility", active ? "visible" : "none");
           boundaryLayerIds.forEach(id => {
-            if (boundaryAdminLevels.get(id) > 4) {
+            if (boundaryAdminLevels.get(id) > directoryContextLevel) {
               map.setLayoutProperty(id, "visibility", active ? "none" : "visible");
             }
           });

@@ -18,6 +18,10 @@
             <a class="btn btn-primary btn-sm" href="./cantons.geojson" download>↓ Single GeoJSON</a>
             <a class="btn btn-outline-secondary btn-sm" href="./cantons.zip" download>↓ ZIP · individual files</a>
           </div>
+          <div class="selection-download" id="selection-download-panel" hidden>
+            <button class="btn btn-outline-primary btn-sm" id="selection-download" type="button">↓ Download selection · GeoJSON</button>
+            <span class="selection-download-status" id="selection-download-status" role="status" aria-live="polite"></span>
+          </div>
         </section>
         <label class="form-label small fw-semibold" for="canton-search">Find a canton</label>
         <input class="form-control" id="canton-search" type="search" placeholder="Search by name or code…" autocomplete="off">
