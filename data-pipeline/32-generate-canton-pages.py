@@ -97,17 +97,22 @@ def load_subdivisions(processed_dir: Path):
     return by_canton
 
 
-def subdivision_sections(subdivisions):
+def subdivision_sections(subdivisions, canton_code):
     district_section = ""
     if subdivisions["districts"]:
-        rows = "".join(
-            f'<li><a href="../district/{number}.html">{escape(name)} <small>· BFS {number}</small></a></li>'
-            for name, number in subdivisions["districts"]
-        )
+        midpoint = (len(subdivisions["districts"]) + 1) // 2
+        columns = []
+        for districts in (subdivisions["districts"][:midpoint], subdivisions["districts"][midpoint:]):
+            rows = "".join(
+                f'<li><a href="../district/{number}.html">{escape(name)} <small>· BFS {number}</small></a></li>'
+                for name, number in districts
+            )
+            columns.append(f'<ul class="subdivision-list district-column">{rows}</ul>')
         district_section = (
             '<section class="canton-subdivisions" aria-labelledby="canton-districts">'
-            f'<h2 id="canton-districts">Districts <span>({len(subdivisions["districts"])})</span></h2>'
-            f'<ul class="subdivision-list district-links">{rows}</ul></section>'
+            f'<h2 id="canton-districts"><a href="../districts/?canton={canton_code.upper()}">'
+            f'Districts <span>({len(subdivisions["districts"])})</span></a></h2>'
+            f'<div class="district-links">{"".join(columns)}</div></section>'
         )
     municipality_rows = "".join(
         '<li><a href="../municipality/{number}.html">'
@@ -118,7 +123,8 @@ def subdivision_sections(subdivisions):
     )
     municipality_section = (
         '<section class="canton-subdivisions" aria-labelledby="canton-municipalities">'
-        f'<h2 id="canton-municipalities">Municipalities <span>({len(subdivisions["municipalities"])})</span></h2>'
+        f'<h2 id="canton-municipalities"><a href="../municipalities/?canton={canton_code.upper()}">'
+        f'Municipalities <span>({len(subdivisions["municipalities"])})</span></a></h2>'
         f'<ul class="subdivision-list municipality-links">{municipality_rows}</ul></section>'
     )
     return district_section, municipality_section
@@ -154,7 +160,7 @@ def build(input_dir: Path, output_dir: Path) -> None:
     rows = []
     for canton in cantons:
         context = canton["context"] | dates
-        district_section, municipality_section = subdivision_sections(subdivisions[context["bfs"]])
+        district_section, municipality_section = subdivision_sections(subdivisions[context["bfs"]], context["code"])
         context |= {"district_section": district_section, "municipality_section": municipality_section}
         rows.append(templates["canton-row"].substitute(context))
         pages[f'{context["code"]}.html'] = render(
