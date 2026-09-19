@@ -153,7 +153,9 @@
       if (pmtilesReady) {
         const source = "indexmap-boundaries";
         const level = Number(container.dataset.boundaryLevel);
+        const levelControls = [...document.querySelectorAll('input[name="boundary-level"]')];
         map.addSource(source, { type: pmtilesSourceType, url: tilesUrl });
+        const fillLayerIds = ["boundary-fill"];
         map.addLayer({
           id: "boundary-fill",
           type: "fill",
@@ -185,6 +187,21 @@
           { "line-color": boundaryColor, "line-opacity": 1, "line-width": 1,
             "line-dasharray": ["step", ["zoom"], ["literal", [1, 0]],
               9, ["literal", [4, 4]]] });        
+        const selectBoundaryLevel = selected => {
+          const selectedIndex = levelControls.indexOf(selected);
+          levelControls.forEach((input, index) => {
+            const visible = index <= selectedIndex ? "visible" : "none";
+            if (map.getLayer(input.dataset.boundaryLayer)) {
+              map.setLayoutProperty(input.dataset.boundaryLayer, "visibility", visible);
+            }
+          });
+        };
+        if (levelControls.length) {
+          selectBoundaryLevel(levelControls.find(input => input.checked));
+          levelControls.forEach(input => input.addEventListener("change", () => {
+            if (input.checked) selectBoundaryLevel(input);
+          }));
+        }
         container.addEventListener("boundarychange", event => {
           if (!map.getSource("boundary-selection")) {
             map.addSource("boundary-selection", { type: "geojson", data: event.detail });
@@ -195,7 +212,7 @@
           } else {
             map.getSource("boundary-selection").setData(event.detail);
           }
-          map.setLayoutProperty("boundary-fill", "visibility", "none");
+          fillLayerIds.forEach(id => map.setLayoutProperty(id, "visibility", "none"));
           boundaryLayerIds.forEach(id => map.setLayoutProperty(id, "visibility", "none"));
         });
       } else if (container.dataset.geojson && !container.dataset.pmtilesLayer) {
