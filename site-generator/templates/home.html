@@ -8,25 +8,29 @@
     <section class="directory-panel d-flex flex-column bg-white" aria-labelledby="page-title">
       <div class="directory-heading home-heading">
         <h1 id="page-title" class="mb-0">Swiss administrative boundaries as GeoJSON</h1>
-        <p class="intro">Download current GeoJSON boundaries for Switzerland and Liechtenstein, including cantons, districts and municipalities. Search by municipality name or BFS number. Based on official swisstopo data.</p>
-        <form class="home-search" action="./municipalities/" method="get">
-          <label class="form-label small fw-semibold" for="home-search">Find a municipality</label>
-          <div class="input-group">
-            <input class="form-control" id="home-search" name="q" type="search" placeholder="Name or BFS number…" autocomplete="off">
-            <button class="btn btn-primary" type="submit">Search</button>
-          </div>
-        </form>
+        <p class="intro">Download current GeoJSON boundaries for Switzerland and Liechtenstein, including cantons, districts and municipalities. Based on official swisstopo data.</p>
       </div>
 
       <div class="directory-scroll home-scroll">
-        <nav class="dataset-grid" aria-label="Boundary datasets">
-          <a class="dataset-card" href="./countries/"><span><strong>Country</strong><small>2 boundaries</small></span><span aria-hidden="true">›</span></a>
-          <a class="dataset-card" href="./cantons/"><span><strong>Cantons</strong><small>26 boundaries</small></span><span aria-hidden="true">›</span></a>
-          <a class="dataset-card" href="./districts/"><span><strong>Districts</strong><small>135 boundaries</small></span><span aria-hidden="true">›</span></a>
-          <a class="dataset-card" href="./municipalities/"><span><strong>Municipalities</strong><small>2,121 boundaries</small></span><span aria-hidden="true">›</span></a>
-        </nav>
+        <section aria-labelledby="geojson-downloads-title">
+          <h2 class="dataset-heading" id="geojson-downloads-title">GeoJSON by level</h2>
+          <div class="dataset-grid">
+            <article class="dataset-card"><span><strong>Country</strong><small>2 boundaries</small></span><span class="dataset-actions"><a href="./countries/">Browse</a><a href="./countries/ch-li.geojson" download>GeoJSON ↓</a></span></article>
+            <article class="dataset-card"><span><strong>Cantons</strong><small>26 boundaries</small></span><span class="dataset-actions"><a href="./cantons/">Browse</a><a href="./cantons/cantons.geojson" download>GeoJSON ↓</a></span></article>
+            <article class="dataset-card"><span><strong>Districts</strong><small>135 boundaries</small></span><span class="dataset-actions"><a href="./districts/">Browse</a><a href="./districts/districts.geojson" download>GeoJSON ↓</a></span></article>
+            <article class="dataset-card"><span><strong>Municipalities</strong><small>2,121 boundaries</small></span><span class="dataset-actions"><a href="./municipalities/">Browse</a><a href="./municipalities/municipalities.geojson" download>GeoJSON ↓</a></span></article>
+          </div>
+        </section>
 
-        <p class="directory-note">Boundaries: $boundary_date · Population: $population_date<br>Geographic data: swisstopo · Statistics: BFS.</p>
+        <section class="source-download source-download-secondary" aria-labelledby="source-download-title">
+          <div>
+            <h2 id="source-download-title">Original source dataset</h2>
+            <p>swissBOUNDARIES3D GeoPackage from swisstopo.</p>
+          </div>
+          <a class="btn btn-outline-primary btn-sm" href="$swisstopo_gpkg_url">Download GPKG <span aria-hidden="true">↓</span></a>
+        </section>
+
+        <p class="directory-note home-metadata">Boundaries: $boundary_date · Population: $population_date<br>Geographic data: swisstopo · Statistics: BFS.</p>
       </div>
     </section>
   </main>
