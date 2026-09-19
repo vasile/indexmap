@@ -425,8 +425,8 @@
             paint,
           });
         };
-        const contextLineColor = isDetailMap ? "#94a3b8" : boundaryColor;
-        const contextLineOpacity = isDetailMap ? 0.45 : 1;
+        const contextLineColor = isDetailMap ? "#7c8ba1" : boundaryColor;
+        const contextLineOpacity = isDetailMap ? 0.62 : 1;
         addBoundaryLayer("national-boundary", 2,
           { "line-color": contextLineColor, "line-opacity": contextLineOpacity, "line-width": 2 });
         addBoundaryLayer("cantonal-boundary", 4,
