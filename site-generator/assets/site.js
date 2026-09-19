@@ -48,6 +48,34 @@
     activeGeometry = data;
     container.dispatchEvent(new CustomEvent("boundarychange", { detail: data }));
   }
+  // Inputs are prepared, non-overlapping Polygon/MultiPolygon boundaries.
+  // In the inverse, shells become holes and holes become shells.
+  function createInverseMask(input) {
+    const features = input.type === "FeatureCollection" ? input.features : [input];
+    if (!features.length || features.some(feature =>
+      !["Polygon", "MultiPolygon"].includes(feature.geometry?.type))) {
+      throw new Error("A polygon boundary is required.");
+    }
+    const world = [[-180, -90], [180, -90], [180, 90], [-180, 90], [-180, -90]];
+    const outside = [world];
+    const islands = [];
+    const inverseRing = ring => ring.slice().reverse().map(position => position.slice());
+    for (const feature of features) {
+      const geometry = feature.geometry;
+      const polygons = geometry.type === "Polygon" ? [geometry.coordinates] : geometry.coordinates;
+      for (const [shell, ...holes] of polygons) {
+        outside.push(inverseRing(shell));
+        for (const hole of holes) islands.push([inverseRing(hole)]);
+      }
+    }
+    return {
+      type: "Feature",
+      properties: {},
+      geometry: islands.length
+        ? { type: "MultiPolygon", coordinates: [outside, ...islands] }
+        : { type: "Polygon", coordinates: outside },
+    };
+  }
   let countryModeRequest = 0;
   document.querySelectorAll('input[name="country-mode"]').forEach(input => {
     input.addEventListener("change", async () => {
@@ -92,8 +120,6 @@
         if (id !== requestId) return;
         if (!maskCheckbox.checked) { previewGeometry(boundary); return; }
         if (!mask) {
-          const maskAsset = assetVersion ? `./mask.${assetVersion}.js` : `./mask.js${assetQuery}`;
-          const { createInverseMask } = await import(maskAsset);
           mask = createInverseMask(boundary);
         }
         if (id !== requestId) return;
