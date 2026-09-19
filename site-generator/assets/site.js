@@ -267,24 +267,7 @@
             icon: `municipality/${properties.bfs_nummer}.webp`, canton: cantonCodes[Number(properties.kantonsnummer)],
             district: properties.bezirksnummer };
         };
-        map.on("mousemove", event => {
-          if (!activeInteraction) return;
-          const feature = map.queryRenderedFeatures(event.point, { layers: [activeInteraction.fillId] })[0];
-          if (!feature) { clearHover(); return; }
-          if (feature.id === undefined || feature.id === null) { clearHover(); return; }
-          if (activeFeatureIds.has(String(feature.id))) { clearHover(); return; }
-          if (hoveredFeature?.id === feature.id && hoveredFeature.sourceLayer === feature.sourceLayer) return;
-          clearHover();
-          map.getCanvas().style.cursor = "pointer";
-          hoveredFeature = { id: feature.id, sourceLayer: feature.sourceLayer };
-          map.setFeatureState({ source, sourceLayer: feature.sourceLayer, id: feature.id }, { hover: true });
-        });
-        map.getCanvas().addEventListener("mouseleave", clearHover);
-        map.on("click", event => {
-          if (!activeInteraction) return;
-          const feature = map.queryRenderedFeatures(event.point, { layers: [activeInteraction.fillId] })[0];
-          if (!feature) return;
-          if (activeFeatureIds.has(String(feature.id))) return;
+        const showPopup = (feature, lngLat) => {
           const details = featureDetails(feature);
           if (!details.path || !details.id) return;
           const content = document.createElement("div");
@@ -331,8 +314,32 @@
           if (parents.childElementCount) content.append(parents);
           content.append(actions);
           popup?.remove();
-          popup = new mapboxgl.Popup({ closeButton: true, maxWidth: "240px" })
-            .setLngLat(event.lngLat).setDOMContent(content).addTo(map);
+          const nextPopup = new mapboxgl.Popup({ closeButton: true, focusAfterOpen: false, maxWidth: "240px" })
+            .setLngLat(lngLat).setDOMContent(content).addTo(map);
+          popup = nextPopup;
+          nextPopup.on("close", () => {
+            if (popup === nextPopup) popup = undefined;
+          });
+        };
+        map.on("mousemove", event => {
+          if (!activeInteraction) return;
+          const feature = map.queryRenderedFeatures(event.point, { layers: [activeInteraction.fillId] })[0];
+          if (!feature) { clearHover(); return; }
+          if (feature.id === undefined || feature.id === null) { clearHover(); return; }
+          if (activeFeatureIds.has(String(feature.id))) { clearHover(); return; }
+          if (hoveredFeature?.id === feature.id && hoveredFeature.sourceLayer === feature.sourceLayer) return;
+          clearHover();
+          map.getCanvas().style.cursor = "pointer";
+          hoveredFeature = { id: feature.id, sourceLayer: feature.sourceLayer };
+          map.setFeatureState({ source, sourceLayer: feature.sourceLayer, id: feature.id }, { hover: true });
+        });
+        map.getCanvas().addEventListener("mouseleave", clearHover);
+        map.on("click", event => {
+          if (!activeInteraction) return;
+          const feature = map.queryRenderedFeatures(event.point, { layers: [activeInteraction.fillId] })[0];
+          if (!feature) return;
+          if (activeFeatureIds.has(String(feature.id))) return;
+          showPopup(feature, event.lngLat);
         });
         const boundaryLayerIds = [];
         const addBoundaryLayer = (id, adminLevel, paint) => {
