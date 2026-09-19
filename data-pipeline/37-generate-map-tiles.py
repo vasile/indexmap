@@ -8,7 +8,7 @@ import shutil
 import subprocess
 from tempfile import TemporaryDirectory
 
-from config.loader import DIST_DIR, INPUT_PATH, OUTPUT_DIR
+from config.loader import DIST_DIR, INPUT_PATH, OUTPUT_DIR, RELEASE_SOURCE_DIR, SWISSBOUNDARIES_RELEASE
 
 
 POLYGON_LAYERS = {
@@ -30,8 +30,10 @@ def build(output_path: Path) -> None:
     missing_tools = [name for name, path in (("ogr2ogr", ogr2ogr), ("tippecanoe", tippecanoe)) if not path]
     if missing_tools:
         raise ValueError(f"Missing required command: {', '.join(missing_tools)}")
-    if not INPUT_PATH.is_file():
-        raise ValueError(f"Source GeoPackage not found: {INPUT_PATH}")
+    versioned_source = RELEASE_SOURCE_DIR / SWISSBOUNDARIES_RELEASE / "source.gpkg"
+    source_path = versioned_source if versioned_source.is_file() else INPUT_PATH
+    if not source_path.is_file():
+        raise ValueError(f"Source GeoPackage not found: {versioned_source} or {INPUT_PATH}")
     missing = [str(path) for path in POLYGON_LAYERS.values() if not path.is_file()]
     if missing:
         raise ValueError(f"Missing prepared map layers: {', '.join(missing)}")
@@ -54,7 +56,7 @@ def build(output_path: Path) -> None:
             ogr2ogr, "-f", "GeoJSON", "-s_srs", "EPSG:2056", "-t_srs", "EPSG:4326",
             "-dim", "XY", "-nln", "boundaries", "-lco", "RFC7946=YES",
             "-lco", "COORDINATE_PRECISION=6",
-            str(boundaries), str(INPUT_PATH), "-dialect", "SQLite", "-sql",
+            str(boundaries), str(source_path), "-dialect", "SQLite", "-sql",
             "SELECT geom, CASE objektart WHEN '1' THEN 2 WHEN '2' THEN 4 "
             "WHEN '3' THEN 6 WHEN '4' THEN 8 END AS admin_level, icc, typ "
             f"FROM {BOUNDARY_SOURCE_LAYER}",
