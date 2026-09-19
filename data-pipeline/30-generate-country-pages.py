@@ -10,7 +10,7 @@ from string import Template
 import unicodedata
 
 from config.loader import (SITE_DIR, DIST_DIR, population_metadata, OUTPUT_DIR as PROCESSED_DIR,
-                           REFERENCE_DATE, SCRIPT_DIR, SWISSBOUNDARIES_DOWNLOAD_URL)
+                           REFERENCE_DATE, SCRIPT_DIR, SWISSBOUNDARIES_DOWNLOAD_URL, CANTONS)
 from site_helpers import build_assets, asset_version, canonical_url, escape, format_number, positions
 
 PROJECT_DIR = SCRIPT_DIR.parent
@@ -53,6 +53,24 @@ def liechtenstein_municipalities(processed_dir: Path) -> str:
             number=number, icon=icon, name=escape(name))
         for name, number, icon in municipalities
     )
+
+
+def swiss_cantons() -> str:
+    cantons = sorted(
+        ((details.get("display_name") or code.upper(), code) for code, details in CANTONS.items()),
+        key=lambda item: unicodedata.normalize("NFD", item[0].casefold()),
+    )
+    rows = "".join(
+        f'<li><a href="../canton/{code}.html">'
+        f'<img src="../canton/{code}.png" width="30" loading="lazy" alt="">'
+        f'<span class="subdivision-text">{escape(name)} <small>{code.upper()}</small></span></a></li>'
+        for name, code in cantons
+    )
+    return (
+        '<section class="canton-subdivisions" aria-labelledby="country-cantons">'
+        f'<h2 id="country-cantons">Cantons <span>({len(cantons)})</span></h2>'
+        f'<ul class="subdivision-list canton-links">{rows}</ul></section>'
+    )
     return (
         '<section class="canton-subdivisions" aria-labelledby="country-municipalities">'
         f'<h2 id="country-municipalities">Municipalities <span>({len(municipalities)})</span></h2>'
@@ -91,6 +109,7 @@ def build(input_dir: Path, output_dir: Path) -> None:
 
     assets = build_assets(SITE_DIR / "assets")
     version = asset_version(assets)
+    ch_cantons = swiss_cantons()
     li_municipalities = liechtenstein_municipalities(input_dir.parent)
 
     def render(title, body, path, *, root_path="../", description=None):
@@ -122,8 +141,8 @@ def build(input_dir: Path, output_dir: Path) -> None:
                        pmtiles_layer="countries", boundary_level=2, active_feature_ids=upper_code,
                        mask_hint="Covers the area outside the country.",
                        facts=f'<div><dt>Country code</dt><dd>{upper_code}</dd></div><div><dt>Population</dt><dd>{population}<small>{dates["population_date"]}</small></dd></div><div><dt>Area</dt><dd>{area} km²</dd></div>',
-                       bounds=bounds(data[code]), subdivision_link='<a class="back-link" href="../cantons/">Browse 26 cantons ›</a>' if code == "ch" else "",
-                       related_sections=li_municipalities if code == "li" else "", **dates)
+                       bounds=bounds(data[code]), subdivision_link="",
+                       related_sections=ch_cantons if code == "ch" else li_municipalities, **dates)
         path = Path("country") / f"{code}.html"
         files[path] = render(
             f"{name} Country Boundary & GeoJSON", templates["country"].substitute(context), path,
