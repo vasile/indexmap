@@ -17,6 +17,10 @@ body { margin: 0; height: 100vh; height: 100dvh; color: var(--ink); background: 
 .legend-symbol-point { width: .5rem; height: .5rem; border-radius: 50%; background: #2563eb; }
 .legend-symbol-line { width: 1.1rem; height: 0; border-top: 2px solid #1d4ed8; }
 .legend-symbol-polygon { width: 1rem; height: .75rem; border: 2px solid #1d4ed8; background: rgb(37 99 235 / 12%); }
+.boundary-legend { display: grid; gap: .35rem; min-width: 9rem; pointer-events: auto; }
+.boundary-legend-title { margin-bottom: .15rem; font-size: .72rem; font-weight: 650; }
+.boundary-legend label { display: flex; align-items: center; gap: .45rem; margin: 0; color: var(--ink); cursor: pointer; line-height: 1.25; }
+.boundary-legend input { width: .85rem; height: .85rem; margin: 0; accent-color: var(--accent); }
 .map-status { position: absolute; left: 1rem; right: 1rem; bottom: 3rem; width: fit-content; max-width: calc(100% - 2rem); margin: 0; padding: .65rem .85rem; border-radius: .5rem; background: white; color: var(--muted); font-size: .85rem; }
 .directory-panel { flex: 0 0 430px; width: 430px; min-width: 0; min-height: 0; border-left: 1px solid var(--line); }
 .directory-heading { padding: 1.6rem 1.5rem 0; flex-shrink: 0; }
