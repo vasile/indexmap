@@ -47,7 +47,8 @@ def main():
             subprocess.run([sys.executable, str(SCRIPT_DIR / script)], env=env, check=True)
         processed = PROCESSED_ROOT / reference
         files = [path for section in ("countries", "cantons", "districts", "municipalities")
-                 for path in (processed / section).iterdir() if path.suffix in (".geojson", ".zip")]
+                 for path in (processed / section).iterdir()
+                 if path.suffix in (".geojson", ".zip") and path.name != "ch-li-mask.geojson"]
         # Validate every existing pinned file before publishing any new files.
         for path in files:
             target = args.output_dir / "versions" / reference / download_path(path, processed)

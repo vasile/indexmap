@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
+import json
 import shutil
 import subprocess
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
@@ -12,7 +13,8 @@ OUTPUT_DIR = Path(f"{PROCESSED_DIR}/countries")
 SOURCE_LAYER = "tlm_landesgebiet"
 
 
-def convert_country(ogr2ogr: str, country_filter: str, output_name: str, *, dissolve=False) -> None:
+def convert_country(ogr2ogr: str, country_filter: str, output_name: str, *, dissolve=False,
+                    simplify=None) -> None:
     output_path = Path(f"{OUTPUT_DIR}/{output_name}.geojson")
 
     command = [
@@ -32,6 +34,8 @@ def convert_country(ogr2ogr: str, country_filter: str, output_name: str, *, diss
         str(output_path),
         str(INPUT_PATH),
     ]
+    if simplify is not None:
+        command[1:1] = ["-simplify", str(simplify)]
     if dissolve:
         # Union in the source CRS before reprojection/rounding removes the shared border.
         command.extend(["-dialect", "SQLite", "-sql",
@@ -44,6 +48,40 @@ def convert_country(ogr2ogr: str, country_filter: str, output_name: str, *, diss
     output_path.unlink(missing_ok=True)
     subprocess.run(command, check=True)
     print(f"Created {output_path}")
+
+
+def build_territory_mask(ogr2ogr: str) -> None:
+    """Create the inverse map mask from the same dissolved CH+LI source."""
+    temporary_name = ".ch-li-mask-boundary"
+    temporary_path = OUTPUT_DIR / f"{temporary_name}.geojson"
+    try:
+        # Simplification runs in EPSG:2056, so the tolerance is 10 metres.
+        convert_country(ogr2ogr, "icc IN ('CH', 'LI')", temporary_name,
+                        dissolve=True, simplify=10)
+        data = json.loads(temporary_path.read_text())
+        features = data.get("features", [])
+        if len(features) != 1 or features[0].get("geometry", {}).get("type") not in ("Polygon", "MultiPolygon"):
+            raise ValueError("Expected one simplified CH+LI polygon")
+        geometry = features[0]["geometry"]
+        polygons = [geometry["coordinates"]] if geometry["type"] == "Polygon" else geometry["coordinates"]
+        outside = [[[-180, -90], [180, -90], [180, 90], [-180, 90], [-180, -90]]]
+        islands = []
+        inverse_ring = lambda ring: [position[:] for position in reversed(ring)]
+        for shell, *holes in polygons:
+            outside.append(inverse_ring(shell))
+            islands.extend([[inverse_ring(hole)] for hole in holes])
+        mask_geometry = ({"type": "MultiPolygon", "coordinates": [outside, *islands]}
+                         if islands else {"type": "Polygon", "coordinates": outside})
+        mask = {"type": "FeatureCollection", "name": "ch-li-mask", "features": [{
+            "type": "Feature",
+            "properties": {"name": "Outside Switzerland and Liechtenstein"},
+            "geometry": mask_geometry,
+        }]}
+        output_path = OUTPUT_DIR / "ch-li-mask.geojson"
+        output_path.write_text(json.dumps(mask, separators=(",", ":")) + "\n")
+        print(f"Created {output_path}")
+    finally:
+        temporary_path.unlink(missing_ok=True)
 
 
 def build_downloads() -> None:
@@ -71,6 +109,7 @@ def main() -> None:
     convert_country(ogr2ogr, "icc = 'LI'", "li")
     convert_country(ogr2ogr, "icc IN ('CH', 'LI')", "ch-li")
     convert_country(ogr2ogr, "icc IN ('CH', 'LI')", "ch-li-dissolved", dissolve=True)
+    build_territory_mask(ogr2ogr)
 
     build_downloads()
 

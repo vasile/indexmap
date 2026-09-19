@@ -35,14 +35,17 @@ PyYAML loads configuration; the Python standard library handles downloading and 
 Steps 20–26 also require GDAL's `ogr2ogr` (Ubuntu package: `gdal-bin`).
 
 Step 20 exports individual CH and LI files, `ch-li.geojson` containing both
-country features, and `ch-li-dissolved.geojson` containing their union. GDAL
+country features, `ch-li-dissolved.geojson` containing their union, and
+`ch-li-mask.geojson` containing an inverse territory mask for all map pages. GDAL
 SQLite `ST_Union` dissolves the shared border in the source CRS before
-reprojection and coordinate rounding. The dissolved feature carries a combined
-name and code, without country statistics. Masks are generated only in the browser.
+reprojection and coordinate rounding. The mask uses the same dissolve operation,
+with topology-preserving simplification at a 10 metre tolerance in EPSG:2056 before
+reprojection. The dissolved feature carries a combined name and code, without
+country statistics.
 
 These exports normalize polygon winding with GDAL's `RFC7946=YES`: exterior
 rings counterclockwise, holes clockwise. No separate rewind pass is needed.
-Browser masks wrap the prepared polygon rings with a world ring. They use no
+Detail-page download masks wrap the prepared polygon rings with a world ring. They use no
 Turf dependency or winding checks; ring copies are reversed when their role
 changes between outer boundary and hole.
 GDAL reference: https://gdal.org/en/stable/drivers/vector/geojson.html#rfc-7946-write-support

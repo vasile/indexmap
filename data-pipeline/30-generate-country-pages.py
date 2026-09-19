@@ -49,6 +49,11 @@ def build(input_dir: Path, output_dir: Path) -> None:
 
     for filename in ("ch.png", "li.png", "countries.zip"):
         files[Path("countries" if filename == "countries.zip" else "country") / filename] = (input_dir / filename).read_bytes()
+    mask_raw = (input_dir / "ch-li-mask.geojson").read_bytes()
+    mask = json.loads(mask_raw)
+    if mask.get("type") != "FeatureCollection" or len(mask.get("features", [])) != 1:
+        raise ValueError("Unexpected ch-li-mask.geojson")
+    files[Path("countries/ch-li-mask.geojson")] = mask_raw
 
     assets = build_assets(SITE_DIR / "assets")
     version = asset_version(assets)
@@ -127,7 +132,7 @@ def build(input_dir: Path, output_dir: Path) -> None:
     for code in (*COUNTRIES, "ch-li-dissolved"):
         for extension in ("html", "geojson", "png"):
             (output_dir / "countries" / f"{code}.{extension}").unlink(missing_ok=True)
-    print(f"Generated homepage, country directory, 3 detail pages, and 4 GeoJSON assets in {output_dir}")
+    print(f"Generated homepage, country directory, 3 detail pages, and 5 GeoJSON assets in {output_dir}")
 
 
 def main():
