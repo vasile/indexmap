@@ -12,7 +12,7 @@ from dotenv import dotenv_values
 from config.loader import PIPELINE, SCRIPT_DIR
 
 
-FINGERPRINTED_ASSETS = ("config.js", "favicon.svg", "mask.js", "site.css", "site.js")
+FINGERPRINTED_ASSETS = ("config.js", "favicon.svg", "site.css", "site.js")
 FINGERPRINT_RE = re.compile(r"\.[0-9a-f]{16}(?=\.[^.]+$)")
 
 
