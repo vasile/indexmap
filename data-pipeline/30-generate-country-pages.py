@@ -87,7 +87,8 @@ def build(input_dir: Path, output_dir: Path) -> None:
                        pmtiles_layer="countries", boundary_level=2, active_feature_ids=upper_code,
                        mask_hint="Covers the area outside the country.",
                        facts=f'<div><dt>Country code</dt><dd>{upper_code}</dd></div><div><dt>Population</dt><dd>{population}<small>{dates["population_date"]}</small></dd></div><div><dt>Area</dt><dd>{area} km²</dd></div>',
-                       bounds=bounds(data[code]), subdivision_link='<a class="back-link" href="../cantons/">Browse 26 cantons ›</a>' if code == "ch" else "", **dates)
+                       bounds=bounds(data[code]), subdivision_link='<a class="back-link" href="../cantons/">Browse 26 cantons ›</a>' if code == "ch" else "",
+                       related_sections="", **dates)
         path = Path("country") / f"{code}.html"
         files[path] = render(
             f"{name} Country Boundary & GeoJSON", templates["country"].substitute(context), path,
@@ -96,7 +97,7 @@ def build(input_dir: Path, output_dir: Path) -> None:
         rows[code] = dict(name=escape(name), code=code, upper_code=upper_code, stats=stats)
     dissolved_context = dict(name="Switzerland + Liechtenstein", code="ch-li-dissolved",
                              upper_code="CH + LI", entity_label="Dissolved boundary",
-                             boundary_label="Dissolved boundary", facts="", subdivision_link="",
+                             boundary_label="Dissolved boundary", facts="", subdivision_link="", related_sections="",
                              pmtiles_layer="countries", boundary_level=2, active_feature_ids="CH,LI",
                              coat_image="", coat_download="", directory_url="../countries/",
                              mask_hint="Covers the area outside Switzerland and Liechtenstein.",

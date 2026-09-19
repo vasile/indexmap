@@ -15,6 +15,7 @@ from config.loader import CANTONS, SITE_DIR, DIST_DIR, population_metadata, CANT
 
 
 PROJECT_DIR = SCRIPT_DIR.parent
+COAT_DIR = PROJECT_DIR / "data/source/coat-of-arms/municipalities-web"
 
 
 def sort_key(name):
@@ -64,6 +65,65 @@ def load_cantons(input_dir: Path, lookup: dict):
     return sorted(cantons, key=lambda canton: sort_key(canton["name"]))
 
 
+def load_subdivisions(processed_dir: Path):
+    districts = json.loads((processed_dir / "districts/districts.geojson").read_text(encoding="utf-8"))
+    municipalities = json.loads((processed_dir / "municipalities/municipalities.geojson").read_text(encoding="utf-8"))
+    manifest = json.loads((COAT_DIR / "index.json").read_text(encoding="utf-8"))
+    if districts.get("type") != "FeatureCollection" or municipalities.get("type") != "FeatureCollection":
+        raise ValueError("Expected district and municipality FeatureCollections")
+    if manifest.get("schema_version") != 1 or "municipalities" not in manifest:
+        raise ValueError("Prepared municipality coat-of-arms manifest is outdated")
+    available_coats = {
+        record["id"] for record in manifest["municipalities"]
+        if record.get("status") == "available" and record.get("has_icon")
+    }
+    by_canton = {number: {"districts": [], "municipalities": []} for number in CANTON_CODES}
+    for feature in districts["features"]:
+        properties = feature["properties"]
+        by_canton[properties["kantonsnummer"]]["districts"].append(
+            (properties["name"], properties["bezirksnummer"])
+        )
+    for feature in municipalities["features"]:
+        properties = feature["properties"]
+        if properties.get("icc") != "CH":
+            continue
+        number = properties["bfs_nummer"]
+        by_canton[properties["kantonsnummer"]]["municipalities"].append(
+            (properties["name"], number, f"{number}.webp" if number in available_coats else "placeholder.webp")
+        )
+    for subdivisions in by_canton.values():
+        subdivisions["districts"].sort(key=lambda item: sort_key(item[0]))
+        subdivisions["municipalities"].sort(key=lambda item: sort_key(item[0]))
+    return by_canton
+
+
+def subdivision_sections(subdivisions):
+    district_section = ""
+    if subdivisions["districts"]:
+        rows = "".join(
+            f'<li><a href="../district/{number}.html">{escape(name)} <small>· BFS {number}</small></a></li>'
+            for name, number in subdivisions["districts"]
+        )
+        district_section = (
+            '<section class="canton-subdivisions" aria-labelledby="canton-districts">'
+            f'<h2 id="canton-districts">Districts <span>({len(subdivisions["districts"])})</span></h2>'
+            f'<ul class="subdivision-list district-links">{rows}</ul></section>'
+        )
+    municipality_rows = "".join(
+        '<li><a href="../municipality/{number}.html">'
+        '<img src="../municipality/{icon}" width="30" loading="lazy" alt="">'
+        '<span>{name} <small>· BFS {number}</small></span></a></li>'.format(
+            number=number, icon=icon, name=escape(name))
+        for name, number, icon in subdivisions["municipalities"]
+    )
+    municipality_section = (
+        '<section class="canton-subdivisions" aria-labelledby="canton-municipalities">'
+        f'<h2 id="canton-municipalities">Municipalities <span>({len(subdivisions["municipalities"])})</span></h2>'
+        f'<ul class="subdivision-list municipality-links">{municipality_rows}</ul></section>'
+    )
+    return district_section, municipality_section
+
+
 def build(input_dir: Path, output_dir: Path) -> None:
     if output_dir.resolve() == input_dir.resolve() or output_dir.resolve() in input_dir.resolve().parents or input_dir.resolve() in output_dir.resolve().parents:
         raise ValueError("Output and processed canton inputs must be separate")
@@ -75,6 +135,7 @@ def build(input_dir: Path, output_dir: Path) -> None:
     templates = {name: Template((SITE_DIR / "templates" / f"{name}.html").read_text())
                  for name in ["base", "cantons", "canton", "canton-row"]}
     cantons = load_cantons(input_dir, lookup)
+    subdivisions = load_subdivisions(input_dir.parent)
     bundles = {}
     for filename in ["cantons.geojson", "cantons.zip"]:
         path = input_dir / filename
@@ -93,6 +154,8 @@ def build(input_dir: Path, output_dir: Path) -> None:
     rows = []
     for canton in cantons:
         context = canton["context"] | dates
+        district_section, municipality_section = subdivision_sections(subdivisions[context["bfs"]])
+        context |= {"district_section": district_section, "municipality_section": municipality_section}
         rows.append(templates["canton-row"].substitute(context))
         pages[f'{context["code"]}.html'] = render(
             f'{canton["name"]} Canton Boundary & GeoJSON',

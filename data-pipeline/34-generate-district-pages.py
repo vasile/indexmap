@@ -13,6 +13,47 @@ from config.loader import SITE_DIR, DIST_DIR, population_metadata, CANTONS, CANT
 from site_helpers import build_assets, asset_version, canonical_url, escape, format_number, positions
 
 
+COAT_DIR = SCRIPT_DIR.parent / "data/source/coat-of-arms/municipalities-web"
+
+
+def municipality_sections(processed_dir):
+    collection = json.loads((processed_dir / "municipalities/municipalities.geojson").read_text(encoding="utf-8"))
+    manifest = json.loads((COAT_DIR / "index.json").read_text(encoding="utf-8"))
+    if collection.get("type") != "FeatureCollection" or manifest.get("schema_version") != 1:
+        raise ValueError("Expected municipality data and current coat-of-arms manifest")
+    available_coats = {
+        record["id"] for record in manifest.get("municipalities", [])
+        if record.get("status") == "available" and record.get("has_icon")
+    }
+    by_district = {}
+    for feature in collection["features"]:
+        properties = feature["properties"]
+        district = properties.get("bezirksnummer")
+        if district is None:
+            continue
+        number = properties["bfs_nummer"]
+        icon = f"{number}.webp" if number in available_coats else "placeholder.webp"
+        by_district.setdefault(district, []).append((properties["name"], number, icon))
+    for municipalities in by_district.values():
+        municipalities.sort(key=lambda item: unicodedata.normalize("NFD", item[0].casefold()))
+    return by_district
+
+
+def municipality_section(municipalities):
+    rows = "".join(
+        '<li><a href="../municipality/{number}.html">'
+        '<img src="../municipality/{icon}" width="30" loading="lazy" alt="">'
+        '<span>{name} <small>· BFS {number}</small></span></a></li>'.format(
+            number=number, icon=icon, name=escape(name))
+        for name, number, icon in municipalities
+    )
+    return (
+        '<section class="canton-subdivisions" aria-labelledby="district-municipalities">'
+        f'<h2 id="district-municipalities">Municipalities <span>({len(municipalities)})</span></h2>'
+        f'<ul class="subdivision-list municipality-links">{rows}</ul></section>'
+    )
+
+
 
 def build(input_dir, output_dir):
     source, destination = input_dir.resolve(), output_dir.resolve()
@@ -27,6 +68,7 @@ def build(input_dir, output_dir):
     if collection.get("type") != "FeatureCollection" or not collection.get("features"):
         raise ValueError("Expected district FeatureCollection")
     features = sorted(collection["features"], key=lambda f: unicodedata.normalize("NFD", f["properties"]["name"].casefold()))
+    municipalities_by_district = municipality_sections(input_dir.parent)
     files, rows, seen = {}, [], set()
     assets = build_assets(SITE_DIR / "assets")
     version = asset_version(assets)
@@ -61,8 +103,10 @@ def build(input_dir, output_dir):
                  f'<div><dt>{"Canton" if country == "CH" else "Country"}</dt><dd>{canton}</dd></div>'
                  f'<div><dt>Population</dt><dd>{population}<small>{dates["population_date"]}</small></dd></div>'
                  f'<div><dt>Area</dt><dd>{area} km²</dd></div>')
+        related_sections = municipality_section(municipalities_by_district.get(number, []))
         context = dict(name=escape(name), code=number, upper_code=f"{number} · {canton}", entity_label="District",
-                       boundary_label="District boundary", facts=facts, subdivision_link="", coat_image="", coat_download="", directory_url="../districts/",
+                       boundary_label="District boundary", facts=facts, subdivision_link="", related_sections=related_sections,
+                       coat_image="", coat_download="", directory_url="../districts/",
                        pmtiles_layer="districts", boundary_level=6, active_feature_ids=number,
                        mask_hint="Covers the area outside the district.", bounds=escape(json.dumps(bounds)), **dates)
         body = templates["country"].substitute(context).replace("‹ All countries", "‹ All districts")
