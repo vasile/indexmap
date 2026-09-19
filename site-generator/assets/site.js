@@ -1,4 +1,4 @@
-(() => {
+(async () => {
   "use strict";
   const scriptUrl = document.currentScript?.src;
   const assetQuery = scriptUrl ? new URL(scriptUrl).search : "";
@@ -126,6 +126,20 @@
     return;
   }
   try {
+    const styleResponse = await fetch(`https://api.mapbox.com/styles/v1/mapbox/light-v11?access_token=${encodeURIComponent(window.INDEXMAP_CONFIG.mapboxToken)}`);
+    if (!styleResponse.ok) throw new Error(`Mapbox style request failed (${styleResponse.status})`);
+    const mapStyle = await styleResponse.json();
+    const countryLabels = mapStyle.layers?.find(layer => layer.id === "country-label");
+    if (countryLabels) {
+      const excludeLocalCountries = ["match", ["get", "iso_3166_1"], ["CH", "LI"], false, true];
+      countryLabels.filter = countryLabels.filter
+        ? ["all", countryLabels.filter, excludeLocalCountries]
+        : excludeLocalCountries;
+    }
+    ["settlement-major-label", "settlement-minor-label"].forEach(id => {
+      const layer = mapStyle.layers?.find(candidate => candidate.id === id);
+      if (layer) layer.minzoom = Math.max(layer.minzoom ?? 0, 9);
+    });
     let pmtilesReady = false;
     let pmtilesSourceType;
     if (container.dataset.pmtilesLayer && window.mapboxPmTiles?.PmTilesSource) {
@@ -142,7 +156,7 @@
     const map = new mapboxgl.Map({
       container,
       accessToken: window.INDEXMAP_CONFIG.mapboxToken,
-      style: "mapbox://styles/mapbox/light-v11",
+      style: mapStyle,
       bounds: container.dataset.bounds ? JSON.parse(container.dataset.bounds) : [[5.95, 45.8], [10.5, 47.85]],
       fitBoundsOptions: { padding: 45 },
     });
