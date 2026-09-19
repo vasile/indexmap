@@ -115,7 +115,7 @@ def build(input_dir, output_dir):
             f"{name} District Boundary & GeoJSON", body, f"district/{number}.html",
             description=f"View and download the boundary of {name} district, {canton_name}, Switzerland, as GeoJSON. BFS {number}.")
         files[Path("district") / f"{number}.geojson"] = raw
-        rows.append(f'<li class="canton-item" data-search="{escape(f"{name} {number} {canton} {country}")}">'
+        rows.append(f'<li class="canton-item" data-canton="{canton}" data-search="{escape(f"{name} {number} {canton} {country}")}">'
                     f'<div class="canton-details"><h2><a href="../district/{number}.html">{escape(name)}</a></h2><p>{number} · {canton}</p>'
                     f'<p class="canton-stats">{population} inhabitants · {area} km²</p></div>'
                     f'<a class="canton-next" href="../district/{number}.html" aria-label="View {escape(name)}">›</a></li>')

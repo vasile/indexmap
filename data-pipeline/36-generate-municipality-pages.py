@@ -150,7 +150,7 @@ def build(input_dir, output_dir, *, coat_dir=COAT_DIR):
             f"{name} Municipality Boundary & GeoJSON", body, f"municipality/{number}.html",
             description=f"View and download the boundary of {name} municipality, {location}, as GeoJSON. BFS {number}.")
         files[Path("municipality") / f"{number}.geojson"] = raw
-        rows.append(f'<li class="canton-item" data-search="{escape(f"{name} {number} {canton} {country}")}">'
+        rows.append(f'<li class="canton-item" data-canton="{canton}" data-search="{escape(f"{name} {number} {canton} {country}")}">'
                     f'<img src="../municipality/{coat_filename}" alt="" class="canton-coat-of-arms" width="40" loading="lazy">'
                     f'<div class="canton-details"><h2><a href="../municipality/{number}.html">{escape(name)}</a></h2><p>{number} · {canton}</p>'
                     f'<p class="canton-stats">{population} inhabitants · {area} km²</p></div>'
