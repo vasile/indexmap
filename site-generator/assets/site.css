@@ -21,6 +21,16 @@ body { margin: 0; height: 100vh; height: 100dvh; color: var(--ink); background: 
 .boundary-legend-title { margin-bottom: .15rem; font-size: .72rem; font-weight: 650; }
 .boundary-legend label { display: flex; align-items: center; gap: .45rem; margin: 0; color: var(--ink); cursor: pointer; line-height: 1.25; }
 .boundary-legend input { width: .85rem; height: .85rem; margin: 0; accent-color: var(--accent); }
+.boundary-popup { display: grid; gap: .2rem; min-width: 9rem; }
+.boundary-popup-heading { display: flex; align-items: center; gap: .55rem; padding-right: 1rem; }
+.boundary-popup-heading img { width: 34px; max-height: 40px; object-fit: contain; flex-shrink: 0; }
+.boundary-popup strong { font-size: .85rem; }
+.boundary-popup span { color: var(--muted); font-size: .7rem; }
+.boundary-popup a { margin-top: .3rem; color: var(--accent); font-size: .75rem; text-decoration: none; }
+.boundary-popup a:hover { text-decoration: underline; }
+.mapboxgl-popup-content { padding: .7rem .8rem .75rem; border-radius: .6rem; box-shadow: 0 4px 18px rgb(15 23 42 / 16%); }
+.mapboxgl-popup-close-button { top: .2rem; right: .25rem; width: 1.4rem; height: 1.4rem; border-radius: 50%; color: var(--muted); font-size: 1.1rem; line-height: 1.2rem; }
+.mapboxgl-popup-close-button:hover { background: #f1f5f9; color: var(--ink); }
 .map-status { position: absolute; left: 1rem; right: 1rem; bottom: 3rem; width: fit-content; max-width: calc(100% - 2rem); margin: 0; padding: .65rem .85rem; border-radius: .5rem; background: white; color: var(--muted); font-size: .85rem; }
 .directory-panel { flex: 0 0 430px; width: 430px; min-width: 0; min-height: 0; border-left: 1px solid var(--line); }
 .directory-heading { padding: 1.6rem 1.5rem 0; flex-shrink: 0; }

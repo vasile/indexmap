@@ -4,10 +4,10 @@
       <fieldset class="map-caption boundary-legend">
         <legend class="visually-hidden">Administrative boundaries</legend>
         <span class="boundary-legend-title" aria-hidden="true">Administrative boundaries</span>
-        <label><input type="radio" name="boundary-level" data-boundary-layer="national-boundary"> Country (2)</label>
-        <label><input type="radio" name="boundary-level" data-boundary-layer="cantonal-boundary" checked> Cantons (26)</label>
-        <label><input type="radio" name="boundary-level" data-boundary-layer="district-boundary"> Districts (135)</label>
-        <label><input type="radio" name="boundary-level" data-boundary-layer="municipal-boundary"> Municipalities (2,121)</label>
+        <label><input type="radio" name="boundary-level" data-boundary-layer="national-boundary" data-source-layer="countries" data-id-property="icc"> Country (2)</label>
+        <label><input type="radio" name="boundary-level" data-boundary-layer="cantonal-boundary" data-source-layer="cantons" data-id-property="kantonsnummer" checked> Cantons (26)</label>
+        <label><input type="radio" name="boundary-level" data-boundary-layer="district-boundary" data-source-layer="districts" data-id-property="bezirksnummer"> Districts (135)</label>
+        <label><input type="radio" name="boundary-level" data-boundary-layer="municipal-boundary" data-source-layer="municipalities" data-id-property="bfs_nummer"> Municipalities (2,121)</label>
       </fieldset>
       <p id="map-status" class="map-status" role="status">Loading map…</p>
     </section>

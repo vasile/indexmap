@@ -168,14 +168,96 @@
         const source = "indexmap-boundaries";
         const level = Number(container.dataset.boundaryLevel);
         const levelControls = [...document.querySelectorAll('input[name="boundary-level"]')];
-        map.addSource(source, { type: pmtilesSourceType, url: tilesUrl });
-        const fillLayerIds = ["boundary-fill"];
-        map.addLayer({
-          id: "boundary-fill",
-          type: "fill",
-          source,
-          "source-layer": container.dataset.pmtilesLayer,
-          paint: { "fill-antialias": false, "fill-color": "#2563eb", "fill-opacity": 0.12 },
+        map.addSource(source, { type: pmtilesSourceType, url: tilesUrl, promoteId: {
+          countries: "icc", cantons: "kantonsnummer", districts: "bezirksnummer", municipalities: "bfs_nummer",
+        } });
+        const fillLayerIds = [];
+        let activeInteraction;
+        let hoveredFeature;
+        let popup;
+        const cantonCodes = [null, "zh", "be", "lu", "ur", "sz", "ow", "nw", "gl", "zg", "fr", "so", "bs", "bl", "sh", "ar", "ai", "sg", "gr", "ag", "tg", "ti", "vd", "vs", "ne", "ge", "ju"];
+        const siteRoot = scriptUrl ? new URL("../", scriptUrl) : new URL("./", location.href);
+        const interactionLayers = levelControls.map((input, index) => {
+          const fillId = `boundary-fill-${index}`;
+          fillLayerIds.push(fillId);
+          map.addLayer({
+            id: fillId, type: "fill", source, "source-layer": input.dataset.sourceLayer,
+            layout: { visibility: input.checked ? "visible" : "none" },
+            paint: { "fill-antialias": false, "fill-color": boundaryColor,
+              "fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false], 0.28, 0.12] },
+          });
+          return { input, fillId };
+        });
+        if (!levelControls.length) {
+          fillLayerIds.push("boundary-fill");
+          map.addLayer({
+            id: "boundary-fill", type: "fill", source, "source-layer": container.dataset.pmtilesLayer,
+            paint: { "fill-antialias": false, "fill-color": boundaryColor, "fill-opacity": 0.12 },
+          });
+        }
+        const clearHover = () => {
+          if (hoveredFeature) {
+            map.removeFeatureState({ source, sourceLayer: hoveredFeature.sourceLayer, id: hoveredFeature.id }, "hover");
+          }
+          hoveredFeature = undefined;
+          map.getCanvas().style.cursor = "";
+        };
+        const featureDetails = feature => {
+          const properties = feature.properties || {};
+          const sourceLayer = activeInteraction.input.dataset.sourceLayer;
+          if (sourceLayer === "countries") return { label: "Country", id: properties.icc,
+            path: `country/${String(properties.icc).toLowerCase()}.html`,
+            icon: `country/${String(properties.icc).toLowerCase()}.png` };
+          if (sourceLayer === "cantons") return { label: "Canton", id: cantonCodes[Number(properties.kantonsnummer)]?.toUpperCase(),
+            path: `canton/${cantonCodes[Number(properties.kantonsnummer)]}.html`,
+            icon: `canton/${cantonCodes[Number(properties.kantonsnummer)]}.png` };
+          if (sourceLayer === "districts") return { label: "District", id: properties.bezirksnummer,
+            path: `district/${properties.bezirksnummer}.html` };
+          return { label: "Municipality", id: `BFS ${properties.bfs_nummer}`,
+            path: `municipality/${properties.bfs_nummer}.html`,
+            icon: `municipality/${properties.bfs_nummer}.webp` };
+        };
+        map.on("mousemove", event => {
+          if (!activeInteraction) return;
+          const feature = map.queryRenderedFeatures(event.point, { layers: [activeInteraction.fillId] })[0];
+          if (!feature) { clearHover(); return; }
+          map.getCanvas().style.cursor = "pointer";
+          if (hoveredFeature?.id === feature.id && hoveredFeature.sourceLayer === feature.sourceLayer) return;
+          clearHover();
+          if (feature.id === undefined || feature.id === null) return;
+          hoveredFeature = { id: feature.id, sourceLayer: feature.sourceLayer };
+          map.setFeatureState({ source, sourceLayer: feature.sourceLayer, id: feature.id }, { hover: true });
+        });
+        map.getCanvas().addEventListener("mouseleave", clearHover);
+        map.on("click", event => {
+          if (!activeInteraction) return;
+          const feature = map.queryRenderedFeatures(event.point, { layers: [activeInteraction.fillId] })[0];
+          if (!feature) return;
+          const details = featureDetails(feature);
+          if (!details.path || !details.id) return;
+          const content = document.createElement("div");
+          content.className = "boundary-popup";
+          const heading = document.createElement("div");
+          heading.className = "boundary-popup-heading";
+          if (details.icon) {
+            const icon = document.createElement("img");
+            icon.src = new URL(details.icon, siteRoot).href;
+            icon.alt = "";
+            icon.width = 34;
+            heading.append(icon);
+          }
+          const title = document.createElement("strong");
+          title.textContent = feature.properties?.name || details.label;
+          heading.append(title);
+          const meta = document.createElement("span");
+          meta.textContent = `${details.label} · ${details.id}`;
+          const link = document.createElement("a");
+          link.href = new URL(details.path, siteRoot).href;
+          link.textContent = "View details →";
+          content.append(heading, meta, link);
+          popup?.remove();
+          popup = new mapboxgl.Popup({ closeButton: true, maxWidth: "240px" })
+            .setLngLat(event.lngLat).setDOMContent(content).addTo(map);
         });
         const boundaryLayerIds = [];
         const addBoundaryLayer = (id, adminLevel, paint) => {
@@ -209,6 +291,14 @@
               map.setLayoutProperty(input.dataset.boundaryLayer, "visibility", visible);
             }
           });
+          interactionLayers.forEach(interaction => {
+            const visible = interaction.input === selected ? "visible" : "none";
+            map.setLayoutProperty(interaction.fillId, "visibility", visible);
+          });
+          clearHover();
+          popup?.remove();
+          popup = undefined;
+          activeInteraction = interactionLayers.find(interaction => interaction.input === selected);
         };
         if (levelControls.length) {
           selectBoundaryLevel(levelControls.find(input => input.checked));
