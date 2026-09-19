@@ -67,6 +67,7 @@ def build(output_path: Path) -> None:
             "--output", str(archive),
             "--minimum-zoom", "0",
             "--maximum-zoom", "14",
+            "--generate-ids",
             "--detect-shared-borders",
             "--no-feature-limit",
             "--no-tile-size-limit",
