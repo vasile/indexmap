@@ -1,0 +1,18 @@
+  <main class="text-directory container-fluid flex-grow-1">
+    <header class="text-directory-header">
+      <p class="eyebrow">Text-only index</p>
+      <h1 id="page-title">Boundary directory</h1>
+      <p class="intro">Browse every current country, canton, district and municipality boundary for Switzerland and Liechtenstein.</p>
+      <label class="form-label small fw-semibold" for="canton-search">Search all boundaries</label>
+      <input class="form-control" id="canton-search" data-singular="boundary" data-plural="boundaries" type="search" placeholder="Name, code or BFS number…" autocomplete="off">
+      <div class="list-meta d-flex justify-content-between gap-2">
+        <span id="result-count" role="status" aria-live="polite">$count boundaries</span>
+        <span>Text directory</span>
+      </div>
+    </header>
+    <div class="directory-groups" id="canton-list">
+$sections
+    </div>
+    <p id="no-results" class="empty-state" hidden>No boundaries found. Try another name, code or BFS number.</p>
+    <p class="directory-note">Boundaries: $boundary_date · Geographic data: swisstopo.</p>
+  </main>
