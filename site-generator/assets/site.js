@@ -2,6 +2,7 @@
   "use strict";
   const scriptUrl = document.currentScript?.src;
   const tilesUrl = scriptUrl ? new URL("../tiles/boundaries.pmtiles", scriptUrl).href : "../tiles/boundaries.pmtiles";
+  const territoryMaskUrl = scriptUrl ? new URL("../countries/ch-li-mask.geojson", scriptUrl).href : "../countries/ch-li-mask.geojson";
   const boundaryColor = "#1d4ed8";
   const search = document.querySelector("#canton-search");
   const items = [...document.querySelectorAll(".canton-item")];
@@ -190,6 +191,19 @@
     map.addControl(new mapboxgl.ScaleControl({ maxWidth: 150, unit: "metric" }), "bottom-left");
     map.on("error", showError);
     map.on("load", async () => {
+      try {
+        const response = await fetch(territoryMaskUrl);
+        if (!response.ok) throw new Error(`Territory mask request failed (${response.status})`);
+        map.addSource("indexmap-territory-mask", { type: "geojson", data: await response.json() });
+        map.addLayer({
+          id: "indexmap-territory-mask",
+          type: "fill",
+          source: "indexmap-territory-mask",
+          paint: { "fill-color": "#ffffff", "fill-opacity": 0.6 },
+        });
+      } catch (error) {
+        console.error("IndexMap: territory mask could not load.", error);
+      }
       if (pmtilesReady) {
         const source = "indexmap-boundaries";
         const level = Number(container.dataset.boundaryLevel);
