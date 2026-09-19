@@ -9,11 +9,15 @@
   const normalize = (text) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     .toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
   const searchableItems = items.map(item => ({ item, text: normalize(item.dataset.search || "") }));
+  let cantonFilter = "";
   const filterDirectory = () => {
     const terms = normalize(search.value).split(/\s+/).filter(Boolean);
+    const exactCanton = cantonFilter && normalize(search.value) === cantonFilter;
     let count = 0;
     searchableItems.forEach(({ item, text }) => {
-      item.hidden = !terms.every(term => text.includes(term));
+      item.hidden = exactCanton
+        ? normalize(item.dataset.canton || "") !== cantonFilter
+        : !terms.every(term => text.includes(term));
       if (!item.hidden) count++;
     });
     document.querySelector("#result-count").textContent = count + (" " + (count === 1 ? (search.dataset.singular || "canton") : (search.dataset.plural || "cantons")));
@@ -21,8 +25,14 @@
   };
   search?.addEventListener("input", filterDirectory);
   if (search) {
-    const query = new URLSearchParams(location.search).get("q");
-    if (query) {
+    const parameters = new URLSearchParams(location.search);
+    const query = parameters.get("q");
+    const canton = parameters.get("canton");
+    if (canton) {
+      cantonFilter = normalize(canton);
+      search.value = canton.toUpperCase();
+      filterDirectory();
+    } else if (query) {
       search.value = query;
       filterDirectory();
     }
