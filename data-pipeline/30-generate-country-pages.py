@@ -8,7 +8,8 @@ import math
 from pathlib import Path
 from string import Template
 
-from config.loader import SITE_DIR, DIST_DIR, population_metadata, OUTPUT_DIR as PROCESSED_DIR, REFERENCE_DATE, SCRIPT_DIR
+from config.loader import (SITE_DIR, DIST_DIR, population_metadata, OUTPUT_DIR as PROCESSED_DIR,
+                           REFERENCE_DATE, SCRIPT_DIR, SWISSBOUNDARIES_DOWNLOAD_URL)
 from site_helpers import build_assets, asset_version, canonical_url, escape, format_number, positions
 
 PROJECT_DIR = SCRIPT_DIR.parent
@@ -33,7 +34,7 @@ def build(input_dir: Path, output_dir: Path) -> None:
     dates = {"population_date": date.fromisoformat(metadata["population_date"]).strftime("%d %B %Y").lstrip("0"),
              "boundary_date": date.fromisoformat(REFERENCE_DATE).strftime("%d %B %Y").lstrip("0")}
     templates = {name: Template((SITE_DIR / "templates" / f"{name}.html").read_text())
-                 for name in ["base", "country", "countries", "country-row"]}
+                 for name in ["base", "country", "countries", "home", "country-row"]}
     files = {}
     data = {}
     for code in [*COUNTRIES, "ch-li", "ch-li-dissolved"]:
@@ -54,8 +55,12 @@ def build(input_dir: Path, output_dir: Path) -> None:
 
     def render(title, body, path, *, root_path="../", description=None):
         description = description or f"{title}: administrative boundaries and GeoJSON downloads."
+        is_home = Path(path) == Path("index.html")
         return templates["base"].substitute(title=escape(title), description=escape(description),
-                                            body=body, root_path=root_path, canonical_url=escape(canonical_url(path)), countries_class="active", cantons_class="", asset_version=version, municipalities_class="", districts_class="").encode("utf-8")
+                                            body=body, root_path=root_path, canonical_url=escape(canonical_url(path)),
+                                            home_class="active" if is_home else "",
+                                            countries_class="" if is_home else "active", cantons_class="",
+                                            asset_version=version, municipalities_class="", districts_class="").encode("utf-8")
 
     rows = {}
     for code, name in COUNTRIES.items():
@@ -99,14 +104,17 @@ def build(input_dir: Path, output_dir: Path) -> None:
             rows="\n".join(templates["country-row"].substitute(rows[code], country_path=country_path) for code in COUNTRIES),
             country_path=country_path, collection_path=collection_path, bounds=bounds(data["ch-li"]), **dates)
 
-    homepage_description = ("Download current GeoJSON boundaries for Switzerland’s cantons, districts, and "
-                            "municipalities. Search municipalities by name or BFS number. Based on official "
-                            "swisstopo boundaries.")
+    homepage_description = ("Download current GeoJSON boundaries for Switzerland and Liechtenstein, including "
+                            "cantons, districts, and municipalities. Based on official swisstopo boundaries.")
     files[Path("countries/index.html")] = render(
         "Swiss administrative boundaries as GeoJSON", directory("../country/", "./"),
         "countries/index.html", description=homepage_description)
+    home_context = dict(
+        bounds=bounds(data["ch-li"]), population_date=dates["population_date"],
+        boundary_date=dates["boundary_date"],
+        swisstopo_gpkg_url=escape(SWISSBOUNDARIES_DOWNLOAD_URL))
     files[Path("index.html")] = render(
-        "Swiss administrative boundaries as GeoJSON", directory("./country/", "./countries/"),
+        "Swiss administrative boundaries as GeoJSON", templates["home"].substitute(home_context),
         "index.html", root_path="./", description=homepage_description)
     files.update(assets)
     for path, content in files.items():
