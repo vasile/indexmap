@@ -29,6 +29,7 @@ body { margin: 0; height: 100vh; height: 100dvh; color: var(--ink); background: 
 .boundary-popup strong { font-size: .85rem; }
 .boundary-popup span { color: var(--muted); font-size: .7rem; }
 .boundary-popup-parents { display: grid; gap: .18rem; margin-top: .35rem; }
+.boundary-popup-parent { display: flex; align-items: baseline; gap: .2rem; white-space: nowrap; }
 .boundary-popup a { color: var(--accent); font-size: .75rem; text-decoration: none; }
 .boundary-popup a:hover { text-decoration: underline; }
 .boundary-popup-actions { display: flex; flex-wrap: wrap; gap: .25rem .75rem; margin-top: .4rem; padding-top: .4rem; border-top: 1px solid var(--line); }
@@ -93,10 +94,13 @@ h1 { font-size: 1.8rem; font-weight: 650; letter-spacing: -.045em; }
 .canton-subdivisions { margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--line); }
 .canton-subdivisions h2 { margin: 0 0 .55rem; font-size: 1rem; }
 .canton-subdivisions h2 span { color: var(--muted); font-weight: 500; }
+.canton-subdivisions h2 a { color: inherit; text-decoration: none; }
+.canton-subdivisions h2 a:hover { color: var(--accent); text-decoration: underline; }
 .subdivision-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .25rem .75rem; margin: 0; padding: 0; list-style: none; }
-.district-links { position: relative; }
+.district-links { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
 .district-links::after { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: var(--line); pointer-events: none; }
-.district-links > li:nth-child(even) { padding-left: .5rem; }
+.district-column { display: grid; grid-template-columns: 1fr; align-content: start; gap: .25rem; }
+.district-column + .district-column { padding-left: .5rem; }
 .subdivision-list a { color: var(--ink); font-size: .78rem; line-height: 1.3; text-decoration: none; }
 .subdivision-list a:hover { color: var(--accent); text-decoration: underline; }
 .subdivision-list small { color: var(--muted); font-size: .68rem; white-space: nowrap; }
