@@ -63,6 +63,7 @@ def build(input_dir, output_dir):
                  f'<div><dt>Area</dt><dd>{area} km²</dd></div>')
         context = dict(name=escape(name), code=number, upper_code=f"{number} · {canton}", entity_label="District",
                        boundary_label="District boundary", facts=facts, subdivision_link="", coat_image="", coat_download="", directory_url="../districts/",
+                       pmtiles_layer="districts", boundary_level=6, active_feature_ids=number,
                        mask_hint="Covers the area outside the district.", bounds=escape(json.dumps(bounds)), **dates)
         body = templates["country"].substitute(context).replace("‹ All countries", "‹ All districts")
         canton_name = CANTONS[canton.lower()]["display_name"]

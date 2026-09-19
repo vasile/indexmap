@@ -79,6 +79,7 @@ def build(input_dir: Path, output_dir: Path) -> None:
                        coat_download=f'<a class="btn btn-outline-secondary" href="./{code}.png" download="{code}.png">↓ Coat of arms · PNG</a>',
                        entity_label="Country", code_label="Country code", directory_url="../countries/",
                        boundary_label="Country boundary",
+                       pmtiles_layer="countries", boundary_level=2, active_feature_ids=upper_code,
                        mask_hint="Covers the area outside the country.",
                        facts=f'<div><dt>Country code</dt><dd>{upper_code}</dd></div><div><dt>Population</dt><dd>{population}<small>{dates["population_date"]}</small></dd></div><div><dt>Area</dt><dd>{area} km²</dd></div>',
                        bounds=bounds(data[code]), subdivision_link='<a class="back-link" href="../cantons/">Browse 26 cantons ›</a>' if code == "ch" else "", **dates)
@@ -91,6 +92,7 @@ def build(input_dir: Path, output_dir: Path) -> None:
     dissolved_context = dict(name="Switzerland + Liechtenstein", code="ch-li-dissolved",
                              upper_code="CH + LI", entity_label="Dissolved boundary",
                              boundary_label="Dissolved boundary", facts="", subdivision_link="",
+                             pmtiles_layer="countries", boundary_level=2, active_feature_ids="CH,LI",
                              coat_image="", coat_download="", directory_url="../countries/",
                              mask_hint="Covers the area outside Switzerland and Liechtenstein.",
                              bounds=bounds(data["ch-li-dissolved"]), **dates)

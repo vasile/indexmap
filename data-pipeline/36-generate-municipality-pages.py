@@ -140,6 +140,7 @@ def build(input_dir, output_dir, *, coat_dir=COAT_DIR):
         coat_image, coat_download, coat_filename = municipality_coat(coats.get(number), number, files, coat_dir)
         context = dict(name=escape(name), code=number, upper_code=f"{number} · {canton}", entity_label="Municipality",
                        boundary_label="Municipality boundary", facts=facts, subdivision_link="", coat_image=coat_image, coat_download=coat_download, directory_url="../municipalities/",
+                       pmtiles_layer="municipalities", boundary_level=8, active_feature_ids=number,
                        mask_hint="Covers the area outside the municipality.", bounds=escape(json.dumps(bounds)), **dates)
         body = templates["country"].substitute(context).replace("‹ All countries", "‹ All municipalities")
         location = (f'{CANTONS[canton.lower()]["display_name"]}, Switzerland'
