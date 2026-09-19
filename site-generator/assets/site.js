@@ -5,6 +5,7 @@
   const territoryMaskUrl = scriptUrl ? new URL("../countries/ch-li-mask.geojson", scriptUrl).href : "../countries/ch-li-mask.geojson";
   const siteRoot = scriptUrl ? new URL("../", scriptUrl) : new URL("./", location.href);
   const boundaryColor = "#1d4ed8";
+  const container = document.querySelector("#map");
   const search = document.querySelector("#canton-search");
   const items = [...document.querySelectorAll(".canton-item")];
   const normalize = (text) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -23,6 +24,13 @@
     });
     document.querySelector("#result-count").textContent = count + (" " + (count === 1 ? (search.dataset.singular || "canton") : (search.dataset.plural || "cantons")));
     document.querySelector("#no-results").hidden = count !== 0;
+    container?.dispatchEvent(new CustomEvent("directoryfilterchange", {
+      detail: {
+        active: Boolean(exactCanton || terms.length),
+        ids: searchableItems.filter(({ item }) => !item.hidden)
+          .map(({ item }) => Number(item.dataset.featureId)).filter(Number.isFinite),
+      },
+    }));
   };
   search?.addEventListener("input", filterDirectory);
   if (search) {
@@ -38,7 +46,6 @@
       filterDirectory();
     }
   }
-  const container = document.querySelector("#map");
   const download = document.querySelector("#boundary-download");
   const maskCheckbox = document.querySelector("#boundary-mask");
   const maskCheckboxes = [...document.querySelectorAll("#boundary-mask, #map-boundary-mask")];
@@ -255,6 +262,8 @@
         const cantonFiltered = isCantonDirectoryFilter && selectedCantonNumber > 0;
         const cantonFilter = ["==", ["get", "kantonsnummer"], selectedCantonNumber];
         const levelControls = [...document.querySelectorAll('input[name="boundary-level"]')];
+        const isFilterableDirectoryMap = !isDetailMap && !levelControls.length
+          && ["districts", "municipalities"].includes(container.dataset.pmtilesLayer);
         map.addSource(source, {
           type: pmtilesSourceType,
           url: tilesUrl,
@@ -283,6 +292,9 @@
         });
         if (!levelControls.length) {
           fillLayerIds.push("boundary-fill");
+          const idProperties = { countries: "icc", cantons: "kantonsnummer",
+            districts: "bezirksnummer", municipalities: "bfs_nummer" };
+          const idProperty = idProperties[container.dataset.pmtilesLayer];
           const fillLayer = {
             id: "boundary-fill", type: "fill", source, "source-layer": container.dataset.pmtilesLayer,
             paint: { "fill-antialias": false,
@@ -293,17 +305,16 @@
           };
           if (cantonFiltered) fillLayer.filter = cantonFilter;
           map.addLayer(fillLayer);
-          if (cantonFiltered) {
+          if (isFilterableDirectoryMap) {
             map.addLayer({
               id: "boundary-filter-outline", type: "line", source,
-              "source-layer": container.dataset.pmtilesLayer, filter: cantonFilter,
-              layout: { "line-cap": "round", "line-join": "miter" },
+              "source-layer": container.dataset.pmtilesLayer,
+              filter: cantonFiltered ? cantonFilter : ["==", ["get", idProperty], -1],
+              layout: { "line-cap": "round", "line-join": "miter",
+                visibility: cantonFiltered ? "visible" : "none" },
               paint: { "line-color": boundaryColor, "line-width": 1 },
             });
           }
-          const idProperties = { countries: "icc", cantons: "kantonsnummer",
-            districts: "bezirksnummer", municipalities: "bfs_nummer" };
-          const idProperty = idProperties[container.dataset.pmtilesLayer];
           if (idProperty) {
             interactionLayers.push({
               input: { dataset: { sourceLayer: container.dataset.pmtilesLayer, idProperty } },
@@ -474,17 +485,19 @@
           showPopup(feature, event.lngLat);
         });
         const boundaryLayerIds = [];
+        const boundaryAdminLevels = new Map();
         const addBoundaryLayer = (id, adminLevel, paint) => {
           if (adminLevel > level) return;
-          if (cantonFiltered && adminLevel > 4) return;
           boundaryLayerIds.push(id);
+          boundaryAdminLevels.set(id, adminLevel);
           map.addLayer({
             id,
             type: "line",
             source,
             "source-layer": "boundaries",
             filter: ["==", ["get", "admin_level"], adminLevel],
-            layout: { "line-cap": "round", "line-join": "miter" },
+            layout: { "line-cap": "round", "line-join": "miter",
+              visibility: cantonFiltered && adminLevel > 4 ? "none" : "visible" },
             paint,
           });
         };
@@ -525,6 +538,30 @@
         } else {
           activeInteraction = interactionLayers[0];
         }
+        container.addEventListener("directoryfilterchange", event => {
+          if (!isFilterableDirectoryMap) return;
+          const idProperty = activeInteraction?.input.dataset.idProperty;
+          if (!idProperty) return;
+          const ids = event.detail?.ids || [];
+          const active = Boolean(event.detail?.active);
+          const featureFilter = active
+            ? (ids.length
+              ? ["in", ["get", idProperty], ["literal", ids]]
+              : ["==", ["get", idProperty], -1])
+            : null;
+          map.setFilter("boundary-fill", featureFilter);
+          map.setFilter("boundary-filter-outline", featureFilter || ["==", ["get", idProperty], -1]);
+          map.setLayoutProperty("boundary-filter-outline", "visibility", active ? "visible" : "none");
+          boundaryLayerIds.forEach(id => {
+            if (boundaryAdminLevels.get(id) > 4) {
+              map.setLayoutProperty(id, "visibility", active ? "none" : "visible");
+            }
+          });
+          clearHover();
+          popup?.remove();
+          popup = undefined;
+        });
+        if (search?.value) search.dispatchEvent(new Event("input"));
         const showBoundarySelection = data => {
           if (!map.getSource("boundary-selection")) {
             map.addSource("boundary-selection", { type: "geojson", data });
