@@ -3,6 +3,7 @@
   const scriptUrl = document.currentScript?.src;
   const tilesUrl = scriptUrl ? new URL("../tiles/boundaries.pmtiles", scriptUrl).href : "../tiles/boundaries.pmtiles";
   const territoryMaskUrl = scriptUrl ? new URL("../countries/ch-li-mask.geojson", scriptUrl).href : "../countries/ch-li-mask.geojson";
+  const siteRoot = scriptUrl ? new URL("../", scriptUrl) : new URL("./", location.href);
   const boundaryColor = "#1d4ed8";
   const search = document.querySelector("#canton-search");
   const items = [...document.querySelectorAll(".canton-item")];
@@ -190,11 +191,40 @@
         layer: container.dataset.pmtilesLayer,
       });
     }
+    const selectedCantonCode = (new URLSearchParams(location.search).get("canton") || "").toLowerCase();
+    const isCantonDirectoryFilter = /^[a-z]{2}$/.test(selectedCantonCode)
+      && ["districts", "municipalities"].includes(container.dataset.pmtilesLayer)
+      && !container.dataset.activeFeatureIds;
+    let initialBounds = container.dataset.bounds
+      ? JSON.parse(container.dataset.bounds)
+      : [[5.95, 45.8], [10.5, 47.85]];
+    if (isCantonDirectoryFilter) {
+      try {
+        const response = await fetch(new URL(`canton/${selectedCantonCode}.geojson`, siteRoot));
+        if (!response.ok) throw new Error(`Canton boundary request failed (${response.status})`);
+        const boundary = await response.json();
+        const extent = [Infinity, Infinity, -Infinity, -Infinity];
+        const includePositions = coordinates => {
+          if (typeof coordinates?.[0] === "number") {
+            extent[0] = Math.min(extent[0], coordinates[0]);
+            extent[1] = Math.min(extent[1], coordinates[1]);
+            extent[2] = Math.max(extent[2], coordinates[0]);
+            extent[3] = Math.max(extent[3], coordinates[1]);
+          } else {
+            coordinates?.forEach(includePositions);
+          }
+        };
+        boundary.features?.forEach(feature => includePositions(feature.geometry?.coordinates));
+        if (extent.every(Number.isFinite)) initialBounds = [[extent[0], extent[1]], [extent[2], extent[3]]];
+      } catch (error) {
+        console.error("IndexMap: filtered canton extent could not load.", error);
+      }
+    }
     const map = new mapboxgl.Map({
       container,
       accessToken: window.INDEXMAP_CONFIG.mapboxToken,
       style: mapStyle,
-      bounds: container.dataset.bounds ? JSON.parse(container.dataset.bounds) : [[5.95, 45.8], [10.5, 47.85]],
+      bounds: initialBounds,
       fitBoundsOptions: { padding: 45 },
     });
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
@@ -220,6 +250,10 @@
         const activeFeatureIds = new Set((container.dataset.activeFeatureIds || "")
           .split(",").filter(Boolean));
         const isDetailMap = activeFeatureIds.size > 0;
+        const cantonCodes = [null, "zh", "be", "lu", "ur", "sz", "ow", "nw", "gl", "zg", "fr", "so", "bs", "bl", "sh", "ar", "ai", "sg", "gr", "ag", "tg", "ti", "vd", "vs", "ne", "ge", "ju"];
+        const selectedCantonNumber = cantonCodes.indexOf(selectedCantonCode);
+        const cantonFiltered = isCantonDirectoryFilter && selectedCantonNumber > 0;
+        const cantonFilter = ["==", ["get", "kantonsnummer"], selectedCantonNumber];
         const levelControls = [...document.querySelectorAll('input[name="boundary-level"]')];
         map.addSource(source, {
           type: pmtilesSourceType,
@@ -236,8 +270,6 @@
         let hoveredFeature;
         let hoverPopup;
         let popup;
-        const cantonCodes = [null, "zh", "be", "lu", "ur", "sz", "ow", "nw", "gl", "zg", "fr", "so", "bs", "bl", "sh", "ar", "ai", "sg", "gr", "ag", "tg", "ti", "vd", "vs", "ne", "ge", "ju"];
-        const siteRoot = scriptUrl ? new URL("../", scriptUrl) : new URL("./", location.href);
         const interactionLayers = levelControls.map((input, index) => {
           const fillId = `boundary-fill-${index}`;
           fillLayerIds.push(fillId);
@@ -251,14 +283,24 @@
         });
         if (!levelControls.length) {
           fillLayerIds.push("boundary-fill");
-          map.addLayer({
+          const fillLayer = {
             id: "boundary-fill", type: "fill", source, "source-layer": container.dataset.pmtilesLayer,
             paint: { "fill-antialias": false,
               "fill-color": isDetailMap ? "#60a5fa" : boundaryColor,
               "fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false],
                 isDetailMap ? 0.22 : 0.34,
                 isDetailMap ? 0 : 0.12] },
-          });
+          };
+          if (cantonFiltered) fillLayer.filter = cantonFilter;
+          map.addLayer(fillLayer);
+          if (cantonFiltered) {
+            map.addLayer({
+              id: "boundary-filter-outline", type: "line", source,
+              "source-layer": container.dataset.pmtilesLayer, filter: cantonFilter,
+              layout: { "line-cap": "round", "line-join": "miter" },
+              paint: { "line-color": boundaryColor, "line-width": 1 },
+            });
+          }
           const idProperties = { countries: "icc", cantons: "kantonsnummer",
             districts: "bezirksnummer", municipalities: "bfs_nummer" };
           const idProperty = idProperties[container.dataset.pmtilesLayer];
@@ -376,7 +418,7 @@
             cantonLabel.textContent = "Canton:";
             const cantonLink = document.createElement("a");
             cantonLink.href = new URL(`canton/${details.canton}.html`, siteRoot).href;
-            cantonLink.textContent = `${details.cantonName || details.canton.toUpperCase()} (${details.canton.toUpperCase()})`;
+            cantonLink.textContent = `${details.cantonName || details.canton.toUpperCase()} (${details.canton.toUpperCase()}) →`;
             cantonRow.append(cantonLabel, cantonLink);
             parents.append(cantonRow);
           }
@@ -387,7 +429,7 @@
             districtLabel.textContent = "District:";
             const districtLink = document.createElement("a");
             districtLink.href = new URL(`district/${details.district}.html`, siteRoot).href;
-            districtLink.textContent = `${details.districtName || "District"} (${details.district})`;
+            districtLink.textContent = `${details.districtName || "District"} (${details.district}) →`;
             districtRow.append(districtLabel, districtLink);
             parents.append(districtRow);
           }
@@ -434,6 +476,7 @@
         const boundaryLayerIds = [];
         const addBoundaryLayer = (id, adminLevel, paint) => {
           if (adminLevel > level) return;
+          if (cantonFiltered && adminLevel > 4) return;
           boundaryLayerIds.push(id);
           map.addLayer({
             id,
