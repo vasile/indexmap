@@ -32,6 +32,11 @@ body { margin: 0; height: 100vh; height: 100dvh; color: var(--ink); background: 
 .boundary-popup a { color: var(--accent); font-size: .75rem; text-decoration: none; }
 .boundary-popup a:hover { text-decoration: underline; }
 .boundary-popup-actions { display: flex; flex-wrap: wrap; gap: .25rem .75rem; margin-top: .4rem; padding-top: .4rem; border-top: 1px solid var(--line); }
+.boundary-hover-popup { pointer-events: none; }
+.boundary-hover-popup .mapboxgl-popup-content { padding: .5rem .65rem; }
+.boundary-hover-content { display: grid; gap: .15rem; }
+.boundary-hover-content strong { color: var(--ink); font-size: .8rem; }
+.boundary-hover-content span { color: var(--muted); font-size: .68rem; }
 .mapboxgl-popup-content { padding: .7rem .8rem .75rem; border-radius: .6rem; box-shadow: 0 4px 18px rgb(15 23 42 / 16%); }
 .mapboxgl-popup-close-button { top: .2rem; right: .25rem; width: 1.4rem; height: 1.4rem; border-radius: 50%; color: var(--muted); font-size: 1.1rem; line-height: 1.2rem; }
 .mapboxgl-popup-close-button:hover { background: #f1f5f9; color: var(--ink); }

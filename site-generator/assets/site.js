@@ -224,6 +224,7 @@
         const fillLayerIds = [];
         let activeInteraction;
         let hoveredFeature;
+        let hoverPopup;
         let popup;
         const cantonCodes = [null, "zh", "be", "lu", "ur", "sz", "ow", "nw", "gl", "zg", "fr", "so", "bs", "bl", "sh", "ar", "ai", "sg", "gr", "ag", "tg", "ti", "vd", "vs", "ne", "ge", "ju"];
         const siteRoot = scriptUrl ? new URL("../", scriptUrl) : new URL("./", location.href);
@@ -264,6 +265,8 @@
               { hover: false });
           }
           hoveredFeature = undefined;
+          hoverPopup?.remove();
+          hoverPopup = undefined;
           map.getCanvas().style.cursor = "";
         };
         const featureDetails = feature => {
@@ -277,11 +280,55 @@
             path: `canton/${cantonCodes[Number(properties.kantonsnummer)]}.html`,
             icon: `canton/${cantonCodes[Number(properties.kantonsnummer)]}.png` };
           if (sourceLayer === "districts") return { label: "District", id: properties.bezirksnummer,
-            path: `district/${properties.bezirksnummer}.html`, canton: cantonCodes[Number(properties.kantonsnummer)] };
+            path: `district/${properties.bezirksnummer}.html`, canton: cantonCodes[Number(properties.kantonsnummer)],
+            cantonName: properties.kantonsname };
           return { label: "Municipality", id: `BFS ${properties.bfs_nummer}`,
             path: `municipality/${properties.bfs_nummer}.html`,
             icon: `municipality/${properties.bfs_nummer}.webp`, canton: cantonCodes[Number(properties.kantonsnummer)],
-            district: properties.bezirksnummer };
+            cantonName: properties.kantonsname, district: properties.bezirksnummer,
+            districtName: properties.bezirksname };
+        };
+        const showHoverPopup = (feature, lngLat) => {
+          if (popup) return;
+          const details = featureDetails(feature);
+          const content = document.createElement("div");
+          content.className = "boundary-hover-content";
+          const heading = document.createElement("div");
+          heading.className = "boundary-popup-heading";
+          if (details.icon) {
+            const icon = document.createElement("img");
+            icon.src = new URL(details.icon, siteRoot).href;
+            icon.alt = "";
+            icon.width = 34;
+            heading.append(icon);
+          }
+          const title = document.createElement("strong");
+          const name = details.name || feature.properties?.name || details.label;
+          const hoverId = details.label === "Municipality"
+            ? String(feature.properties?.bfs_nummer || "")
+            : details.label === "District" || details.label === "Canton" ? String(details.id || "") : "";
+          title.textContent = hoverId ? `${name} (${hoverId})` : name;
+          heading.append(title);
+          content.append(heading);
+          if (details.canton) {
+            const canton = document.createElement("span");
+            canton.textContent = `Canton: ${details.cantonName || details.canton.toUpperCase()} (${details.canton.toUpperCase()})`;
+            content.append(canton);
+          }
+          if (details.district) {
+            const district = document.createElement("span");
+            district.textContent = `District: ${details.districtName || "District"} (${details.district})`;
+            content.append(district);
+          }
+          hoverPopup?.remove();
+          hoverPopup = new mapboxgl.Popup({
+            closeButton: false,
+            closeOnClick: false,
+            focusAfterOpen: false,
+            className: "boundary-hover-popup",
+            maxWidth: "200px",
+            offset: 12,
+          }).setLngLat(lngLat).setDOMContent(content).addTo(map);
         };
         const showPopup = (feature, lngLat) => {
           const details = featureDetails(feature);
@@ -315,13 +362,13 @@
           if (details.canton) {
             const cantonLink = document.createElement("a");
             cantonLink.href = new URL(`canton/${details.canton}.html`, siteRoot).href;
-            cantonLink.textContent = `Canton: ${details.canton.toUpperCase()} →`;
+            cantonLink.textContent = `Canton: ${details.cantonName || details.canton.toUpperCase()} (${details.canton.toUpperCase()}) →`;
             parents.append(cantonLink);
           }
           if (details.district) {
             const districtLink = document.createElement("a");
             districtLink.href = new URL(`district/${details.district}.html`, siteRoot).href;
-            districtLink.textContent = `District: ${details.district} →`;
+            districtLink.textContent = `District: ${details.districtName || "District"} (${details.district}) →`;
             parents.append(districtLink);
           }
           const actions = document.createElement("div");
@@ -330,6 +377,8 @@
           content.append(heading, meta);
           if (parents.childElementCount) content.append(parents);
           content.append(actions);
+          hoverPopup?.remove();
+          hoverPopup = undefined;
           popup?.remove();
           const nextPopup = new mapboxgl.Popup({ closeButton: true, focusAfterOpen: false, maxWidth: "240px" })
             .setLngLat(lngLat).setDOMContent(content).addTo(map);
@@ -344,11 +393,15 @@
           if (!feature) { clearHover(); return; }
           if (feature.id === undefined || feature.id === null) { clearHover(); return; }
           if (activeFeatureIds.has(String(feature.id))) { clearHover(); return; }
-          if (hoveredFeature?.id === feature.id && hoveredFeature.sourceLayer === feature.sourceLayer) return;
+          if (hoveredFeature?.id === feature.id && hoveredFeature.sourceLayer === feature.sourceLayer) {
+            hoverPopup?.setLngLat(event.lngLat);
+            return;
+          }
           clearHover();
           map.getCanvas().style.cursor = "pointer";
           hoveredFeature = { id: feature.id, sourceLayer: feature.sourceLayer };
           map.setFeatureState({ source, sourceLayer: feature.sourceLayer, id: feature.id }, { hover: true });
+          showHoverPopup(feature, event.lngLat);
         });
         map.getCanvas().addEventListener("mouseleave", clearHover);
         map.on("click", event => {
