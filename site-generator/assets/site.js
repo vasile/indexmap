@@ -1,8 +1,12 @@
 (async () => {
   "use strict";
   const scriptUrl = document.currentScript?.src;
+  const assetVersion = scriptUrl?.match(/site\.([0-9a-f]{16})\.js(?:\?|$)/)?.[1];
   const tilesUrl = scriptUrl ? new URL("../tiles/boundaries.pmtiles", scriptUrl).href : "../tiles/boundaries.pmtiles";
   const territoryMaskUrl = scriptUrl ? new URL("../countries/ch-li-mask.geojson", scriptUrl).href : "../countries/ch-li-mask.geojson";
+  const basemapStyleUrl = scriptUrl
+    ? new URL(assetVersion ? `swisstopo-light.${assetVersion}.json` : "swisstopo-light.json", scriptUrl).href
+    : "./assets/swisstopo-light.json";
   const siteRoot = scriptUrl ? new URL("../", scriptUrl) : new URL("./", location.href);
   const boundaryColor = "#1d4ed8";
   const container = document.querySelector("#map");
@@ -253,27 +257,16 @@
   function showError(error) {
     if (error) console.error("IndexMap: map loading error.", error.error || error);
     status.hidden = false;
-    status.textContent = "The basemap could not load. Check your connection or Mapbox configuration.";
+    status.textContent = "The basemap could not load. Check your connection and try again.";
   }
   if (!window.mapboxgl || !window.INDEXMAP_CONFIG?.mapboxToken) {
     showError();
     return;
   }
   try {
-    const styleResponse = await fetch(`https://api.mapbox.com/styles/v1/mapbox/light-v11?access_token=${encodeURIComponent(window.INDEXMAP_CONFIG.mapboxToken)}`);
-    if (!styleResponse.ok) throw new Error(`Mapbox style request failed (${styleResponse.status})`);
+    const styleResponse = await fetch(basemapStyleUrl);
+    if (!styleResponse.ok) throw new Error(`Basemap style request failed (${styleResponse.status})`);
     const mapStyle = await styleResponse.json();
-    const countryLabels = mapStyle.layers?.find(layer => layer.id === "country-label");
-    if (countryLabels) {
-      const excludeLocalCountries = ["match", ["get", "iso_3166_1"], ["CH", "LI"], false, true];
-      countryLabels.filter = countryLabels.filter
-        ? ["all", countryLabels.filter, excludeLocalCountries]
-        : excludeLocalCountries;
-    }
-    ["settlement-major-label", "settlement-minor-label"].forEach(id => {
-      const layer = mapStyle.layers?.find(candidate => candidate.id === id);
-      if (layer) layer.minzoom = Math.max(layer.minzoom ?? 0, 9);
-    });
     let pmtilesReady = false;
     let pmtilesSourceType;
     if (container.dataset.pmtilesLayer && window.mapboxPmTiles?.PmTilesSource) {
