@@ -9,7 +9,7 @@
   const normalize = (text) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     .toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
   const searchableItems = items.map(item => ({ item, text: normalize(item.dataset.search || "") }));
-  search?.addEventListener("input", () => {
+  const filterDirectory = () => {
     const terms = normalize(search.value).split(/\s+/).filter(Boolean);
     let count = 0;
     searchableItems.forEach(({ item, text }) => {
@@ -18,7 +18,15 @@
     });
     document.querySelector("#result-count").textContent = count + (" " + (count === 1 ? (search.dataset.singular || "canton") : (search.dataset.plural || "cantons")));
     document.querySelector("#no-results").hidden = count !== 0;
-  });
+  };
+  search?.addEventListener("input", filterDirectory);
+  if (search) {
+    const query = new URLSearchParams(location.search).get("q");
+    if (query) {
+      search.value = query;
+      filterDirectory();
+    }
+  }
   const container = document.querySelector("#map");
   const download = document.querySelector("#boundary-download");
   const maskCheckbox = document.querySelector("#boundary-mask");
