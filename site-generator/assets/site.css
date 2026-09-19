@@ -26,8 +26,10 @@ body { margin: 0; height: 100vh; height: 100dvh; color: var(--ink); background: 
 .boundary-popup-heading img { width: 34px; max-height: 40px; object-fit: contain; flex-shrink: 0; }
 .boundary-popup strong { font-size: .85rem; }
 .boundary-popup span { color: var(--muted); font-size: .7rem; }
-.boundary-popup a { margin-top: .3rem; color: var(--accent); font-size: .75rem; text-decoration: none; }
+.boundary-popup-parents { display: grid; gap: .18rem; margin-top: .35rem; }
+.boundary-popup a { color: var(--accent); font-size: .75rem; text-decoration: none; }
 .boundary-popup a:hover { text-decoration: underline; }
+.boundary-popup-actions { display: flex; flex-wrap: wrap; gap: .25rem .75rem; margin-top: .4rem; padding-top: .4rem; border-top: 1px solid var(--line); }
 .mapboxgl-popup-content { padding: .7rem .8rem .75rem; border-radius: .6rem; box-shadow: 0 4px 18px rgb(15 23 42 / 16%); }
 .mapboxgl-popup-close-button { top: .2rem; right: .25rem; width: 1.4rem; height: 1.4rem; border-radius: 50%; color: var(--muted); font-size: 1.1rem; line-height: 1.2rem; }
 .mapboxgl-popup-close-button:hover { background: #f1f5f9; color: var(--ink); }

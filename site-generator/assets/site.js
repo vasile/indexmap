@@ -212,10 +212,11 @@
             path: `canton/${cantonCodes[Number(properties.kantonsnummer)]}.html`,
             icon: `canton/${cantonCodes[Number(properties.kantonsnummer)]}.png` };
           if (sourceLayer === "districts") return { label: "District", id: properties.bezirksnummer,
-            path: `district/${properties.bezirksnummer}.html` };
+            path: `district/${properties.bezirksnummer}.html`, canton: cantonCodes[Number(properties.kantonsnummer)] };
           return { label: "Municipality", id: `BFS ${properties.bfs_nummer}`,
             path: `municipality/${properties.bfs_nummer}.html`,
-            icon: `municipality/${properties.bfs_nummer}.webp` };
+            icon: `municipality/${properties.bfs_nummer}.webp`, canton: cantonCodes[Number(properties.kantonsnummer)],
+            district: properties.bezirksnummer };
         };
         map.on("mousemove", event => {
           if (!activeInteraction) return;
@@ -254,7 +255,30 @@
           const link = document.createElement("a");
           link.href = new URL(details.path, siteRoot).href;
           link.textContent = "View details →";
-          content.append(heading, meta, link);
+          const geojsonLink = document.createElement("a");
+          geojsonLink.href = new URL(details.path.replace(/\.html$/, ".geojson"), siteRoot).href;
+          geojsonLink.download = details.path.split("/").pop().replace(/\.html$/, ".geojson");
+          geojsonLink.textContent = "GeoJSON ↓";
+          const parents = document.createElement("div");
+          parents.className = "boundary-popup-parents";
+          if (details.canton) {
+            const cantonLink = document.createElement("a");
+            cantonLink.href = new URL(`canton/${details.canton}.html`, siteRoot).href;
+            cantonLink.textContent = `Canton: ${details.canton.toUpperCase()} →`;
+            parents.append(cantonLink);
+          }
+          if (details.district) {
+            const districtLink = document.createElement("a");
+            districtLink.href = new URL(`district/${details.district}.html`, siteRoot).href;
+            districtLink.textContent = `District: ${details.district} →`;
+            parents.append(districtLink);
+          }
+          const actions = document.createElement("div");
+          actions.className = "boundary-popup-actions";
+          actions.append(link, geojsonLink);
+          content.append(heading, meta);
+          if (parents.childElementCount) content.append(parents);
+          content.append(actions);
           popup?.remove();
           popup = new mapboxgl.Popup({ closeButton: true, maxWidth: "240px" })
             .setLngLat(event.lngLat).setDOMContent(content).addTo(map);
