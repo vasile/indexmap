@@ -242,8 +242,10 @@
           fillLayerIds.push("boundary-fill");
           map.addLayer({
             id: "boundary-fill", type: "fill", source, "source-layer": container.dataset.pmtilesLayer,
-            paint: { "fill-antialias": false, "fill-color": boundaryColor,
-              "fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false], 0.34,
+            paint: { "fill-antialias": false,
+              "fill-color": isDetailMap ? "#f59e0b" : boundaryColor,
+              "fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false],
+                isDetailMap ? 0.22 : 0.34,
                 isDetailMap ? 0 : 0.12] },
           });
           const idProperties = { countries: "icc", cantons: "kantonsnummer",
@@ -369,15 +371,16 @@
             paint,
           });
         };
-        const contextLineOpacity = isDetailMap ? 0.5 : 1;
+        const contextLineColor = isDetailMap ? "#64748b" : boundaryColor;
+        const contextLineOpacity = isDetailMap ? 0.55 : 1;
         addBoundaryLayer("national-boundary", 2,
-          { "line-color": boundaryColor, "line-opacity": contextLineOpacity, "line-width": 2 });
+          { "line-color": contextLineColor, "line-opacity": contextLineOpacity, "line-width": 2 });
         addBoundaryLayer("cantonal-boundary", 4,
-          { "line-color": boundaryColor, "line-opacity": contextLineOpacity, "line-width": 2 });
+          { "line-color": contextLineColor, "line-opacity": contextLineOpacity, "line-width": 2 });
         addBoundaryLayer("district-boundary", 6,
-          { "line-color": boundaryColor, "line-opacity": contextLineOpacity, "line-width": 1 });
+          { "line-color": contextLineColor, "line-opacity": contextLineOpacity, "line-width": 1 });
         addBoundaryLayer("municipal-boundary", 8,
-          { "line-color": boundaryColor, "line-opacity": contextLineOpacity, "line-width": 1,
+          { "line-color": contextLineColor, "line-opacity": contextLineOpacity, "line-width": 1,
             "line-dasharray": ["step", ["zoom"], ["literal", [1, 0]],
               9, ["literal", [4, 4]]] });        
         const selectBoundaryLevel = selected => {
