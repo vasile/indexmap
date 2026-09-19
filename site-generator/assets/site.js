@@ -370,16 +370,26 @@
           const parents = document.createElement("div");
           parents.className = "boundary-popup-parents";
           if (details.canton) {
+            const cantonRow = document.createElement("div");
+            cantonRow.className = "boundary-popup-parent";
+            const cantonLabel = document.createElement("span");
+            cantonLabel.textContent = "Canton:";
             const cantonLink = document.createElement("a");
             cantonLink.href = new URL(`canton/${details.canton}.html`, siteRoot).href;
-            cantonLink.textContent = `Canton: ${details.cantonName || details.canton.toUpperCase()} (${details.canton.toUpperCase()}) →`;
-            parents.append(cantonLink);
+            cantonLink.textContent = `${details.cantonName || details.canton.toUpperCase()} (${details.canton.toUpperCase()})`;
+            cantonRow.append(cantonLabel, cantonLink);
+            parents.append(cantonRow);
           }
           if (details.district) {
+            const districtRow = document.createElement("div");
+            districtRow.className = "boundary-popup-parent";
+            const districtLabel = document.createElement("span");
+            districtLabel.textContent = "District:";
             const districtLink = document.createElement("a");
             districtLink.href = new URL(`district/${details.district}.html`, siteRoot).href;
-            districtLink.textContent = `District: ${details.districtName || "District"} (${details.district}) →`;
-            parents.append(districtLink);
+            districtLink.textContent = `${details.districtName || "District"} (${details.district})`;
+            districtRow.append(districtLabel, districtLink);
+            parents.append(districtRow);
           }
           const actions = document.createElement("div");
           actions.className = "boundary-popup-actions";
