@@ -194,9 +194,16 @@
         const source = "indexmap-boundaries";
         const level = Number(container.dataset.boundaryLevel);
         const levelControls = [...document.querySelectorAll('input[name="boundary-level"]')];
-        map.addSource(source, { type: pmtilesSourceType, url: tilesUrl, promoteId: {
-          countries: "icc", cantons: "kantonsnummer", districts: "bezirksnummer", municipalities: "bfs_nummer",
-        } });
+        map.addSource(source, {
+          type: pmtilesSourceType,
+          url: tilesUrl,
+          promoteId: {
+            countries: "icc",
+            cantons: "kantonsnummer",
+            districts: "bezirksnummer",
+            municipalities: "bfs_nummer",
+          },
+        });
         const fillLayerIds = [];
         let activeInteraction;
         let hoveredFeature;
@@ -210,7 +217,7 @@
             id: fillId, type: "fill", source, "source-layer": input.dataset.sourceLayer,
             layout: { visibility: input.checked ? "visible" : "none" },
             paint: { "fill-antialias": false, "fill-color": boundaryColor,
-              "fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false], 0.28, 0.12] },
+              "fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false], 0.34, 0.12] },
           });
           return { input, fillId };
         });
@@ -218,19 +225,23 @@
           fillLayerIds.push("boundary-fill");
           map.addLayer({
             id: "boundary-fill", type: "fill", source, "source-layer": container.dataset.pmtilesLayer,
-            paint: { "fill-antialias": false, "fill-color": boundaryColor, "fill-opacity": 0.12 },
+            paint: { "fill-antialias": false, "fill-color": boundaryColor,
+              "fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false], 0.34, 0.12] },
           });
           const idProperties = { countries: "icc", cantons: "kantonsnummer",
             districts: "bezirksnummer", municipalities: "bfs_nummer" };
           const idProperty = idProperties[container.dataset.pmtilesLayer];
-          if (idProperty) interactionLayers.push({
-            input: { dataset: { sourceLayer: container.dataset.pmtilesLayer, idProperty } },
-            fillId: "boundary-fill",
-          });
+          if (idProperty) {
+            interactionLayers.push({
+              input: { dataset: { sourceLayer: container.dataset.pmtilesLayer, idProperty } },
+              fillId: "boundary-fill",
+            });
+          }
         }
         const clearHover = () => {
           if (hoveredFeature) {
-            map.removeFeatureState({ source, sourceLayer: hoveredFeature.sourceLayer, id: hoveredFeature.id }, "hover");
+            map.setFeatureState({ source, sourceLayer: hoveredFeature.sourceLayer, id: hoveredFeature.id },
+              { hover: false });
           }
           hoveredFeature = undefined;
           map.getCanvas().style.cursor = "";
@@ -256,10 +267,10 @@
           if (!activeInteraction) return;
           const feature = map.queryRenderedFeatures(event.point, { layers: [activeInteraction.fillId] })[0];
           if (!feature) { clearHover(); return; }
-          map.getCanvas().style.cursor = "pointer";
+          if (feature.id === undefined || feature.id === null) { clearHover(); return; }
           if (hoveredFeature?.id === feature.id && hoveredFeature.sourceLayer === feature.sourceLayer) return;
           clearHover();
-          if (feature.id === undefined || feature.id === null) return;
+          map.getCanvas().style.cursor = "pointer";
           hoveredFeature = { id: feature.id, sourceLayer: feature.sourceLayer };
           map.setFeatureState({ source, sourceLayer: feature.sourceLayer, id: feature.id }, { hover: true });
         });
