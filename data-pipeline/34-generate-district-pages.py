@@ -34,7 +34,7 @@ def build(input_dir, output_dir):
     def render(title, body, path, *, description=None):
         description = description or f"{title}: district boundaries and downloads."
         return templates["base"].substitute(title=escape(title), description=escape(description),
-                                            body=body, countries_class="", cantons_class="", districts_class="active", municipalities_class="",
+                                            body=body, home_class="", countries_class="", cantons_class="", districts_class="active", municipalities_class="",
                                             root_path="../", canonical_url=escape(canonical_url(path)), asset_version=version).encode("utf-8")
 
     for feature in features:
