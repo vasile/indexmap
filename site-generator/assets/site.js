@@ -14,36 +14,75 @@
   const selectionDownloadPanel = document.querySelector("#selection-download-panel");
   const selectionDownload = document.querySelector("#selection-download");
   const selectionDownloadStatus = document.querySelector("#selection-download-status");
+  const pickedDirectory = document.querySelector("#picked-directory");
+  const pickedDirectoryTitle = document.querySelector("#picked-directory-title");
+  const pickedDirectoryList = document.querySelector("#picked-directory-list");
+  const pickedDirectoryCount = document.querySelector("#picked-directory-count");
+  const restDirectoryTitle = document.querySelector("#rest-directory-title");
+  const restDirectoryCount = document.querySelector("#rest-directory-count");
+  const pickedIds = new Set();
   let directorySelection = { active: false, ids: [] };
+  const activeDownloadSelection = () => pickedIds.size
+    ? { active: true, ids: [...pickedIds].map(Number) }
+    : directorySelection;
+  const updateSelectionDownload = (clearStatus = true) => {
+    if (!selectionDownloadPanel || !selectionDownload) return;
+    const selection = activeDownloadSelection();
+    selectionDownloadPanel.hidden = !selection.active;
+    selectionDownload.disabled = !selection.ids.length;
+    selectionDownload.textContent = `↓ Download selection (${selection.ids.length}) · GeoJSON`;
+    if (clearStatus) selectionDownloadStatus.textContent = "";
+  };
+  const renderPickedItems = () => {
+    if (!pickedDirectory || !pickedDirectoryList) return;
+    pickedDirectory.hidden = pickedIds.size === 0;
+    pickedDirectoryTitle.hidden = pickedIds.size === 0;
+    if (restDirectoryTitle) restDirectoryTitle.hidden = pickedIds.size === 0;
+    pickedDirectoryCount.textContent = pickedIds.size;
+    pickedDirectoryList.replaceChildren(...[...pickedIds].map(id => {
+      const item = items.find(candidate => candidate.dataset.featureId === id)?.cloneNode(true);
+      item?.removeAttribute("hidden");
+      return item;
+    }).filter(Boolean));
+  };
   let cantonFilter = "";
   const filterDirectory = () => {
     const terms = normalize(search.value).split(/\s+/).filter(Boolean);
     const exactCanton = cantonFilter && normalize(search.value) === cantonFilter;
     let count = 0;
+    let restCount = 0;
+    const matchingIds = [];
     searchableItems.forEach(({ item, text }) => {
-      item.hidden = exactCanton
+      const excluded = exactCanton
         ? normalize(item.dataset.canton || "") !== cantonFilter
         : !terms.every(term => text.includes(term));
-      if (!item.hidden) count++;
+      if (!excluded) {
+        count++;
+        const id = Number(item.dataset.featureId);
+        if (Number.isFinite(id)) matchingIds.push(id);
+      }
+      item.hidden = excluded || pickedIds.has(item.dataset.featureId);
+      if (!item.hidden) restCount++;
     });
     document.querySelector("#result-count").textContent = count + (" " + (count === 1 ? (search.dataset.singular || "canton") : (search.dataset.plural || "cantons")));
     document.querySelector("#no-results").hidden = count !== 0;
+    if (restDirectoryCount) restDirectoryCount.textContent = restCount;
     directorySelection = {
       active: Boolean(exactCanton || terms.length),
-      ids: searchableItems.filter(({ item }) => !item.hidden)
-        .map(({ item }) => Number(item.dataset.featureId)).filter(Number.isFinite),
+      ids: matchingIds,
     };
-    if (selectionDownloadPanel && selectionDownload) {
-      selectionDownloadPanel.hidden = !directorySelection.active;
-      selectionDownload.disabled = count === 0;
-      selectionDownload.textContent = `↓ Download selection (${count}) · GeoJSON`;
-      selectionDownloadStatus.textContent = "";
-    }
+    updateSelectionDownload();
     container?.dispatchEvent(new CustomEvent("directoryfilterchange", {
       detail: directorySelection,
     }));
   };
   search?.addEventListener("input", filterDirectory);
+  container?.addEventListener("directoryselectionchange", event => {
+    pickedIds.clear();
+    (event.detail?.ids || []).forEach(id => pickedIds.add(String(id)));
+    renderPickedItems();
+    filterDirectory();
+  });
   if (search) {
     const parameters = new URLSearchParams(location.search);
     const query = parameters.get("q");
@@ -73,25 +112,27 @@
     return boundaryPromises.get(url);
   };
   selectionDownload?.addEventListener("click", async () => {
-    if (!directorySelection.active || !directorySelection.ids.length) return;
+    const downloadSelection = activeDownloadSelection();
+    if (!downloadSelection.active || !downloadSelection.ids.length) return;
     const idProperties = { cantons: "kantonsnummer", districts: "bezirksnummer",
       municipalities: "bfs_nummer" };
     const layer = container?.dataset.pmtilesLayer;
     const idProperty = idProperties[layer];
     if (!idProperty) return;
-    const originalText = selectionDownload.textContent;
+    const query = pickedIds.size
+      ? `selected-${pickedIds.size}`
+      : normalize(search.value).replace(/\s+/g, "-") || "selection";
     selectionDownload.disabled = true;
     selectionDownload.textContent = "Preparing selection…";
     selectionDownloadStatus.textContent = "";
     try {
       const collection = await loadBoundary();
-      const selectedIds = new Set(directorySelection.ids.map(String));
+      const selectedIds = new Set(downloadSelection.ids.map(String));
       const selected = {
         ...collection,
         features: collection.features.filter(feature =>
           selectedIds.has(String(feature.properties?.[idProperty]))),
       };
-      const query = normalize(search.value).replace(/\s+/g, "-") || "selection";
       const filename = `${layer}-${query}.geojson`;
       const objectUrl = URL.createObjectURL(new Blob(
         [JSON.stringify(selected) + "\n"], { type: "application/geo+json" }));
@@ -106,8 +147,7 @@
       console.error("IndexMap: selected boundaries could not be prepared.", error);
       selectionDownloadStatus.textContent = "The selection could not be downloaded. Try again.";
     } finally {
-      selectionDownload.disabled = !directorySelection.ids.length;
-      selectionDownload.textContent = originalText;
+      updateSelectionDownload(false);
     }
   });
   function previewGeometry(data) {
@@ -313,6 +353,8 @@
         const levelControls = [...document.querySelectorAll('input[name="boundary-level"]')];
         const isFilterableDirectoryMap = !isDetailMap && !levelControls.length
           && ["cantons", "districts", "municipalities"].includes(container.dataset.pmtilesLayer);
+        const isMunicipalitySelectionMap = isFilterableDirectoryMap
+          && container.dataset.pmtilesLayer === "municipalities" && Boolean(pickedDirectory);
         const directoryContextLevel = container.dataset.pmtilesLayer === "cantons" ? 2 : 4;
         map.addSource(source, {
           type: pmtilesSourceType,
@@ -329,6 +371,7 @@
         let hoveredFeature;
         let hoverPopup;
         let popup;
+        const selectedMapIds = new Set();
         const interactionLayers = levelControls.map((input, index) => {
           const fillId = `boundary-fill-${index}`;
           fillLayerIds.push(fillId);
@@ -348,9 +391,11 @@
           const fillLayer = {
             id: "boundary-fill", type: "fill", source, "source-layer": container.dataset.pmtilesLayer,
             paint: { "fill-antialias": false,
-              "fill-color": isDetailMap ? "#60a5fa" : boundaryColor,
-              "fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false],
-                isDetailMap ? 0.22 : 0.34,
+              "fill-color": ["case", ["boolean", ["feature-state", "selected"], false],
+                "#facc15", isDetailMap ? "#60a5fa" : boundaryColor],
+              "fill-opacity": ["case",
+                ["boolean", ["feature-state", "selected"], false], 0.55,
+                ["boolean", ["feature-state", "hover"], false], isDetailMap ? 0.22 : 0.34,
                 isDetailMap ? 0 : 0.12] },
           };
           if (cantonFiltered) fillLayer.filter = cantonFilter;
@@ -364,6 +409,14 @@
                 visibility: cantonFiltered ? "visible" : "none" },
               paint: { "line-color": boundaryColor, "line-width": 1 },
             });
+            if (isMunicipalitySelectionMap) {
+              map.addLayer({
+                id: "boundary-picked-outline", type: "line", source,
+                "source-layer": container.dataset.pmtilesLayer,
+                filter: ["==", ["get", idProperty], -1],
+                paint: { "line-color": "#eab308", "line-width": 3 },
+              });
+            }
           }
           if (idProperty) {
             interactionLayers.push({
@@ -532,6 +585,36 @@
           const feature = map.queryRenderedFeatures(event.point, { layers: [activeInteraction.fillId] })[0];
           if (!feature) return;
           if (activeFeatureIds.has(String(feature.id))) return;
+          if (isMunicipalitySelectionMap) {
+            const id = feature.id;
+            const originalEvent = event.originalEvent || {};
+            const toggle = originalEvent.shiftKey || originalEvent.ctrlKey || originalEvent.metaKey;
+            let showSelectedPopup = !toggle;
+            if (!toggle) {
+              selectedMapIds.forEach(selectedId => map.setFeatureState(
+                { source, sourceLayer: "municipalities", id: selectedId }, { selected: false }));
+              selectedMapIds.clear();
+            }
+            if (toggle && selectedMapIds.has(id)) {
+              map.setFeatureState({ source, sourceLayer: "municipalities", id }, { selected: false });
+              selectedMapIds.delete(id);
+              popup?.remove();
+              popup = undefined;
+              showSelectedPopup = false;
+            } else {
+              selectedMapIds.add(id);
+              map.setFeatureState({ source, sourceLayer: "municipalities", id }, { selected: true });
+            }
+            const selectedIds = [...selectedMapIds].map(Number);
+            map.setFilter("boundary-picked-outline", selectedIds.length
+              ? ["in", ["get", "bfs_nummer"], ["literal", selectedIds]]
+              : ["==", ["get", "bfs_nummer"], -1]);
+            container.dispatchEvent(new CustomEvent("directoryselectionchange", {
+              detail: { ids: [...selectedMapIds] },
+            }));
+            if (showSelectedPopup) showPopup(feature, event.lngLat);
+            return;
+          }
           showPopup(feature, event.lngLat);
         });
         const boundaryLayerIds = [];

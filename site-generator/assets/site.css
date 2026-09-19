@@ -58,6 +58,12 @@ h1 { font-size: 1.8rem; font-weight: 650; letter-spacing: -.045em; }
 .form-control { font-size: .875rem; min-height: 2.7rem; border-color: var(--line); background: #f8fafc; }
 .list-meta { font-size: .72rem; color: var(--muted); padding: 1rem 0 .7rem; border-bottom: 1px solid var(--line); }
 .directory-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 1.5rem; flex: 1; }
+.picked-directory { border-bottom: 2px solid #facc15; }
+.directory-group-title { position: sticky; top: 0; z-index: 2; margin: 0; padding: .8rem 0 .65rem; background: white; font-size: .9rem; font-weight: 650; }
+.directory-group-title span { color: var(--muted); font-weight: 500; }
+.selected-group-title { z-index: 3; }
+.selected-group-title:not([hidden]) ~ .rest-directory .directory-group-title { top: 2.4rem; }
+.picked-directory .canton-item:last-child { border-bottom: 0; }
 .canton-item { display: flex; align-items: center; gap: .9rem; padding: .9rem 0; border-bottom: 1px solid #edf1f5; }
 .canton-item[hidden] { display: none; }
 .canton-coat-of-arms { flex: 0 0 40px; width: 40px; height: auto; object-fit: contain; }
