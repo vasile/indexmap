@@ -193,6 +193,9 @@
       if (pmtilesReady) {
         const source = "indexmap-boundaries";
         const level = Number(container.dataset.boundaryLevel);
+        const activeFeatureIds = new Set((container.dataset.activeFeatureIds || "")
+          .split(",").filter(Boolean));
+        const isDetailMap = activeFeatureIds.size > 0;
         const levelControls = [...document.querySelectorAll('input[name="boundary-level"]')];
         map.addSource(source, {
           type: pmtilesSourceType,
@@ -226,7 +229,8 @@
           map.addLayer({
             id: "boundary-fill", type: "fill", source, "source-layer": container.dataset.pmtilesLayer,
             paint: { "fill-antialias": false, "fill-color": boundaryColor,
-              "fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false], 0.34, 0.12] },
+              "fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false], 0.34,
+                isDetailMap ? 0 : 0.12] },
           });
           const idProperties = { countries: "icc", cantons: "kantonsnummer",
             districts: "bezirksnummer", municipalities: "bfs_nummer" };
@@ -268,6 +272,7 @@
           const feature = map.queryRenderedFeatures(event.point, { layers: [activeInteraction.fillId] })[0];
           if (!feature) { clearHover(); return; }
           if (feature.id === undefined || feature.id === null) { clearHover(); return; }
+          if (activeFeatureIds.has(String(feature.id))) { clearHover(); return; }
           if (hoveredFeature?.id === feature.id && hoveredFeature.sourceLayer === feature.sourceLayer) return;
           clearHover();
           map.getCanvas().style.cursor = "pointer";
@@ -279,6 +284,7 @@
           if (!activeInteraction) return;
           const feature = map.queryRenderedFeatures(event.point, { layers: [activeInteraction.fillId] })[0];
           if (!feature) return;
+          if (activeFeatureIds.has(String(feature.id))) return;
           const details = featureDetails(feature);
           if (!details.path || !details.id) return;
           const content = document.createElement("div");
@@ -342,14 +348,15 @@
             paint,
           });
         };
+        const contextLineOpacity = isDetailMap ? 0.5 : 1;
         addBoundaryLayer("national-boundary", 2,
-          { "line-color": boundaryColor, "line-opacity": 1, "line-width": 2 });
+          { "line-color": boundaryColor, "line-opacity": contextLineOpacity, "line-width": 2 });
         addBoundaryLayer("cantonal-boundary", 4,
-          { "line-color": boundaryColor, "line-opacity": 1, "line-width": 2 });
+          { "line-color": boundaryColor, "line-opacity": contextLineOpacity, "line-width": 2 });
         addBoundaryLayer("district-boundary", 6,
-          { "line-color": boundaryColor, "line-opacity": 1, "line-width": 1 });
+          { "line-color": boundaryColor, "line-opacity": contextLineOpacity, "line-width": 1 });
         addBoundaryLayer("municipal-boundary", 8,
-          { "line-color": boundaryColor, "line-opacity": 1, "line-width": 1,
+          { "line-color": boundaryColor, "line-opacity": contextLineOpacity, "line-width": 1,
             "line-dasharray": ["step", ["zoom"], ["literal", [1, 0]],
               9, ["literal", [4, 4]]] });        
         const selectBoundaryLevel = selected => {
@@ -377,19 +384,25 @@
         } else {
           activeInteraction = interactionLayers[0];
         }
-        container.addEventListener("boundarychange", event => {
+        const showBoundarySelection = data => {
           if (!map.getSource("boundary-selection")) {
-            map.addSource("boundary-selection", { type: "geojson", data: event.detail });
+            map.addSource("boundary-selection", { type: "geojson", data });
             map.addLayer({ id: "boundary-selection-fill", type: "fill", source: "boundary-selection",
               paint: { "fill-color": "#2563eb", "fill-opacity": 0.12 } });
             map.addLayer({ id: "boundary-selection-outline", type: "line", source: "boundary-selection",
               paint: { "line-color": boundaryColor, "line-width": 2 } });
           } else {
-            map.getSource("boundary-selection").setData(event.detail);
+            map.getSource("boundary-selection").setData(data);
           }
-          fillLayerIds.forEach(id => map.setLayoutProperty(id, "visibility", "none"));
-          boundaryLayerIds.forEach(id => map.setLayoutProperty(id, "visibility", "none"));
+          if (!isDetailMap) {
+            fillLayerIds.forEach(id => map.setLayoutProperty(id, "visibility", "none"));
+            boundaryLayerIds.forEach(id => map.setLayoutProperty(id, "visibility", "none"));
+          }
+        };
+        container.addEventListener("boundarychange", event => {
+          showBoundarySelection(event.detail);
         });
+        if (isDetailMap && container.dataset.geojson) showBoundarySelection(await loadBoundary());
       } else if (container.dataset.geojson && !container.dataset.pmtilesLayer) {
         try {
           const data = await loadBoundary();
