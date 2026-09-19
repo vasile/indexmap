@@ -53,6 +53,8 @@ h1 { font-size: 1.8rem; font-weight: 650; letter-spacing: -.045em; }
 .download-panel p { margin: 0 0 .75rem; color: var(--muted); font-size: .75rem; }
 .download-panel .btn { font-size: .75rem; padding: .45rem .65rem; }
 .download-panel small { display: block; margin-top: .65rem; font-size: .7rem; line-height: 1.5; color: var(--muted); }
+.selection-download { margin-top: .75rem; padding-top: .75rem; border-top: 1px solid var(--line); }
+.selection-download-status { display: block; margin-top: .4rem; color: var(--muted); font-size: .7rem; }
 .form-control { font-size: .875rem; min-height: 2.7rem; border-color: var(--line); background: #f8fafc; }
 .list-meta { font-size: .72rem; color: var(--muted); padding: 1rem 0 .7rem; border-bottom: 1px solid var(--line); }
 .directory-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 1.5rem; flex: 1; }

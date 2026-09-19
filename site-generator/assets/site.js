@@ -11,6 +11,10 @@
   const normalize = (text) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     .toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
   const searchableItems = items.map(item => ({ item, text: normalize(item.dataset.search || "") }));
+  const selectionDownloadPanel = document.querySelector("#selection-download-panel");
+  const selectionDownload = document.querySelector("#selection-download");
+  const selectionDownloadStatus = document.querySelector("#selection-download-status");
+  let directorySelection = { active: false, ids: [] };
   let cantonFilter = "";
   const filterDirectory = () => {
     const terms = normalize(search.value).split(/\s+/).filter(Boolean);
@@ -24,12 +28,19 @@
     });
     document.querySelector("#result-count").textContent = count + (" " + (count === 1 ? (search.dataset.singular || "canton") : (search.dataset.plural || "cantons")));
     document.querySelector("#no-results").hidden = count !== 0;
+    directorySelection = {
+      active: Boolean(exactCanton || terms.length),
+      ids: searchableItems.filter(({ item }) => !item.hidden)
+        .map(({ item }) => Number(item.dataset.featureId)).filter(Number.isFinite),
+    };
+    if (selectionDownloadPanel && selectionDownload) {
+      selectionDownloadPanel.hidden = !directorySelection.active;
+      selectionDownload.disabled = count === 0;
+      selectionDownload.textContent = `↓ Download selection (${count}) · GeoJSON`;
+      selectionDownloadStatus.textContent = "";
+    }
     container?.dispatchEvent(new CustomEvent("directoryfilterchange", {
-      detail: {
-        active: Boolean(exactCanton || terms.length),
-        ids: searchableItems.filter(({ item }) => !item.hidden)
-          .map(({ item }) => Number(item.dataset.featureId)).filter(Number.isFinite),
-      },
+      detail: directorySelection,
     }));
   };
   search?.addEventListener("input", filterDirectory);
@@ -61,6 +72,43 @@
     }
     return boundaryPromises.get(url);
   };
+  selectionDownload?.addEventListener("click", async () => {
+    if (!directorySelection.active || !directorySelection.ids.length) return;
+    const idProperties = { districts: "bezirksnummer", municipalities: "bfs_nummer" };
+    const layer = container?.dataset.pmtilesLayer;
+    const idProperty = idProperties[layer];
+    if (!idProperty) return;
+    const originalText = selectionDownload.textContent;
+    selectionDownload.disabled = true;
+    selectionDownload.textContent = "Preparing selection…";
+    selectionDownloadStatus.textContent = "";
+    try {
+      const collection = await loadBoundary();
+      const selectedIds = new Set(directorySelection.ids.map(String));
+      const selected = {
+        ...collection,
+        features: collection.features.filter(feature =>
+          selectedIds.has(String(feature.properties?.[idProperty]))),
+      };
+      const query = normalize(search.value).replace(/\s+/g, "-") || "selection";
+      const filename = `${layer}-${query}.geojson`;
+      const objectUrl = URL.createObjectURL(new Blob(
+        [JSON.stringify(selected) + "\n"], { type: "application/geo+json" }));
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = filename;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
+    } catch (error) {
+      console.error("IndexMap: selected boundaries could not be prepared.", error);
+      selectionDownloadStatus.textContent = "The selection could not be downloaded. Try again.";
+    } finally {
+      selectionDownload.disabled = !directorySelection.ids.length;
+      selectionDownload.textContent = originalText;
+    }
+  });
   function previewGeometry(data) {
     activeGeometry = data;
     container.dispatchEvent(new CustomEvent("boundarychange", { detail: data }));
