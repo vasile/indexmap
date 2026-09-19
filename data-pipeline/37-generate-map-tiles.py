@@ -24,6 +24,32 @@ def named_layer(name: str, path: Path) -> str:
     return json.dumps({"file": str(path), "layer": name}, separators=(",", ":"))
 
 
+def add_parent_names(tile_layers: dict[str, Path]) -> None:
+    """Add readable parent names to polygon features used by interactive popups."""
+    collections = {name: json.loads(path.read_text(encoding="utf-8"))
+                   for name, path in tile_layers.items() if name != "boundaries"}
+    canton_names = {
+        feature["properties"]["kantonsnummer"]: feature["properties"]["name"]
+        for feature in collections["cantons"]["features"]
+    }
+    district_names = {
+        feature["properties"]["bezirksnummer"]: feature["properties"]["name"]
+        for feature in collections["districts"]["features"]
+    }
+    for feature in collections["districts"]["features"]:
+        properties = feature["properties"]
+        properties["kantonsname"] = canton_names.get(properties.get("kantonsnummer"))
+    for feature in collections["municipalities"]["features"]:
+        properties = feature["properties"]
+        properties["kantonsname"] = canton_names.get(properties.get("kantonsnummer"))
+        properties["bezirksname"] = district_names.get(properties.get("bezirksnummer"))
+    for name in ("districts", "municipalities"):
+        tile_layers[name].write_text(
+            json.dumps(collections[name], ensure_ascii=False, separators=(",", ":")) + "\n",
+            encoding="utf-8",
+        )
+
+
 def build(output_path: Path) -> None:
     ogr2ogr = shutil.which("ogr2ogr")
     tippecanoe = shutil.which("tippecanoe")
@@ -50,6 +76,7 @@ def build(output_path: Path) -> None:
                 str(normalized), str(source),
             ], check=True)
             tile_layers[name] = normalized
+        add_parent_names(tile_layers)
         boundaries = staging / "boundaries.geojson"
         archive = staging / output_path.name
         subprocess.run([
