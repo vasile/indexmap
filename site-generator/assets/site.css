@@ -23,6 +23,8 @@ body { margin: 0; height: 100vh; height: 100dvh; color: var(--ink); background: 
 .boundary-legend input { width: .85rem; height: .85rem; margin: 0; accent-color: var(--accent); }
 .boundary-popup { display: grid; gap: .2rem; min-width: 9rem; }
 .boundary-popup-heading { display: flex; align-items: center; gap: .55rem; padding-right: 1rem; }
+.boundary-popup .boundary-popup-detail-link { color: var(--ink); font-size: inherit; text-decoration: none; }
+.boundary-popup .boundary-popup-detail-link:hover { opacity: .72; text-decoration: none; }
 .boundary-popup-heading img { width: 34px; max-height: 40px; object-fit: contain; flex-shrink: 0; }
 .boundary-popup strong { font-size: .85rem; }
 .boundary-popup span { color: var(--muted); font-size: .7rem; }

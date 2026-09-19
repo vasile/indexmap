@@ -288,8 +288,9 @@
           if (!details.path || !details.id) return;
           const content = document.createElement("div");
           content.className = "boundary-popup";
-          const heading = document.createElement("div");
-          heading.className = "boundary-popup-heading";
+          const heading = document.createElement("a");
+          heading.className = "boundary-popup-heading boundary-popup-detail-link";
+          heading.href = new URL(details.path, siteRoot).href;
           if (details.icon) {
             const icon = document.createElement("img");
             icon.src = new URL(details.icon, siteRoot).href;
