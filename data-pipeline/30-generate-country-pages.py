@@ -53,28 +53,57 @@ def liechtenstein_municipalities(processed_dir: Path) -> str:
             number=number, icon=icon, name=escape(name))
         for name, number, icon in municipalities
     )
-
-
-def swiss_cantons() -> str:
-    cantons = sorted(
-        ((details.get("display_name") or code.upper(), code) for code, details in CANTONS.items()),
-        key=lambda item: unicodedata.normalize("NFD", item[0].casefold()),
-    )
-    rows = "".join(
-        f'<li><a href="../canton/{code}.html">'
-        f'<img src="../canton/{code}.png" width="30" loading="lazy" alt="">'
-        f'<span class="subdivision-text">{escape(name)} <small>{code.upper()}</small></span></a></li>'
-        for name, code in cantons
-    )
-    return (
-        '<section class="canton-subdivisions" aria-labelledby="country-cantons">'
-        f'<h2 id="country-cantons">Cantons <span>({len(cantons)})</span></h2>'
-        f'<ul class="subdivision-list canton-links">{rows}</ul></section>'
-    )
     return (
         '<section class="canton-subdivisions" aria-labelledby="country-municipalities">'
         f'<h2 id="country-municipalities">Municipalities <span>({len(municipalities)})</span></h2>'
         f'<ul class="subdivision-list municipality-links">{rows}</ul></section>'
+    )
+
+
+def swiss_cantons(processed_dir: Path) -> str:
+    district_collection = json.loads((processed_dir / "districts/districts.geojson").read_text(encoding="utf-8"))
+    municipality_collection = json.loads((processed_dir / "municipalities/municipalities.geojson").read_text(encoding="utf-8"))
+    district_counts = {}
+    municipality_counts = {}
+    for feature in district_collection["features"]:
+        number = feature["properties"]["kantonsnummer"]
+        district_counts[number] = district_counts.get(number, 0) + 1
+    for feature in municipality_collection["features"]:
+        properties = feature["properties"]
+        if properties.get("icc") != "CH":
+            continue
+        number = properties["kantonsnummer"]
+        municipality_counts[number] = municipality_counts.get(number, 0) + 1
+    cantons = sorted(
+        ((details.get("display_name") or code.upper(), code, details["bfs_number"])
+         for code, details in CANTONS.items()),
+        key=lambda item: unicodedata.normalize("NFD", item[0].casefold()),
+    )
+    rows = []
+    for name, code, number in cantons:
+        district_count = district_counts.get(number, 0)
+        municipality_count = municipality_counts.get(number, 0)
+        district_label = "district" if district_count == 1 else "districts"
+        municipality_label = "municipality" if municipality_count == 1 else "municipalities"
+        district_link = (
+            f'<span class="detail-separator">·</span>'
+            f'<a href="../districts/?canton={code.upper()}">{district_count} {district_label}</a>'
+            if district_count else ""
+        )
+        rows.append(
+            f'<li class="canton-subdivision-item">'
+            f'<a class="canton-subdivision-emblem" href="../canton/{code}.html" aria-label="View {escape(name)}">'
+            f'<img src="../canton/{code}.png" width="30" loading="lazy" alt=""></a>'
+            f'<div><a class="canton-subdivision-name" href="../canton/{code}.html">{escape(name)}</a>'
+            f'<p><span>{code.upper()}</span>{district_link}'
+            f'<span class="detail-separator">·</span>'
+            f'<a href="../municipalities/?canton={code.upper()}">{municipality_count} {municipality_label}</a>'
+            f'</p></div></li>'
+        )
+    return (
+        '<section class="canton-subdivisions" aria-labelledby="country-cantons">'
+        f'<h2 id="country-cantons">Cantons <span>({len(cantons)})</span></h2>'
+        f'<ul class="subdivision-list canton-links">{"".join(rows)}</ul></section>'
     )
 
 
@@ -109,7 +138,7 @@ def build(input_dir: Path, output_dir: Path) -> None:
 
     assets = build_assets(SITE_DIR / "assets")
     version = asset_version(assets)
-    ch_cantons = swiss_cantons()
+    ch_cantons = swiss_cantons(input_dir.parent)
     li_municipalities = liechtenstein_municipalities(input_dir.parent)
 
     def render(title, body, path, *, root_path="../", description=None):
