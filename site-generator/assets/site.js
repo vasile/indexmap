@@ -2,6 +2,7 @@
   "use strict";
   const scriptUrl = document.currentScript?.src;
   const assetQuery = scriptUrl ? new URL(scriptUrl).search : "";
+  const assetVersion = scriptUrl ? new URL(scriptUrl).pathname.match(/site\.([0-9a-f]{16})\.js$/)?.[1] : undefined;
   const tilesUrl = scriptUrl ? new URL("../tiles/boundaries.pmtiles", scriptUrl).href : "../tiles/boundaries.pmtiles";
   const boundaryColor = "#1d4ed8";
   const search = document.querySelector("#canton-search");
@@ -91,7 +92,8 @@
         if (id !== requestId) return;
         if (!maskCheckbox.checked) { previewGeometry(boundary); return; }
         if (!mask) {
-          const { createInverseMask } = await import(`./mask.js${assetQuery}`);
+          const maskAsset = assetVersion ? `./mask.${assetVersion}.js` : `./mask.js${assetQuery}`;
+          const { createInverseMask } = await import(maskAsset);
           mask = createInverseMask(boundary);
         }
         if (id !== requestId) return;

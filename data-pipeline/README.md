@@ -140,7 +140,9 @@ works without them, but historical page generation requires a verified date.
 Site-generation steps 30–36 also require `MAPBOX_ACCESS_TOKEN` (a public `pk.`
 token) in the environment or the project-root `.env.local` file. GitHub Actions should supply it from the repository
 secret of the same name. `assets/config.js` is generated, and its contents are
-included in the browser cache hash. Data-preparation steps do not need a token.
+included in the browser cache hash. Published CSS, JavaScript, configuration, and
+favicon URLs include that hash in their filenames so each GitHub Pages build gets
+immutable asset URLs. Data-preparation steps do not need a token.
 See `site-generator/README.md` for local and Actions setup.
 
 Step 37 requires Tippecanoe and builds `dist/tiles/boundaries.pmtiles` from all four

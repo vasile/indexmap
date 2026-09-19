@@ -5,10 +5,15 @@ import hashlib
 import math
 import json
 import os
+import re
 from pathlib import Path
 from urllib.parse import quote, urlsplit
 from dotenv import dotenv_values
 from config.loader import PIPELINE, SCRIPT_DIR
+
+
+FINGERPRINTED_ASSETS = ("config.js", "favicon.svg", "mask.js", "site.css", "site.js")
+FINGERPRINT_RE = re.compile(r"\.[0-9a-f]{16}(?=\.[^.]+$)")
 
 
 def site_url(path="") -> str:
@@ -52,12 +57,20 @@ def build_assets(asset_dir: Path) -> dict[Path, bytes]:
         "// Generated at build time; this public token is visible to browsers.\n"
         "window.INDEXMAP_CONFIG = " + json.dumps({"mapboxToken": token}) + ";\n"
     ).encode("utf-8")
+    version = asset_version(assets)
+    for name in FINGERPRINTED_ASSETS:
+        path = Path("assets") / name
+        if path in assets:
+            fingerprinted = path.with_name(f"{path.stem}.{version}{path.suffix}")
+            assets[fingerprinted] = assets[path]
     return assets
 
 
 def asset_version(assets: dict[Path, bytes]) -> str:
     digest = hashlib.sha256()
     for path, content in sorted(assets.items()):
+        if FINGERPRINT_RE.search(path.name):
+            continue
         digest.update(str(path).encode("utf-8"))
         digest.update(b"\0")
         digest.update(content)
