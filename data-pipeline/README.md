@@ -26,6 +26,9 @@ python3 data-pipeline/30-generate-country-pages.py
 python3 data-pipeline/32-generate-canton-pages.py
 python3 data-pipeline/34-generate-district-pages.py
 python3 data-pipeline/36-generate-municipality-pages.py
+python3 data-pipeline/37-generate-map-tiles.py
+python3 data-pipeline/39-generate-directory.py
+python3 data-pipeline/38-generate-seo.py
 ```
 
 PyYAML loads configuration; the Python standard library handles downloading and generating the site.
