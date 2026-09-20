@@ -13138,7 +13138,7 @@
             "type": "symbol",
             "source": "base_v1.0.0",
             "source-layer": "place",
-            "minzoom": 6.0,
+            "minzoom": 9.0,
             "maxzoom": 16.0,
             "layout": {
                 "icon-size": 1,
@@ -14660,7 +14660,7 @@
             "type": "symbol",
             "source": "base_v1.0.0",
             "source-layer": "place",
-            "minzoom": 2.0,
+            "minzoom": 9.0,
             "maxzoom": 14.0,
             "layout": {
                 "icon-size": 1,
@@ -14798,7 +14798,7 @@
             "type": "symbol",
             "source": "base_v1.0.0",
             "source-layer": "place",
-            "minzoom": 0.0,
+            "minzoom": 9.0,
             "maxzoom": 14.0,
             "layout": {
                 "text-font": [
