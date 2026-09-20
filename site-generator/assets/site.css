@@ -98,6 +98,16 @@ h1 { font-size: 1.8rem; font-weight: 650; letter-spacing: -.045em; }
 .detail-downloads .btn { display: block; margin-top: .65rem; font-size: .875rem; padding: .6rem; }
 .detail-downloads h2 { font-size: 1rem; }
 .detail-downloads .coat-credit { display: block; margin: .55rem 0 .9rem; font-size: .75rem; line-height: 1.6; overflow-wrap: anywhere; }
+.external-references { margin: 1.2rem 0; padding-top: 1rem; border-top: 1px solid var(--line); }
+.external-references h2 { margin: 0 0 .55rem; font-size: 1rem; }
+.external-references .reference-links { display: grid; justify-items: start; gap: .65rem; }
+.external-references a { color: var(--accent); font-size: .8rem; text-decoration: none; }
+.external-references a:hover { text-decoration: underline; }
+.wikipedia-reference { display: flex; align-items: center; gap: .55rem; color: var(--muted); font-size: .8rem; }
+.segmented-links { display: inline-flex; overflow: hidden; border: 1px solid #bfdbfe; border-radius: .4rem; background: white; }
+.segmented-links a { padding: .3rem .5rem; white-space: nowrap; }
+.segmented-links a + a { border-left: 1px solid #bfdbfe; }
+.segmented-links a:hover { background: #eff6ff; text-decoration: none; }
 .mask-option { display: flex; align-items: center; gap: .45rem; margin-top: .65rem; font-size: .875rem; cursor: pointer; width: fit-content; }
 .mask-option input { width: 1rem; height: 1rem; accent-color: var(--accent); }
 .map-caption-detail { max-width: calc(100% - 5rem); }
@@ -129,6 +139,7 @@ h1 { font-size: 1.8rem; font-weight: 650; letter-spacing: -.045em; }
 .canton-subdivision-item p a { display: inline; min-height: 0; padding: 0; color: var(--accent); font-size: inherit; }
 #boundary-download[aria-disabled="true"] { opacity: .65; cursor: wait; }
 .directory-note, .empty-state { font-size: .75rem; line-height: 1.6; color: var(--muted); padding: 1.2rem 0; margin: 0; }
+.detail-metadata { margin-top: 1.2rem; border-top: 1px solid var(--line); }
 .app-footer { flex: 0 0 2.25rem; color: var(--muted); }
 .app-footer small { font-size: .72rem; }
 @media (max-width: 1050px) { .header-note { display: none; } .directory-panel { flex-basis: 380px; width: 380px; } }
