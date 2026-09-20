@@ -97,10 +97,12 @@ def build(input_dir, output_dir):
         points = list(positions(feature["geometry"]["coordinates"]))
         bounds = [[min(p[i] for p in points) for i in (0, 1)], [max(p[i] for p in points) for i in (0, 1)]]
         canton = CANTON_CODES[props["kantonsnummer"]].upper() if country == "CH" else "LI"
+        canton_name = CANTONS[canton.lower()]["display_name"]
         population = format_number(props["einwohnerzahl"])
         area = format_number(props["bezirksflaeche"] / 100, 2)
         facts = (f'<div><dt>BFS number</dt><dd>{number}</dd></div>'
-                 f'<div><dt>{"Canton" if country == "CH" else "Country"}</dt><dd>{canton}</dd></div>'
+                 f'<div><dt>Canton</dt><dd><a href="../canton/{canton.lower()}.html">'
+                 f'{escape(canton_name)} ({canton})</a></dd></div>'
                  f'<div><dt>Population</dt><dd>{population}<small>{dates["population_date"]}</small></dd></div>'
                  f'<div><dt>Area</dt><dd>{area} km²</dd></div>')
         related_sections = municipality_section(municipalities_by_district.get(number, []))
@@ -110,7 +112,6 @@ def build(input_dir, output_dir):
                        pmtiles_layer="districts", boundary_level=6, active_feature_ids=number,
                        mask_hint="Covers the area outside the district.", bounds=escape(json.dumps(bounds)), **dates)
         body = templates["country"].substitute(context).replace("‹ All countries", "‹ All districts")
-        canton_name = CANTONS[canton.lower()]["display_name"]
         files[Path("district") / f"{number}.html"] = render(
             f"{name} District Boundary & GeoJSON", body, f"district/{number}.html",
             description=f"View and download the boundary of {name} district, {canton_name}, Switzerland, as GeoJSON. BFS {number}.")
