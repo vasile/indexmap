@@ -64,7 +64,14 @@
       item.hidden = excluded || pickedIds.has(item.dataset.featureId);
       if (!item.hidden) restCount++;
     });
-    document.querySelector("#result-count").textContent = count + (" " + (count === 1 ? (search.dataset.singular || "canton") : (search.dataset.plural || "cantons")));
+    const resultCount = document.querySelector("#result-count");
+    const resultLabel = count === 1
+      ? (search.dataset.singular || "canton")
+      : (search.dataset.plural || "cantons");
+    resultCount.textContent = exactCanton
+      ? `${count} / ${searchableItems.length} ${resultLabel}`
+      : `${count} ${resultLabel}`;
+    resultCount.classList.toggle("filter-count-badge", Boolean(exactCanton));
     document.querySelector("#no-results").hidden = count !== 0;
     if (restDirectoryCount) restDirectoryCount.textContent = restCount;
     directorySelection = {

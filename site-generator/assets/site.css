@@ -57,6 +57,7 @@ h1 { font-size: 1.8rem; font-weight: 650; letter-spacing: -.045em; }
 .selection-download-status { display: block; margin-top: .4rem; color: var(--muted); font-size: .7rem; }
 .form-control { font-size: .875rem; min-height: 2.7rem; border-color: var(--line); background: #f8fafc; }
 .list-meta { font-size: .72rem; color: var(--muted); padding: 1rem 0 .7rem; border-bottom: 1px solid var(--line); }
+.filter-count-badge { width: fit-content; padding: .18rem .5rem; border: 1px solid #bfdbfe; border-radius: 999px; background: #eff6ff; color: #1d4ed8; font-weight: 600; }
 .directory-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 1.5rem; flex: 1; }
 .picked-directory { border-bottom: 2px solid #facc15; }
 .directory-group-title { position: sticky; top: 0; z-index: 2; margin: 0; padding: .8rem 0 .65rem; background: white; font-size: .9rem; font-weight: 650; }
@@ -91,6 +92,8 @@ h1 { font-size: 1.8rem; font-weight: 650; letter-spacing: -.045em; }
 .canton-facts > div { display: flex; justify-content: space-between; gap: 1rem; padding: .85rem 0; border-bottom: 1px solid var(--line); }
 .canton-facts dt { color: var(--muted); font-weight: 400; }
 .canton-facts dd { margin: 0; text-align: right; font-weight: 550; font-variant-numeric: tabular-nums; }
+.canton-facts dd a { color: var(--accent); text-decoration: none; }
+.canton-facts dd a:hover { text-decoration: underline; }
 .canton-facts small { display: block; margin-top: .25rem; color: var(--muted); font-size: .75rem; font-weight: 400; }
 .detail-downloads .btn { display: block; margin-top: .65rem; font-size: .875rem; padding: .6rem; }
 .detail-downloads h2 { font-size: 1rem; }
