@@ -12,7 +12,7 @@ from dotenv import dotenv_values
 from config.loader import PIPELINE, SCRIPT_DIR
 
 
-FINGERPRINTED_ASSETS = ("config.js", "favicon.svg", "site.css", "site.js", "swisstopo-light.json")
+FINGERPRINTED_ASSETS = ("config.js", "favicon.svg", "site.css", "site.js")
 FINGERPRINT_RE = re.compile(r"\.[0-9a-f]{16}(?=\.[^.]+$)")
 
 
@@ -53,10 +53,6 @@ def build_assets(asset_dir: Path) -> dict[Path, bytes]:
         raise ValueError("MAPBOX_ACCESS_TOKEN must be a public Mapbox token (pk.), since it is published to the browser")
     assets = {Path("assets") / path.relative_to(asset_dir): path.read_bytes()
               for path in asset_dir.rglob("*") if path.is_file()}
-    swisstopo_style = SCRIPT_DIR.parent / "data" / "source" / "styles" / "swisstopo-light.json"
-    if not swisstopo_style.is_file():
-        raise ValueError(f"Missing local swisstopo basemap style: {swisstopo_style}")
-    assets[Path("assets/swisstopo-light.json")] = swisstopo_style.read_bytes()
     assets[Path("assets/config.js")] = (
         "// Generated at build time; this public token is visible to browsers.\n"
         "window.INDEXMAP_CONFIG = " + json.dumps({"mapboxToken": token}) + ";\n"
