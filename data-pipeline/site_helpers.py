@@ -85,6 +85,31 @@ def format_number(value, digits=0) -> str:
     return f"{value:,.{digits}f}".replace(",", "’")
 
 
+def external_references(linked_data_url, record=None) -> str:
+    """Render authoritative and Wikimedia references, omitting unavailable links."""
+    record = record or {}
+    primary_links = [
+        f'<a href="{escape(linked_data_url)}" target="_blank" rel="noopener">Federal Linked Data ↗</a>'
+    ]
+    wikipedia_links = []
+    for language in ("de", "en", "fr", "it"):
+        url = (record.get("wikipedia") or {}).get(language)
+        if url:
+            wikipedia_links.append(
+                f'<a href="{escape(url)}" target="_blank" rel="noopener">{language.upper()} ↗</a>'
+            )
+    wikipedia_control = (
+        '<div class="wikipedia-reference"><span>Wikipedia</span>'
+        f'<span class="segmented-links">{"".join(wikipedia_links)}</span></div>'
+        if wikipedia_links else ""
+    )
+    return (
+        '<section class="external-references" aria-labelledby="external-references-title">'
+        '<h2 id="external-references-title">External references</h2>'
+        f'<div class="reference-links">{"".join(primary_links)}{wikipedia_control}</div></section>'
+    )
+
+
 def positions(coordinates):
     if not isinstance(coordinates, list) or not coordinates:
         raise ValueError("Empty or invalid geometry coordinates")
