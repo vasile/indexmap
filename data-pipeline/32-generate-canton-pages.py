@@ -160,8 +160,23 @@ def build(input_dir: Path, output_dir: Path) -> None:
     rows = []
     for canton in cantons:
         context = canton["context"] | dates
-        district_section, municipality_section = subdivision_sections(subdivisions[context["bfs"]], context["code"])
-        context |= {"district_section": district_section, "municipality_section": municipality_section}
+        canton_subdivisions = subdivisions[context["bfs"]]
+        district_section, municipality_section = subdivision_sections(canton_subdivisions, context["code"])
+        subdivision_stats = []
+        if canton_subdivisions["districts"]:
+            subdivision_stats.append(
+                f'<a href="../districts/?canton={context["upper_code"]}">'
+                f'Districts ({len(canton_subdivisions["districts"])})</a>'
+            )
+        subdivision_stats.append(
+            f'<a href="../municipalities/?canton={context["upper_code"]}">'
+            f'Municipalities ({len(canton_subdivisions["municipalities"])})</a>'
+        )
+        context |= {
+            "district_section": district_section,
+            "municipality_section": municipality_section,
+            "subdivision_stats": ' <span class="detail-separator">·</span> '.join(subdivision_stats),
+        }
         rows.append(templates["canton-row"].substitute(context))
         pages[f'{context["code"]}.html'] = render(
             f'{canton["name"]} Canton Boundary & GeoJSON',

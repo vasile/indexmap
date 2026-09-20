@@ -74,6 +74,8 @@ h1 { font-size: 1.8rem; font-weight: 650; letter-spacing: -.045em; }
 .canton-details h2 a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .canton-details p { margin: 0; color: var(--muted); font-size: .73rem; }
 .canton-details .canton-stats { margin-top: .3rem; font-variant-numeric: tabular-nums; }
+.canton-stats a { color: var(--accent); text-decoration: none; }
+.canton-stats a:hover { text-decoration: underline; }
 .canton-stats > span:not(.detail-separator) { white-space: nowrap; }
 .detail-separator { margin: 0 .2rem; color: #94a3b8; }
 .canton-next { color: var(--muted); margin-left: auto; flex: 0 0 32px; align-self: stretch; display: grid; place-items: center; font-size: 1.65rem; text-decoration: none; border-radius: .25rem; }
