@@ -315,7 +315,15 @@
       style: mapStyle,
       bounds: initialBounds,
       fitBoundsOptions: { padding: 45 },
+      bearing: 0,
+      pitch: 0,
+      maxPitch: 0,
+      dragRotate: false,
+      pitchWithRotate: false,
+      touchPitch: false,
     });
+    map.touchZoomRotate.disableRotation();
+    map.keyboard.disableRotation();
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
     map.addControl(new mapboxgl.ScaleControl({ maxWidth: 150, unit: "metric" }), "bottom-left");
     map.on("error", showError);
