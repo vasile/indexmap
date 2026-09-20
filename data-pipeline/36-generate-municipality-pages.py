@@ -100,6 +100,15 @@ def build(input_dir, output_dir, *, coat_dir=COAT_DIR):
     collection = json.loads((input_dir / "municipalities.geojson").read_text())
     if collection.get("type") != "FeatureCollection" or not collection.get("features"):
         raise ValueError("Expected municipality FeatureCollection")
+    district_collection = json.loads(
+        (input_dir.parent / "districts/districts.geojson").read_text(encoding="utf-8")
+    )
+    if district_collection.get("type") != "FeatureCollection":
+        raise ValueError("Expected district FeatureCollection")
+    district_names = {
+        feature["properties"]["bezirksnummer"]: feature["properties"]["name"]
+        for feature in district_collection.get("features", [])
+    }
     features = sorted(collection["features"], key=lambda f: unicodedata.normalize("NFD", f["properties"]["name"].casefold()))
     files, rows, seen = {}, [], set()
     manifest = json.loads((coat_dir / "municipalities-web/index.json").read_text())
@@ -135,8 +144,25 @@ def build(input_dir, output_dir, *, coat_dir=COAT_DIR):
         canton = CANTON_CODES[props["kantonsnummer"]].upper() if country == "CH" else "LI"
         population = format_number(props["einwohnerzahl"])
         area = format_number(props["gem_flaeche"] / 100, 2)
+        if country == "CH":
+            canton_name = escape(CANTONS[canton.lower()]["display_name"])
+            parent_fact = (
+                f'<div><dt>Canton</dt><dd><a href="../canton/{canton.lower()}.html">'
+                f'{canton_name} ({canton})</a></dd></div>'
+            )
+            district_number = props.get("bezirksnummer")
+            district_name = district_names.get(district_number)
+            if (isinstance(district_number, int) and district_number > 0
+                    and isinstance(district_name, str) and district_name.strip()):
+                district_name = escape(district_name)
+                parent_fact += (
+                    f'<div><dt>District</dt><dd><a href="../district/{district_number}.html">'
+                    f'{district_name} (BFS {district_number})</a></dd></div>'
+                )
+        else:
+            parent_fact = '<div><dt>Country</dt><dd><a href="../country/li.html">Liechtenstein (LI)</a></dd></div>'
         facts = (f'<div><dt>BFS number</dt><dd>{number}</dd></div>'
-                 f'<div><dt>{"Canton" if country == "CH" else "Country"}</dt><dd>{canton}</dd></div>'
+                 f'{parent_fact}'
                  f'<div><dt>Population</dt><dd>{population}<small>{dates["population_date"]}</small></dd></div>'
                  f'<div><dt>Area</dt><dd>{area} km²</dd></div>')
         coat_image, coat_download, coat_filename = municipality_coat(coats.get(number), number, files, coat_dir)
