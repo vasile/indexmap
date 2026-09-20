@@ -1,0 +1,1496 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-20T20:01:39.048084+00:00",
+  "sources": {
+    "boundaries": "swisstopo swissBOUNDARIES3D",
+    "wikidata_query_url": "https://query.wikidata.org/sparql?query=PREFIX+wd%3A+%3Chttp%3A%2F%2Fwww.wikidata.org%2Fentity%2F%3E%0APREFIX+wdt%3A+%3Chttp%3A%2F%2Fwww.wikidata.org%2Fprop%2Fdirect%2F%3E%0APREFIX+schema%3A+%3Chttp%3A%2F%2Fschema.org%2F%3E%0A%0ASELECT+DISTINCT+%3Fkind+%3Fidentifier+%3Fitem+%3FdeArticle+%3FenArticle+%3FfrArticle+%3FitArticle+WHERE+%7B%0A++%7B%0A++++%3Fitem+wdt%3AP31%2Fwdt%3AP279%2A+wd%3AQ23058%3B+wdt%3AP300+%3Fidentifier.%0A++++FILTER%28STRSTARTS%28%3Fidentifier%2C+%22CH-%22%29%29%0A++++BIND%28%22canton%22+AS+%3Fkind%29%0A++%7D%0A++UNION%0A++%7B%0A++++%3Fitem+wdt%3AP10174+%3Fidentifier.%0A++++BIND%28%22district%22+AS+%3Fkind%29%0A++%7D%0A++OPTIONAL+%7B+%3FdeArticle+schema%3Aabout+%3Fitem%3B+schema%3AisPartOf+%3Chttps%3A%2F%2Fde.wikipedia.org%2F%3E.+%7D%0A++OPTIONAL+%7B+%3FenArticle+schema%3Aabout+%3Fitem%3B+schema%3AisPartOf+%3Chttps%3A%2F%2Fen.wikipedia.org%2F%3E.+%7D%0A++OPTIONAL+%7B+%3FfrArticle+schema%3Aabout+%3Fitem%3B+schema%3AisPartOf+%3Chttps%3A%2F%2Ffr.wikipedia.org%2F%3E.+%7D%0A++OPTIONAL+%7B+%3FitArticle+schema%3Aabout+%3Fitem%3B+schema%3AisPartOf+%3Chttps%3A%2F%2Fit.wikipedia.org%2F%3E.+%7D%0A%7D%0AORDER+BY+%3Fkind+%3Fidentifier+%3Fitem%0A&format=json",
+    "canton_identifier": "P300",
+    "district_identifier": "P10174"
+  },
+  "cantons": [
+    {
+      "id": "ag",
+      "name": "Aargau",
+      "status": "available",
+      "wikidata": {
+        "id": "Q11972",
+        "url": "https://www.wikidata.org/wiki/Q11972"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Aargau",
+        "en": "https://en.wikipedia.org/wiki/Aargau",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_d%27Argovie",
+        "it": "https://it.wikipedia.org/wiki/Canton_Argovia"
+      }
+    },
+    {
+      "id": "ai",
+      "name": "Appenzell Innerrhoden",
+      "status": "available",
+      "wikidata": {
+        "id": "Q12094",
+        "url": "https://www.wikidata.org/wiki/Q12094"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Appenzell_Innerrhoden",
+        "en": "https://en.wikipedia.org/wiki/Appenzell_Innerrhoden",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_d%27Appenzell_Rhodes-Int%C3%A9rieures",
+        "it": "https://it.wikipedia.org/wiki/Canton_Appenzello_Interno"
+      }
+    },
+    {
+      "id": "ar",
+      "name": "Appenzell Ausserrhoden",
+      "status": "available",
+      "wikidata": {
+        "id": "Q12079",
+        "url": "https://www.wikidata.org/wiki/Q12079"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Appenzell_Ausserrhoden",
+        "en": "https://en.wikipedia.org/wiki/Appenzell_Ausserrhoden",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_d%27Appenzell_Rhodes-Ext%C3%A9rieures",
+        "it": "https://it.wikipedia.org/wiki/Canton_Appenzello_Esterno"
+      }
+    },
+    {
+      "id": "be",
+      "name": "Bern",
+      "status": "available",
+      "wikidata": {
+        "id": "Q11911",
+        "url": "https://www.wikidata.org/wiki/Q11911"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Bern",
+        "en": "https://en.wikipedia.org/wiki/Canton_of_Bern",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_de_Berne",
+        "it": "https://it.wikipedia.org/wiki/Canton_Berna"
+      }
+    },
+    {
+      "id": "bl",
+      "name": "Basel-Landschaft",
+      "status": "available",
+      "wikidata": {
+        "id": "Q12146",
+        "url": "https://www.wikidata.org/wiki/Q12146"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Basel-Landschaft",
+        "en": "https://en.wikipedia.org/wiki/Basel-Landschaft",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_de_B%C3%A2le-Campagne",
+        "it": "https://it.wikipedia.org/wiki/Canton_Basilea_Campagna"
+      }
+    },
+    {
+      "id": "bs",
+      "name": "Basel-Stadt",
+      "status": "available",
+      "wikidata": {
+        "id": "Q12172",
+        "url": "https://www.wikidata.org/wiki/Q12172"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Basel-Stadt",
+        "en": "https://en.wikipedia.org/wiki/Basel-Stadt",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_de_B%C3%A2le-Ville",
+        "it": "https://it.wikipedia.org/wiki/Canton_Basilea_Citt%C3%A0"
+      }
+    },
+    {
+      "id": "fr",
+      "name": "Fribourg",
+      "status": "available",
+      "wikidata": {
+        "id": "Q12640",
+        "url": "https://www.wikidata.org/wiki/Q12640"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Freiburg",
+        "en": "https://en.wikipedia.org/wiki/Canton_of_Fribourg",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_de_Fribourg",
+        "it": "https://it.wikipedia.org/wiki/Canton_Friburgo"
+      }
+    },
+    {
+      "id": "ge",
+      "name": "Genève",
+      "status": "available",
+      "wikidata": {
+        "id": "Q11917",
+        "url": "https://www.wikidata.org/wiki/Q11917"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Genf",
+        "en": "https://en.wikipedia.org/wiki/Canton_of_Geneva",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_de_Gen%C3%A8ve",
+        "it": "https://it.wikipedia.org/wiki/Canton_Ginevra"
+      }
+    },
+    {
+      "id": "gl",
+      "name": "Glarus",
+      "status": "available",
+      "wikidata": {
+        "id": "Q11922",
+        "url": "https://www.wikidata.org/wiki/Q11922"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Glarus",
+        "en": "https://en.wikipedia.org/wiki/Canton_of_Glarus",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_de_Glaris",
+        "it": "https://it.wikipedia.org/wiki/Canton_Glarona"
+      }
+    },
+    {
+      "id": "gr",
+      "name": "Graubünden",
+      "status": "available",
+      "wikidata": {
+        "id": "Q11925",
+        "url": "https://www.wikidata.org/wiki/Q11925"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Graub%C3%BCnden",
+        "en": "https://en.wikipedia.org/wiki/Grisons",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_des_Grisons",
+        "it": "https://it.wikipedia.org/wiki/Canton_Grigioni"
+      }
+    },
+    {
+      "id": "ju",
+      "name": "Jura",
+      "status": "available",
+      "wikidata": {
+        "id": "Q12755",
+        "url": "https://www.wikidata.org/wiki/Q12755"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Jura",
+        "en": "https://en.wikipedia.org/wiki/Canton_of_Jura",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_du_Jura",
+        "it": "https://it.wikipedia.org/wiki/Canton_Giura"
+      }
+    },
+    {
+      "id": "lu",
+      "name": "Luzern",
+      "status": "available",
+      "wikidata": {
+        "id": "Q12121",
+        "url": "https://www.wikidata.org/wiki/Q12121"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Luzern",
+        "en": "https://en.wikipedia.org/wiki/Canton_of_Lucerne",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_de_Lucerne",
+        "it": "https://it.wikipedia.org/wiki/Canton_Lucerna"
+      }
+    },
+    {
+      "id": "ne",
+      "name": "Neuchâtel",
+      "status": "available",
+      "wikidata": {
+        "id": "Q12738",
+        "url": "https://www.wikidata.org/wiki/Q12738"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Neuenburg",
+        "en": "https://en.wikipedia.org/wiki/Canton_of_Neuch%C3%A2tel",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_de_Neuch%C3%A2tel",
+        "it": "https://it.wikipedia.org/wiki/Canton_Neuch%C3%A2tel"
+      }
+    },
+    {
+      "id": "nw",
+      "name": "Nidwalden",
+      "status": "available",
+      "wikidata": {
+        "id": "Q12592",
+        "url": "https://www.wikidata.org/wiki/Q12592"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Nidwalden",
+        "en": "https://en.wikipedia.org/wiki/Nidwalden",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_de_Nidwald",
+        "it": "https://it.wikipedia.org/wiki/Canton_Nidvaldo"
+      }
+    },
+    {
+      "id": "ow",
+      "name": "Obwalden",
+      "status": "available",
+      "wikidata": {
+        "id": "Q12573",
+        "url": "https://www.wikidata.org/wiki/Q12573"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Obwalden",
+        "en": "https://en.wikipedia.org/wiki/Obwalden",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_d%27Obwald",
+        "it": "https://it.wikipedia.org/wiki/Canton_Obvaldo"
+      }
+    },
+    {
+      "id": "sg",
+      "name": "St. Gallen",
+      "status": "available",
+      "wikidata": {
+        "id": "Q12746",
+        "url": "https://www.wikidata.org/wiki/Q12746"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_St._Gallen",
+        "en": "https://en.wikipedia.org/wiki/Canton_of_St._Gallen",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_de_Saint-Gall",
+        "it": "https://it.wikipedia.org/wiki/Canton_San_Gallo"
+      }
+    },
+    {
+      "id": "sh",
+      "name": "Schaffhausen",
+      "status": "available",
+      "wikidata": {
+        "id": "Q12697",
+        "url": "https://www.wikidata.org/wiki/Q12697"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Schaffhausen",
+        "en": "https://en.wikipedia.org/wiki/Canton_of_Schaffhausen",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_de_Schaffhouse",
+        "it": "https://it.wikipedia.org/wiki/Canton_Sciaffusa"
+      }
+    },
+    {
+      "id": "so",
+      "name": "Solothurn",
+      "status": "available",
+      "wikidata": {
+        "id": "Q11929",
+        "url": "https://www.wikidata.org/wiki/Q11929"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Solothurn",
+        "en": "https://en.wikipedia.org/wiki/Canton_of_Solothurn",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_de_Soleure",
+        "it": "https://it.wikipedia.org/wiki/Canton_Soletta"
+      }
+    },
+    {
+      "id": "sz",
+      "name": "Schwyz",
+      "status": "available",
+      "wikidata": {
+        "id": "Q12433",
+        "url": "https://www.wikidata.org/wiki/Q12433"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Schwyz",
+        "en": "https://en.wikipedia.org/wiki/Canton_of_Schwyz",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_de_Schwytz",
+        "it": "https://it.wikipedia.org/wiki/Canton_Svitto"
+      }
+    },
+    {
+      "id": "tg",
+      "name": "Thurgau",
+      "status": "available",
+      "wikidata": {
+        "id": "Q12713",
+        "url": "https://www.wikidata.org/wiki/Q12713"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Thurgau",
+        "en": "https://en.wikipedia.org/wiki/Thurgau",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_de_Thurgovie",
+        "it": "https://it.wikipedia.org/wiki/Canton_Turgovia"
+      }
+    },
+    {
+      "id": "ti",
+      "name": "Ticino",
+      "status": "available",
+      "wikidata": {
+        "id": "Q12724",
+        "url": "https://www.wikidata.org/wiki/Q12724"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Tessin",
+        "en": "https://en.wikipedia.org/wiki/Ticino",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_du_Tessin",
+        "it": "https://it.wikipedia.org/wiki/Canton_Ticino"
+      }
+    },
+    {
+      "id": "ur",
+      "name": "Uri",
+      "status": "available",
+      "wikidata": {
+        "id": "Q12404",
+        "url": "https://www.wikidata.org/wiki/Q12404"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Uri",
+        "en": "https://en.wikipedia.org/wiki/Canton_of_Uri",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_d%27Uri",
+        "it": "https://it.wikipedia.org/wiki/Canton_Uri"
+      }
+    },
+    {
+      "id": "vd",
+      "name": "Vaud",
+      "status": "available",
+      "wikidata": {
+        "id": "Q12771",
+        "url": "https://www.wikidata.org/wiki/Q12771"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Waadt",
+        "en": "https://en.wikipedia.org/wiki/Vaud",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_de_Vaud",
+        "it": "https://it.wikipedia.org/wiki/Canton_Vaud"
+      }
+    },
+    {
+      "id": "vs",
+      "name": "Valais",
+      "status": "available",
+      "wikidata": {
+        "id": "Q834",
+        "url": "https://www.wikidata.org/wiki/Q834"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Wallis",
+        "en": "https://en.wikipedia.org/wiki/Valais",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_du_Valais",
+        "it": "https://it.wikipedia.org/wiki/Canton_Vallese"
+      }
+    },
+    {
+      "id": "zg",
+      "name": "Zug",
+      "status": "available",
+      "wikidata": {
+        "id": "Q11933",
+        "url": "https://www.wikidata.org/wiki/Q11933"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Zug",
+        "en": "https://en.wikipedia.org/wiki/Canton_of_Zug",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_de_Zoug",
+        "it": "https://it.wikipedia.org/wiki/Canton_Zugo"
+      }
+    },
+    {
+      "id": "zh",
+      "name": "Zürich",
+      "status": "available",
+      "wikidata": {
+        "id": "Q11943",
+        "url": "https://www.wikidata.org/wiki/Q11943"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kanton_Z%C3%BCrich",
+        "en": "https://en.wikipedia.org/wiki/Canton_of_Zurich",
+        "fr": "https://fr.wikipedia.org/wiki/Canton_de_Zurich",
+        "it": "https://it.wikipedia.org/wiki/Canton_Zurigo"
+      }
+    }
+  ],
+  "districts": [
+    {
+      "id": 101,
+      "name": "Affoltern",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 102,
+      "name": "Andelfingen",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 103,
+      "name": "Bülach",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 104,
+      "name": "Dielsdorf",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 105,
+      "name": "Hinwil",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 106,
+      "name": "Horgen",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 107,
+      "name": "Meilen",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 108,
+      "name": "Pfäffikon",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 109,
+      "name": "Uster",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 110,
+      "name": "Winterthur",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 111,
+      "name": "Dietikon",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 112,
+      "name": "Zürich",
+      "status": "available",
+      "wikidata": {
+        "id": "Q660732",
+        "url": "https://www.wikidata.org/wiki/Q660732"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Bezirk_Z%C3%BCrich",
+        "en": "https://en.wikipedia.org/wiki/Zurich_District",
+        "fr": "https://fr.wikipedia.org/wiki/District_de_Zurich",
+        "it": "https://it.wikipedia.org/wiki/Distretto_di_Zurigo"
+      }
+    },
+    {
+      "id": 241,
+      "name": "Jura bernois",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 242,
+      "name": "Biel/Bienne",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 243,
+      "name": "Seeland",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 244,
+      "name": "Oberaargau",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 245,
+      "name": "Emmental",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 246,
+      "name": "Bern-Mittelland",
+      "status": "available",
+      "wikidata": {
+        "id": "Q666217",
+        "url": "https://www.wikidata.org/wiki/Q666217"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Verwaltungskreis_Bern-Mittelland",
+        "en": "https://en.wikipedia.org/wiki/Bern-Mittelland_(administrative_district)",
+        "fr": "https://fr.wikipedia.org/wiki/Arrondissement_administratif_de_Berne-Mittelland",
+        "it": "https://it.wikipedia.org/wiki/Circondario_di_Berna-Altipiano_svizzero"
+      }
+    },
+    {
+      "id": 247,
+      "name": "Thun",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 248,
+      "name": "Obersimmental-Saanen",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 249,
+      "name": "Frutigen-Niedersimmental",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 250,
+      "name": "Interlaken-Oberhasli",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 311,
+      "name": "Luzern-Stadt",
+      "status": "available",
+      "wikidata": {
+        "id": "Q1670385",
+        "url": "https://www.wikidata.org/wiki/Q1670385"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Wahlkreis_Luzern-Stadt",
+        "en": "https://en.wikipedia.org/wiki/Lucerne-Stadt_District",
+        "fr": "https://fr.wikipedia.org/wiki/Arrondissement_%C3%A9lectoral_de_Lucerne-ville",
+        "it": "https://it.wikipedia.org/wiki/Distretto_di_Lucerna_Citt%C3%A0"
+      }
+    },
+    {
+      "id": 312,
+      "name": "Luzern-Land",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 313,
+      "name": "Hochdorf",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 314,
+      "name": "Sursee",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 315,
+      "name": "Willisau",
+      "status": "available",
+      "wikidata": {
+        "id": "Q749764",
+        "url": "https://www.wikidata.org/wiki/Q749764"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Wahlkreis_Willisau",
+        "fr": "https://fr.wikipedia.org/wiki/Arrondissement_%C3%A9lectoral_de_Willisau",
+        "it": "https://it.wikipedia.org/wiki/Distretto_di_Willisau"
+      }
+    },
+    {
+      "id": 316,
+      "name": "Entlebuch",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 501,
+      "name": "Einsiedeln",
+      "status": "available",
+      "wikidata": {
+        "id": "Q74874",
+        "url": "https://www.wikidata.org/wiki/Q74874"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Bezirk_Einsiedeln",
+        "en": "https://en.wikipedia.org/wiki/Einsiedeln_District",
+        "fr": "https://fr.wikipedia.org/wiki/District_d%27Einsiedeln",
+        "it": "https://it.wikipedia.org/wiki/Distretto_di_Einsiedeln"
+      }
+    },
+    {
+      "id": 502,
+      "name": "Gersau",
+      "status": "available",
+      "wikidata": {
+        "id": "Q74826",
+        "url": "https://www.wikidata.org/wiki/Q74826"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Bezirk_Gersau",
+        "fr": "https://fr.wikipedia.org/wiki/District_de_Gersau",
+        "it": "https://it.wikipedia.org/wiki/Distretto_di_Gersau"
+      }
+    },
+    {
+      "id": 503,
+      "name": "Höfe",
+      "status": "available",
+      "wikidata": {
+        "id": "Q74823",
+        "url": "https://www.wikidata.org/wiki/Q74823"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Bezirk_H%C3%B6fe",
+        "en": "https://en.wikipedia.org/wiki/H%C3%B6fe_District",
+        "fr": "https://fr.wikipedia.org/wiki/District_de_H%C3%B6fe",
+        "it": "https://it.wikipedia.org/wiki/Distretto_di_H%C3%B6fe"
+      }
+    },
+    {
+      "id": 504,
+      "name": "Küssnacht (SZ)",
+      "status": "available",
+      "wikidata": {
+        "id": "Q74831",
+        "url": "https://www.wikidata.org/wiki/Q74831"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Bezirk_K%C3%BCssnacht",
+        "fr": "https://fr.wikipedia.org/wiki/District_de_K%C3%BCssnacht",
+        "it": "https://it.wikipedia.org/wiki/Distretto_di_K%C3%BCssnacht"
+      }
+    },
+    {
+      "id": 505,
+      "name": "March",
+      "status": "available",
+      "wikidata": {
+        "id": "Q74768",
+        "url": "https://www.wikidata.org/wiki/Q74768"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Bezirk_March",
+        "en": "https://en.wikipedia.org/wiki/March_District",
+        "fr": "https://fr.wikipedia.org/wiki/District_de_March",
+        "it": "https://it.wikipedia.org/wiki/Distretto_di_March"
+      }
+    },
+    {
+      "id": 506,
+      "name": "Schwyz",
+      "status": "available",
+      "wikidata": {
+        "id": "Q74818",
+        "url": "https://www.wikidata.org/wiki/Q74818"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Bezirk_Schwyz",
+        "en": "https://en.wikipedia.org/wiki/Schwyz_District",
+        "fr": "https://fr.wikipedia.org/wiki/District_de_Schwytz",
+        "it": "https://it.wikipedia.org/wiki/Distretto_di_Svitto"
+      }
+    },
+    {
+      "id": 1001,
+      "name": "La Broye",
+      "status": "available",
+      "wikidata": {
+        "id": "Q660600",
+        "url": "https://www.wikidata.org/wiki/Q660600"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Broyebezirk",
+        "en": "https://en.wikipedia.org/wiki/Broye_District",
+        "fr": "https://fr.wikipedia.org/wiki/District_de_la_Broye",
+        "it": "https://it.wikipedia.org/wiki/Distretto_della_Broye"
+      }
+    },
+    {
+      "id": 1002,
+      "name": "La Glâne",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1003,
+      "name": "La Gruyère",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1004,
+      "name": "La Sarine",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1005,
+      "name": "See",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1006,
+      "name": "Sense",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1007,
+      "name": "La Veveyse",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1101,
+      "name": "Gäu",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1102,
+      "name": "Thal",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1103,
+      "name": "Bucheggberg",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1104,
+      "name": "Dorneck",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1105,
+      "name": "Gösgen",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1106,
+      "name": "Wasseramt",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1107,
+      "name": "Lebern",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1108,
+      "name": "Olten",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1109,
+      "name": "Solothurn",
+      "status": "available",
+      "wikidata": {
+        "id": "Q494663",
+        "url": "https://www.wikidata.org/wiki/Q494663"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Bezirk_Solothurn",
+        "en": "https://en.wikipedia.org/wiki/Solothurn_District",
+        "fr": "https://fr.wikipedia.org/wiki/District_de_Soleure",
+        "it": "https://it.wikipedia.org/wiki/Distretto_di_Soletta"
+      }
+    },
+    {
+      "id": 1110,
+      "name": "Thierstein",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1301,
+      "name": "Arlesheim",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1302,
+      "name": "Laufen",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1303,
+      "name": "Liestal",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1304,
+      "name": "Sissach",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1305,
+      "name": "Waldenburg",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1401,
+      "name": "Oberklettgau",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1402,
+      "name": "Reiat",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1403,
+      "name": "Schaffhausen",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1404,
+      "name": "Schleitheim",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1405,
+      "name": "Stein",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1406,
+      "name": "Unterklettgau",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1501,
+      "name": "Hinterland",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1502,
+      "name": "Mittelland",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1503,
+      "name": "Vorderland",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1721,
+      "name": "St. Gallen",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1722,
+      "name": "Rorschach",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1723,
+      "name": "Rheintal",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1724,
+      "name": "Werdenberg",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1725,
+      "name": "Sarganserland",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1726,
+      "name": "See-Gaster",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1727,
+      "name": "Toggenburg",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1728,
+      "name": "Wil",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1841,
+      "name": "Albula",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1842,
+      "name": "Bernina",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1843,
+      "name": "Engiadina Bassa/Val Müstair",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1844,
+      "name": "Imboden",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1845,
+      "name": "Landquart",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1846,
+      "name": "Maloja",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1847,
+      "name": "Moesa",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1848,
+      "name": "Plessur",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1849,
+      "name": "Prättigau/Davos",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1850,
+      "name": "Surselva",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1851,
+      "name": "Viamala",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1901,
+      "name": "Aarau",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1902,
+      "name": "Baden",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1903,
+      "name": "Bremgarten",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1904,
+      "name": "Brugg",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1905,
+      "name": "Kulm",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1906,
+      "name": "Laufenburg",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1907,
+      "name": "Lenzburg",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1908,
+      "name": "Muri",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1909,
+      "name": "Rheinfelden",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1910,
+      "name": "Zofingen",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 1911,
+      "name": "Zurzach",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2011,
+      "name": "Arbon",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2012,
+      "name": "Frauenfeld",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2013,
+      "name": "Kreuzlingen",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2014,
+      "name": "Münchwilen",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2015,
+      "name": "Weinfelden",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2101,
+      "name": "Bellinzona",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2102,
+      "name": "Blenio",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2103,
+      "name": "Leventina",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2104,
+      "name": "Locarno",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2105,
+      "name": "Lugano",
+      "status": "available",
+      "wikidata": {
+        "id": "Q660612",
+        "url": "https://www.wikidata.org/wiki/Q660612"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Bezirk_Lugano",
+        "en": "https://en.wikipedia.org/wiki/Lugano_District",
+        "fr": "https://fr.wikipedia.org/wiki/District_de_Lugano",
+        "it": "https://it.wikipedia.org/wiki/Distretto_di_Lugano"
+      }
+    },
+    {
+      "id": 2106,
+      "name": "Mendrisio",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2107,
+      "name": "Riviera",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2108,
+      "name": "Vallemaggia",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2221,
+      "name": "Aigle",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2222,
+      "name": "Broye-Vully",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2223,
+      "name": "Gros-de-Vaud",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2224,
+      "name": "Jura-Nord vaudois",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2225,
+      "name": "Lausanne",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2226,
+      "name": "Lavaux-Oron",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2227,
+      "name": "Morges",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2228,
+      "name": "Nyon",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2229,
+      "name": "Ouest lausannois",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2230,
+      "name": "Riviera-Pays-d'Enhaut",
+      "status": "available",
+      "wikidata": {
+        "id": "Q665689",
+        "url": "https://www.wikidata.org/wiki/Q665689"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Bezirk_Riviera-Pays-d%E2%80%99Enhaut",
+        "en": "https://en.wikipedia.org/wiki/Riviera-Pays-d%27Enhaut_District",
+        "fr": "https://fr.wikipedia.org/wiki/District_de_la_Riviera-Pays-d%27Enhaut",
+        "it": "https://it.wikipedia.org/wiki/Distretto_della_Riviera-Pays-d%27Enhaut"
+      }
+    },
+    {
+      "id": 2301,
+      "name": "Brig",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2302,
+      "name": "Conthey",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2303,
+      "name": "Entremont",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2304,
+      "name": "Goms",
+      "status": "available",
+      "wikidata": {
+        "id": "Q660663",
+        "url": "https://www.wikidata.org/wiki/Q660663"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Bezirk_Goms",
+        "en": "https://en.wikipedia.org/wiki/Goms_District",
+        "fr": "https://fr.wikipedia.org/wiki/District_de_Conches",
+        "it": "https://it.wikipedia.org/wiki/Distretto_di_Goms"
+      }
+    },
+    {
+      "id": 2305,
+      "name": "Hérens",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2306,
+      "name": "Leuk",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2307,
+      "name": "Martigny",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2308,
+      "name": "Monthey",
+      "status": "available",
+      "wikidata": {
+        "id": "Q660517",
+        "url": "https://www.wikidata.org/wiki/Q660517"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Bezirk_Monthey",
+        "en": "https://en.wikipedia.org/wiki/Monthey_District",
+        "fr": "https://fr.wikipedia.org/wiki/District_de_Monthey",
+        "it": "https://it.wikipedia.org/wiki/Distretto_di_Monthey"
+      }
+    },
+    {
+      "id": 2309,
+      "name": "Raron",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2310,
+      "name": "Saint-Maurice",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2311,
+      "name": "Sierre",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2312,
+      "name": "Sion",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2313,
+      "name": "Visp",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2601,
+      "name": "Delémont",
+      "status": "available",
+      "wikidata": {
+        "id": "Q659702",
+        "url": "https://www.wikidata.org/wiki/Q659702"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Del%C3%A9mont_(Bezirk)",
+        "en": "https://en.wikipedia.org/wiki/Del%C3%A9mont_District",
+        "fr": "https://fr.wikipedia.org/wiki/District_de_Del%C3%A9mont",
+        "it": "https://it.wikipedia.org/wiki/Distretto_di_Del%C3%A9mont"
+      }
+    },
+    {
+      "id": 2602,
+      "name": "Les Franches-Montagnes",
+      "status": "available",
+      "wikidata": {
+        "id": "Q167627",
+        "url": "https://www.wikidata.org/wiki/Q167627"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Franches-Montagnes_(Bezirk)",
+        "en": "https://en.wikipedia.org/wiki/Franches-Montagnes_District",
+        "fr": "https://fr.wikipedia.org/wiki/District_des_Franches-Montagnes",
+        "it": "https://it.wikipedia.org/wiki/Distretto_delle_Franches-Montagnes"
+      }
+    },
+    {
+      "id": 2603,
+      "name": "Porrentruy",
+      "status": "wikidata_not_found",
+      "wikidata": null,
+      "wikipedia": {}
+    },
+    {
+      "id": 2604,
+      "name": "Moutier",
+      "status": "available",
+      "wikidata": {
+        "id": "Q135114567",
+        "url": "https://www.wikidata.org/wiki/Q135114567"
+      },
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Moutier_(Bezirk)",
+        "fr": "https://fr.wikipedia.org/wiki/District_de_Moutier_(Jura)"
+      }
+    }
+  ]
+}
