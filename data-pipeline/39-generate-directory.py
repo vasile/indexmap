@@ -30,9 +30,10 @@ def item(name, meta, href, search, icon=None):
             f'<small>{escape(meta)}</small></span></a></li>')
 
 
-def section(title, records, *, alphabet=False):
+def section(title, records, *, alphabet=False, preserve_order=False):
     groups = {}
-    for name, html in sorted(records, key=sort_key):
+    ordered_records = records if preserve_order else sorted(records, key=sort_key)
+    for name, html in ordered_records:
         letter = unicodedata.normalize("NFD", name)[0].upper() if alphabet else ""
         groups.setdefault(letter, []).append(html)
     blocks = []
@@ -50,6 +51,7 @@ def build(processed_dir: Path, output_dir: Path):
         name = {"ch": "Switzerland", "li": "Liechtenstein"}.get(code, props["name"])
         countries.append((name, item(name, props["icc"], f"../country/{code}.html",
                                      f'{name} {props["icc"]}', f"../country/{code}.png")))
+    countries.sort(key=lambda record: (record[0] != "Switzerland", sort_key(record)))
 
     cantons = []
     for feature in load_features(processed_dir / "cantons/cantons.geojson"):
@@ -76,7 +78,7 @@ def build(processed_dir: Path, output_dir: Path):
                                                     f'{props["name"]} {number} {code} {props["icc"]}',
                                                     f"../municipality/{number}.webp")))
 
-    sections = "".join((section("Country", countries), section("Cantons", cantons),
+    sections = "".join((section("Country", countries, preserve_order=True), section("Cantons", cantons),
                         section("Districts", districts), section("Municipalities", municipalities, alphabet=True)))
     count = sum(map(len, (countries, cantons, districts, municipalities)))
     templates = {name: Template((SITE_DIR / "templates" / f"{name}.html").read_text())
