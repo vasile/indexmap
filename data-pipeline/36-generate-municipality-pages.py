@@ -33,6 +33,8 @@ class PermissionLinks(HTMLParser):
     def handle_starttag(self, tag, attrs):
         if tag == "a":
             url = dict(attrs).get("href", "")
+            if url is None:
+                return
             if url.startswith("//"):
                 url = "https:" + url
             if urlsplit(url).scheme in ("http", "https") and urlsplit(url).netloc and url not in self.urls:
