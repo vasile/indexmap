@@ -12,7 +12,7 @@ import unicodedata
 from urllib.parse import urlsplit
 
 from config.loader import SITE_DIR, DIST_DIR, population_metadata, CANTONS, CANTON_CODES, OUTPUT_DIR, REFERENCE_DATE, SCRIPT_DIR
-from site_helpers import build_assets, asset_version, canonical_url, escape, format_number, positions
+from site_helpers import build_assets, asset_version, canonical_url, escape, external_references, format_number, positions
 
 
 COAT_DIR = SCRIPT_DIR.parent / "data/source/coat-of-arms"
@@ -165,9 +165,15 @@ def build(input_dir, output_dir, *, coat_dir=COAT_DIR):
                  f'{parent_fact}'
                  f'<div><dt>Population</dt><dd>{population}<small>{dates["population_date"]}</small></dd></div>'
                  f'<div><dt>Area</dt><dd>{area} km²</dd></div>')
-        coat_image, coat_download, coat_filename = municipality_coat(coats.get(number), number, files, coat_dir)
+        coat_record = coats.get(number)
+        coat_image, coat_download, coat_filename = municipality_coat(coat_record, number, files, coat_dir)
+        references = external_references(
+            f"https://geo.ld.admin.ch/boundaries/municipality/{number}",
+            coat_record,
+        )
         context = dict(name=escape(name), code=number, upper_code=f"{number} · {canton}", entity_label="Municipality",
                        boundary_label="Municipality boundary", facts=facts, subdivision_link="", related_sections="",
+                       external_references=references,
                        coat_image=coat_image, coat_download=coat_download, directory_url="../municipalities/",
                        pmtiles_layer="municipalities", boundary_level=8, active_feature_ids=number,
                        mask_hint="Covers the area outside the municipality.", bounds=escape(json.dumps(bounds)), **dates)

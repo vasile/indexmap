@@ -9,13 +9,14 @@ from pathlib import Path
 from string import Template
 import unicodedata
 
-from site_helpers import build_assets, asset_version, canonical_url, escape, format_number, positions
+from site_helpers import build_assets, asset_version, canonical_url, escape, external_references, format_number, positions
 
 from config.loader import CANTONS, SITE_DIR, DIST_DIR, population_metadata, CANTON_CODES, OUTPUT_DIR as PROCESSED_DIR, REFERENCE_DATE, SCRIPT_DIR
 
 
 PROJECT_DIR = SCRIPT_DIR.parent
 COAT_DIR = PROJECT_DIR / "data/source/coat-of-arms/municipalities-web"
+REFERENCE_MANIFEST = PROJECT_DIR / "data/source/references/administrative.json"
 
 
 def sort_key(name):
@@ -142,6 +143,10 @@ def build(input_dir: Path, output_dir: Path) -> None:
                  for name in ["base", "cantons", "canton", "canton-row"]}
     cantons = load_cantons(input_dir, lookup)
     subdivisions = load_subdivisions(input_dir.parent)
+    reference_manifest = json.loads(REFERENCE_MANIFEST.read_text(encoding="utf-8"))
+    if reference_manifest.get("schema_version") != 1:
+        raise ValueError(f"Invalid administrative reference manifest: {REFERENCE_MANIFEST}")
+    canton_references = {record["id"]: record for record in reference_manifest.get("cantons", [])}
     bundles = {}
     for filename in ["cantons.geojson", "cantons.zip"]:
         path = input_dir / filename
@@ -160,6 +165,10 @@ def build(input_dir: Path, output_dir: Path) -> None:
     rows = []
     for canton in cantons:
         context = canton["context"] | dates
+        context["external_references"] = external_references(
+            f'https://geo.ld.admin.ch/boundaries/canton/{context["bfs"]}',
+            canton_references.get(context["code"]),
+        )
         canton_subdivisions = subdivisions[context["bfs"]]
         district_section, municipality_section = subdivision_sections(canton_subdivisions, context["code"])
         subdivision_stats = []

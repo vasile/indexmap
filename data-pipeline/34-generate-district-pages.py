@@ -10,10 +10,11 @@ from string import Template
 import unicodedata
 
 from config.loader import SITE_DIR, DIST_DIR, population_metadata, CANTONS, CANTON_CODES, OUTPUT_DIR, REFERENCE_DATE, SCRIPT_DIR
-from site_helpers import build_assets, asset_version, canonical_url, escape, format_number, positions
+from site_helpers import build_assets, asset_version, canonical_url, escape, external_references, format_number, positions
 
 
 COAT_DIR = SCRIPT_DIR.parent / "data/source/coat-of-arms/municipalities-web"
+REFERENCE_MANIFEST = SCRIPT_DIR.parent / "data/source/references/administrative.json"
 
 
 def municipality_sections(processed_dir):
@@ -69,6 +70,10 @@ def build(input_dir, output_dir):
         raise ValueError("Expected district FeatureCollection")
     features = sorted(collection["features"], key=lambda f: unicodedata.normalize("NFD", f["properties"]["name"].casefold()))
     municipalities_by_district = municipality_sections(input_dir.parent)
+    reference_manifest = json.loads(REFERENCE_MANIFEST.read_text(encoding="utf-8"))
+    if reference_manifest.get("schema_version") != 1:
+        raise ValueError(f"Invalid administrative reference manifest: {REFERENCE_MANIFEST}")
+    district_references = {record["id"]: record for record in reference_manifest.get("districts", [])}
     files, rows, seen = {}, [], set()
     assets = build_assets(SITE_DIR / "assets")
     version = asset_version(assets)
@@ -106,8 +111,13 @@ def build(input_dir, output_dir):
                  f'<div><dt>Population</dt><dd>{population}<small>{dates["population_date"]}</small></dd></div>'
                  f'<div><dt>Area</dt><dd>{area} km²</dd></div>')
         related_sections = municipality_section(municipalities_by_district.get(number, []))
+        references = external_references(
+            f"https://geo.ld.admin.ch/boundaries/district/{number}",
+            district_references.get(number),
+        )
         context = dict(name=escape(name), code=number, upper_code=f"{number} · {canton}", entity_label="District",
                        boundary_label="District boundary", facts=facts, subdivision_link="", related_sections=related_sections,
+                       external_references=references,
                        coat_image="", coat_download="", directory_url="../districts/",
                        pmtiles_layer="districts", boundary_level=6, active_feature_ids=number,
                        mask_hint="Covers the area outside the district.", bounds=escape(json.dumps(bounds)), **dates)
