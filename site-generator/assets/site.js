@@ -635,16 +635,22 @@
             paint,
           });
         };
-        const contextLineColor = isDetailMap ? "#7c8ba1" : boundaryColor;
-        const contextLineOpacity = isDetailMap ? 0.62 : 1;
+        const contextLineColor = isDetailMap ? "#64748b" : boundaryColor;
+        const contextLineOpacity = isDetailMap ? 0.78 : 1;
+        const contextMajorLineWidth = isDetailMap ? 2.25 : 2;
+        const contextMinorLineWidth = isDetailMap ? 1.4 : 1;
         addBoundaryLayer("national-boundary", 2,
-          { "line-color": contextLineColor, "line-opacity": contextLineOpacity, "line-width": 2 });
+          { "line-color": contextLineColor, "line-opacity": contextLineOpacity,
+            "line-width": contextMajorLineWidth });
         addBoundaryLayer("cantonal-boundary", 4,
-          { "line-color": contextLineColor, "line-opacity": contextLineOpacity, "line-width": 2 });
+          { "line-color": contextLineColor, "line-opacity": contextLineOpacity,
+            "line-width": contextMajorLineWidth });
         addBoundaryLayer("district-boundary", 6,
-          { "line-color": contextLineColor, "line-opacity": contextLineOpacity, "line-width": 1 });
+          { "line-color": contextLineColor, "line-opacity": contextLineOpacity,
+            "line-width": contextMinorLineWidth });
         addBoundaryLayer("municipal-boundary", 8,
-          { "line-color": contextLineColor, "line-opacity": contextLineOpacity, "line-width": 1,
+          { "line-color": contextLineColor, "line-opacity": contextLineOpacity,
+            "line-width": contextMinorLineWidth,
             "line-dasharray": ["step", ["zoom"], ["literal", [1, 0]],
               9, ["literal", [4, 4]]] });        
         const selectBoundaryLevel = selected => {
