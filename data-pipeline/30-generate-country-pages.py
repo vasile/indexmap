@@ -11,7 +11,7 @@ import unicodedata
 
 from config.loader import (SITE_DIR, DIST_DIR, population_metadata, OUTPUT_DIR as PROCESSED_DIR,
                            REFERENCE_DATE, SCRIPT_DIR, SWISSBOUNDARIES_DOWNLOAD_URL, CANTONS)
-from site_helpers import build_assets, asset_version, canonical_url, escape, format_number, positions
+from site_helpers import build_assets, asset_version, canonical_url, directory_redirect, escape, format_number, positions
 
 PROJECT_DIR = SCRIPT_DIR.parent
 COUNTRIES = {"ch": "Switzerland", "li": "Liechtenstein"}
@@ -126,7 +126,8 @@ def build(input_dir: Path, output_dir: Path) -> None:
         if collection.get("type") != "FeatureCollection" or len(features) != len(expected) or {f["properties"]["icc"] for f in features} != expected:
             raise ValueError(f"Unexpected country features in {code}.geojson")
         data[code] = features
-        files[Path("countries" if code == "ch-li" else "country") / f"{code}.geojson"] = raw
+        public_code = "ch-li" if code == "ch-li-dissolved" else code
+        files[Path("countries" if code == "ch-li" else "country") / f"{public_code}.geojson"] = raw
 
     for filename in ("ch.png", "li.png", "countries.zip"):
         files[Path("countries" if filename == "countries.zip" else "country") / filename] = (input_dir / filename).read_bytes()
@@ -178,16 +179,16 @@ def build(input_dir: Path, output_dir: Path) -> None:
             description=f"View and download the boundary of {name} as GeoJSON. Country code {upper_code}.")
         stats = f'<p class="canton-stats">{population} inhabitants · {format_number(props["landesflaeche"] / 100)} km²</p>'
         rows[code] = dict(name=escape(name), code=code, upper_code=upper_code, stats=stats)
-    dissolved_context = dict(name="Switzerland + Liechtenstein", code="ch-li-dissolved",
-                             upper_code="CH + LI", entity_label="Dissolved boundary",
-                             boundary_label="Dissolved boundary", facts="", subdivision_link="", related_sections="", external_references="",
+    dissolved_context = dict(name="Switzerland + Liechtenstein", code="ch-li",
+                             upper_code="CH + LI", entity_label="Combined boundary",
+                             boundary_label="Combined boundary", facts="", subdivision_link="", related_sections="", external_references="",
                              pmtiles_layer="countries", boundary_level=2, active_feature_ids="CH,LI",
                              coat_image="", coat_download="", directory_url="../countries/",
                              mask_hint="Covers the area outside Switzerland and Liechtenstein.",
                              bounds=bounds(data["ch-li-dissolved"]), **dates)
-    files[Path("country/ch-li-dissolved.html")] = render(
+    files[Path("country/ch-li.html")] = render(
         "Switzerland & Liechtenstein Combined Boundary & GeoJSON",
-        templates["country"].substitute(dissolved_context), "country/ch-li-dissolved.html",
+        templates["country"].substitute(dissolved_context), "country/ch-li.html",
         description="View and download the combined boundary of Switzerland and Liechtenstein as GeoJSON.")
 
     def directory(country_path, collection_path):
