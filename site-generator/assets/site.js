@@ -107,6 +107,13 @@
   const maskCheckbox = document.querySelector("#boundary-mask");
   const maskCheckboxes = [...document.querySelectorAll("#boundary-mask, #map-boundary-mask")];
   const maskStatus = document.querySelector("#mask-status");
+  const maskRequested = new URLSearchParams(location.search).get("mask") === "1";
+  const updateMaskParameter = enabled => {
+    const url = new URL(location.href);
+    if (enabled) url.searchParams.set("mask", "1");
+    else url.searchParams.delete("mask");
+    history.replaceState(history.state, "", `${url.pathname}${url.search}${url.hash}`);
+  };
   const boundaryPromises = new Map();
   let activeGeometry;
   const loadBoundary = (url = container.dataset.geojson) => {
@@ -219,6 +226,7 @@
     maskCheckboxes.forEach(checkbox => checkbox.addEventListener("change", async () => {
       const checked = checkbox.checked;
       maskCheckboxes.forEach(input => { input.checked = checked; });
+      updateMaskParameter(checked);
       const id = ++requestId;
       if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = undefined; }
       download.href = originalHref;
@@ -245,12 +253,17 @@
       } catch {
         if (id !== requestId) return;
         maskCheckboxes.forEach(input => { input.checked = false; });
+        updateMaskParameter(false);
         maskStatus.hidden = false;
         maskStatus.textContent = "The mask could not be generated. Try again; the boundary download is still available.";
       } finally {
         if (id === requestId) { pending = false; download.setAttribute("aria-disabled", "false"); }
       }
     }));
+    if (maskRequested) {
+      maskCheckbox.checked = true;
+      maskCheckbox.dispatchEvent(new Event("change"));
+    }
     window.addEventListener("pagehide", event => {
       if (!event.persisted && objectUrl) URL.revokeObjectURL(objectUrl);
     });
@@ -734,7 +747,9 @@
         container.addEventListener("boundarychange", event => {
           showBoundarySelection(event.detail);
         });
-        if (isDetailMap && container.dataset.geojson) showBoundarySelection(await loadBoundary());
+        if (isDetailMap && container.dataset.geojson) {
+          showBoundarySelection(activeGeometry || await loadBoundary());
+        }
       } else if (container.dataset.geojson && !container.dataset.pmtilesLayer) {
         try {
           const data = await loadBoundary();
