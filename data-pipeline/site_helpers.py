@@ -39,6 +39,24 @@ def canonical_url(path) -> str:
     return site_url(relative)
 
 
+def directory_redirect(target: str, label: str, canonical_path: str) -> bytes:
+    """Build a static-host-friendly redirect with a usable fallback link."""
+    safe_target = escape(target)
+    safe_label = escape(label)
+    canonical = escape(canonical_url(canonical_path))
+    return (
+        '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width,initial-scale=1">'
+        '<meta name="robots" content="noindex">'
+        f'<link rel="canonical" href="{canonical}">'
+        f'<meta http-equiv="refresh" content="0; url={safe_target}">'
+        f'<title>Redirecting to {safe_label} | IndexMap</title></head><body>'
+        f'<p>Continue to <a href="{safe_target}">{safe_label}</a>.</p>'
+        f'<script>location.replace({json.dumps(target)});</script>'
+        '</body></html>\n'
+    ).encode("utf-8")
+
+
 def build_assets(asset_dir: Path) -> dict[Path, bytes]:
     settings = {
         **dotenv_values(SCRIPT_DIR.parent / ".env"),

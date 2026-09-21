@@ -201,6 +201,8 @@ def build(input_dir: Path, output_dir: Path) -> None:
     files[Path("countries/index.html")] = render(
         "Swiss administrative boundaries as GeoJSON", directory("../country/", "./"),
         "countries/index.html", description=homepage_description)
+    files[Path("country/index.html")] = directory_redirect(
+        "../countries/", "all countries", "countries/index.html")
     home_context = dict(
         bounds=bounds(data["ch-li"]), population_date=dates["population_date"],
         boundary_date=dates["boundary_date"],

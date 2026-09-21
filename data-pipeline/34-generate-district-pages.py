@@ -10,7 +10,7 @@ from string import Template
 import unicodedata
 
 from config.loader import SITE_DIR, DIST_DIR, population_metadata, CANTONS, CANTON_CODES, OUTPUT_DIR, REFERENCE_DATE, SCRIPT_DIR
-from site_helpers import build_assets, asset_version, canonical_url, escape, external_references, format_number, positions
+from site_helpers import build_assets, asset_version, canonical_url, directory_redirect, escape, external_references, format_number, positions
 
 
 COAT_DIR = SCRIPT_DIR.parent / "data/source/coat-of-arms/municipalities-web"
@@ -131,6 +131,8 @@ def build(input_dir, output_dir):
                     f'<p class="canton-stats">{population} inhabitants · {area} km²</p></div>'
                     f'<a class="canton-next" href="../district/{number}.html" aria-label="View {escape(name)}">›</a></li>')
     files[Path("districts/index.html")] = render("Districts", templates["districts"].substitute(rows="\n".join(rows), count=len(rows), **dates), "districts/index.html")
+    files[Path("district/index.html")] = directory_redirect(
+        "../districts/", "all districts", "districts/index.html")
     for name in ("districts.geojson", "districts.zip"):
         files[Path("districts") / name] = (input_dir / name).read_bytes()
     files.update(assets)

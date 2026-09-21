@@ -9,7 +9,7 @@ from pathlib import Path
 from string import Template
 import unicodedata
 
-from site_helpers import build_assets, asset_version, canonical_url, escape, external_references, format_number, positions
+from site_helpers import build_assets, asset_version, canonical_url, directory_redirect, escape, external_references, format_number, positions
 
 from config.loader import CANTONS, SITE_DIR, DIST_DIR, population_metadata, CANTON_CODES, OUTPUT_DIR as PROCESSED_DIR, REFERENCE_DATE, SCRIPT_DIR
 
@@ -195,6 +195,8 @@ def build(input_dir: Path, output_dir: Path) -> None:
     pages["index.html"] = render("Cantons of Switzerland", "Explore Switzerland’s 26 cantons and download their administrative boundaries.",
                                  templates["cantons"].substitute(rows="\n".join(rows), count=len(cantons), **dates), "cantons/index.html")
     files = {Path("cantons" if filename == "index.html" else "canton") / filename: page.encode("utf-8") for filename, page in pages.items()}
+    files[Path("canton/index.html")] = directory_redirect(
+        "../cantons/", "all cantons", "cantons/index.html")
     files.update(assets)
     for canton in cantons:
         code = canton["context"]["code"]
