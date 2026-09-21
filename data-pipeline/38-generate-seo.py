@@ -18,12 +18,15 @@ class PageCanonical(HTMLParser):
     def __init__(self, text):
         super().__init__()
         self.urls = []
+        self.noindex = False
         self.feed(text)
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         if tag == "link" and "canonical" in attrs.get("rel", "").lower().split():
             self.urls.append(attrs.get("href"))
+        if tag == "meta" and attrs.get("name", "").lower() == "robots":
+            self.noindex = "noindex" in attrs.get("content", "").lower()
 
 
 def build(output_dir: Path) -> int:
@@ -39,9 +42,11 @@ def build(output_dir: Path) -> int:
              if path.relative_to(output_dir).parts[0] not in EXCLUDED_ROOTS]
     urls = set()
     for path in pages:
+        metadata = PageCanonical((output_dir / path).read_text(encoding="utf-8"))
+        if metadata.noindex:
+            continue
         expected = canonical_url(path)
-        actual = PageCanonical((output_dir / path).read_text(encoding="utf-8")).urls
-        if actual != [expected]:
+        if metadata.urls != [expected]:
             raise ValueError(f"Invalid canonical URL in {path}; regenerate the page before building SEO files")
         urls.add(expected)
     if len(urls) > 50_000:

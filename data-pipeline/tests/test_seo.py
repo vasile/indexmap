@@ -44,6 +44,10 @@ class SeoTests(unittest.TestCase):
         extra.write_bytes(page("about/team/index.html"))
         (self.output / "country/ch.geojson").write_bytes(b"boundary download")
         (self.output / "countries/countries.zip").write_bytes(b"zip download")
+        redirect = self.output / "canton/index.html"
+        redirect.write_text(
+            '<html><head><meta name="robots" content="noindex">'
+            '<link rel="canonical" href="https://indexmap.ch/cantons/"></head></html>')
 
         self.assertEqual(seo.build(self.output), 7)
         sitemap = self.output / "sitemap.xml"
